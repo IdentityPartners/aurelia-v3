@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Agent Builder</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Agent Builder</span></div>
+<div style="padding:20px;max-width:1000px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Agent Builder</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">10 canonical agents + custom agent creation. Agents operate as workflows: Trigger → Context → Plan → Execute → Verify → Persist → Audit.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:20px" id="agents-grid"></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px">Create Custom Agent</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="input-group"><label class="input-label">Agent Name</label><input class="input" id="agent-name" placeholder="My Custom Agent"></div>
+      <div class="input-group"><label class="input-label">Model</label><select class="input" id="agent-model" style="font-size:12px"><option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option><option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras)</option><option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option></select></div>
+      <div class="input-group" style="grid-column:1/-1"><label class="input-label">System Prompt</label><textarea class="input" id="agent-prompt" rows="4" placeholder="You are a specialist agent for…"></textarea></div>
+      <div class="input-group"><label class="input-label">Trigger</label><select class="input" id="agent-trigger" style="font-size:12px"><option>manual</option><option>scheduled</option><option>on-message</option></select></div>
+      <div class="input-group"><label class="input-label">Output</label><select class="input" id="agent-output" style="font-size:12px"><option>chat</option><option>drafting</option><option>crm</option><option>social</option></select></div>
+    </div>
+    <button class="btn btn-primary mt-3" onclick="createAgent()">Create Agent</button>
+  </div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var CANONICAL_AGENTS=[
+  {id:"research",name:"Research Agent",icon:"◎",desc:"Academic search, citations, contradictions, synthesis.",model:"groq/openai/gpt-oss-20b",tone:"scholarly"},
+  {id:"atomisation",name:"Atomisation Agent",icon:"⚡",desc:"Outlining, structuring, rewriting, summarising.",model:"groq/openai/gpt-oss-20b",tone:"analytical"},
+  {id:"creator",name:"Creator Agent",icon:"◈",desc:"Brand voice, asset generation, creative synthesis.",model:"groq/openai/gpt-oss-20b",tone:"expressive"},
+  {id:"crm",name:"CRM Agent",icon:"◉",desc:"Session notes, follow-ups, relational insights.",model:"groq/openai/gpt-oss-20b",tone:"warm"},
+  {id:"monetisation",name:"Monetisation Agent",icon:"£",desc:"Offers, programmes, funnels, pricing.",model:"groq/openai/gpt-oss-20b",tone:"strategic"},
+  {id:"platform",name:"Platform Agent",icon:"⊞",desc:"Profile optimisation, positioning, syncing.",model:"groq/openai/gpt-oss-20b",tone:"professional"},
+  {id:"inbox",name:"Inbox Agent",icon:"✉️",desc:"Email, Telegram, WhatsApp, Signal.",model:"groq/openai/gpt-oss-20b",tone:"efficient"},
+  {id:"life-admin",name:"Life Admin Agent",icon:"📋",desc:"Tasks, organisation, scheduling.",model:"groq/openai/gpt-oss-20b",tone:"practical"},
+  {id:"website",name:"Website Agent",icon:"🌐",desc:"Site structure, content, SEO.",model:"groq/openai/gpt-oss-20b",tone:"professional"},
+  {id:"agent-builder",name:"Agent Builder",icon:"🤖",desc:"Creates new agents.",model:"groq/openai/gpt-oss-20b",tone:"technical"},
+];
+var customAgents=JSON.parse(localStorage.getItem("aurelia_custom_agents")||"[]");
+function renderAgents(){
+  var grid=document.getElementById("agents-grid");
+  var all=[...CANONICAL_AGENTS,...customAgents];
+  grid.innerHTML=all.map(function(a){return "<div style='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px'><div style='font-size:22px;margin-bottom:8px'>"+a.icon+"</div><div style='font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px'>"+a.name+"</div><div style='font-size:12px;color:var(--text-muted);margin-bottom:10px'>"+a.desc+"</div><div style='display:flex;gap:5px'><button class='btn btn-primary btn-sm' onclick='runAgent(""+a.id+"")'>▶ Run</button><button class='btn btn-ghost btn-sm' onclick='chatWithAgent(""+a.id+"")'>Chat</button></div></div>";}).join("");}
+async function runAgent(id){
+  var agent=CANONICAL_AGENTS.find(function(a){return a.id===id;})||customAgents.find(function(a){return a.id===id;});
+  if(!agent)return;
+  Toast.show("Running "+agent.name+"…","info");
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_agents";
+  try{
+    var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Run your standard workflow for Identity Partners. Report what you would do."}],model:agent.model,system:"You are the "+agent.name+" for Identity Partners. Tone: "+agent.tone+". "+agent.desc})});
+    var data=await res.json();
+    Toast.show(agent.name+" complete","success");
+    sessionStorage.setItem("aurelia_new_chat_query","["+agent.name+" output]: "+data.content);
+    window.location.href="/chat/index.html";
+  }catch(e){Toast.show("Error: "+e.message,"error");}
+}
+function chatWithAgent(id){var agent=CANONICAL_AGENTS.find(function(a){return a.id===id;})||customAgents.find(function(a){return a.id===id;});if(agent){sessionStorage.setItem("aurelia_new_chat_query","I want to work with the "+agent.name+". Please introduce yourself and ask what I need.");window.location.href="/chat/index.html";}}
+function createAgent(){var name=document.getElementById("agent-name").value.trim();if(!name){Toast.show("Name required","error");return;}var agent={id:"custom_"+Date.now(),name,icon:"🤖",desc:document.getElementById("agent-prompt").value.slice(0,80)+"…",model:document.getElementById("agent-model").value,prompt:document.getElementById("agent-prompt").value,trigger:document.getElementById("agent-trigger").value,output:document.getElementById("agent-output").value,ts:Date.now()};customAgents.push(agent);localStorage.setItem("aurelia_custom_agents",JSON.stringify(customAgents));renderAgents();Toast.show("Agent created: "+name,"success");}
+document.addEventListener("DOMContentLoaded",renderAgents);
+</script>
+</body>
+</html>
