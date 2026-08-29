@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-store, no-cache, must-revalidate" http-equiv="Cache-Control"/>
+<title>Aurelia — Chat</title>
+<link href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='4' fill='%230f3b3a'/&gt;&lt;text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23faf8f5'&gt;A&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
+<link href="/shared/aurelia.css" rel="stylesheet"/>
+<style>
+    .chat-shell { display:flex; height:100vh; overflow:hidden; }
+    .thread-pane { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; transition:width 0.25s ease; overflow:hidden; }
+    .thread-pane.collapsed { width:0; border-right:none; }
+    .thread-pane-header { padding:10px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .thread-pane-title { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); white-space:nowrap; }
+    .thread-list { flex:1; overflow-y:auto; padding:6px; }
+    .thread-item { padding:9px 10px; border-radius:var(--radius); cursor:pointer; transition:all var(--transition); margin-bottom:2px; border:1px solid transparent; }
+    .thread-item:hover { background:var(--bg-2); }
+    .thread-item.active { background:var(--bg-2); border-color:var(--border); }
+    .thread-item-title { font-size:12px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .thread-item-meta { font-size:10px; color:var(--text-faint); margin-top:2px; display:flex; gap:6px; }
+    .chat-main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); min-width:0; }
+    .chat-topbar { height:var(--topbar-h); background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 14px; gap:8px; flex-shrink:0; }
+    .chat-messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; }
+    .chat-input-area { padding:12px 16px; border-top:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+    .chat-input-wrap { background:var(--bg-2); border:1px solid var(--border-strong); border-radius:var(--radius-xl); padding:12px 16px; transition:border-color var(--transition); }
+    .chat-input-wrap:focus-within { border-color:var(--ip-deep-teal,#0f3b3a); box-shadow:0 0 0 3px rgba(15,59,58,0.08); }
+    .chat-input-wrap textarea { width:100%; background:none; border:none; outline:none; color:var(--text-primary); font-size:15px; resize:none; min-height:72px; max-height:240px; line-height:1.7; font-family:var(--font-sans); }
+    .chat-input-wrap textarea::placeholder { color:var(--text-faint); }
+    .context-pane { width:260px; flex-shrink:0; background:var(--surface); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; padding:14px; transition:width 0.25s ease; }
+    .context-pane.collapsed { width:0; border-left:none; padding:0; overflow:hidden; }
+    .context-section { margin-bottom:18px; }
+    .context-section-title { font-size:9.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px; }
+    .agent-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:var(--radius-pill); background:var(--bg-2); border:1px solid var(--border); font-size:11px; color:var(--text-muted); cursor:pointer; transition:all var(--transition); margin:2px; }
+    .agent-chip:hover { border-color:var(--ink-5); color:var(--ink); }
+    .agent-chip.active { background:var(--bg-3); border-color:var(--ink-5); color:var(--ink); }
+    .msg-action-btn { background:none; border:1px solid var(--border); color:var(--text-faint); border-radius:var(--radius-sm); padding:2px 7px; font-size:10.5px; cursor:pointer; transition:all var(--transition); }
+    .msg-action-btn:hover { border-color:var(--ink-5); color:var(--ink); }
+    @media(max-width:1100px) { .context-pane { display:none; } }
+    @media(max-width:700px) { .thread-pane { width:0; } }</style>
+</head>
+<body>
+<script>
+// ── Markdown renderer ─────────────────────────────────────────────────────
+function renderMd(text) {
+  if (!text) return '';
+  var s = text;
+  // Escape HTML first
+  s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Code blocks
+  s = s.replace(/```([\s\S]*?)```/g, '<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:monospace;font-size:12px;overflow-x:auto;margin:6px 0">$1</pre>');
+  // Inline code
+  s = s.replace(/`([^`]+)`/g, '<code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">$1</code>');
+  // Bold
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  // Tables
+  s = s.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g, function(m, header, rows) {
+    var ths = header.split('|').filter(function(c){return c.trim();}).map(function(c){return '<th style="padding:6px 10px;border:1px solid var(--border);background:var(--bg2);font-weight:600">'+c.trim()+'</th>';}).join('');
+    var trs = rows.trim().split('\n').map(function(row){
+      var tds = row.split('|').filter(function(c){return c.trim();}).map(function(c){return '<td style="padding:6px 10px;border:1px solid var(--border)">'+c.trim()+'</td>';}).join('');
+      return '<tr>'+tds+'</tr>';
+    }).join('');
+    return '<table style="border-collapse:collapse;width:100%;margin:8px 0;font-size:13px"><thead><tr>'+ths+'</tr></thead><tbody>'+trs+'</tbody></table>';
+  });
+  // Headings
+  s = s.replace(/^### (.+)$/gm, '<h3 style="font-size:14px;font-weight:600;margin:10px 0 4px;color:var(--ink)">$1</h3>');
+  s = s.replace(/^## (.+)$/gm, '<h2 style="font-size:16px;font-weight:600;margin:12px 0 5px;color:var(--ink)">$1</h2>');
+  s = s.replace(/^# (.+)$/gm, '<h1 style="font-size:18px;font-weight:600;margin:14px 0 6px;color:var(--ink)">$1</h1>');
+  // Unordered lists
+  s = s.replace(/^([ \t]*)[*\-] (.+)$/gm, function(m, indent, item) {
+    var depth = indent.length > 0 ? 1 : 0;
+    return '<li style="margin:2px 0;padding-left:'+(depth*12)+'px">'+item+'</li>';
+  });
+  s = s.replace(/(<li[^>]*>.*<\/li>\n?)+/g, function(m) { return '<ul style="padding-left:18px;margin:6px 0">'+m+'</ul>'; });
+  // Ordered lists
+  s = s.replace(/^\d+\. (.+)$/gm, '<li style="margin:2px 0">$1</li>');
+  // Horizontal rule
+  s = s.replace(/^---$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:10px 0">');
+  // Paragraphs / line breaks
+  s = s.replace(/\n\n/g, '</p><p style="margin:6px 0">');
+  s = s.replace(/\n/g, '<br>');
+  s = '<p style="margin:0">'+s+'</p>';
+  return s;
+}
+
+// ── Get current model ─────────────────────────────────────────────────────
+function getCurrentModel() {
+  // Try ModelRouter first (loaded by shared JS)
+  if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
+  // Try localStorage
+  var saved = localStorage.getItem('aurelia_model');
+  if (saved) return saved;
+  // Default
+  return 'groq/openai/gpt-oss-20b';
+}
+
+// ── Round Robin state ─────────────────────────────────────────────────────
+var rrModels = ['groq/openai/gpt-oss-20b','sambanova/Gemma-4-31B-IT','gemini/gemini-2.5-flash'];
+var rrActive = false;
+
+// ── Attached file ─────────────────────────────────────────────────────────
+var attachedFileContent = null;
+var attachedFileName = null;
+
+function handleFileAttach(input) {
+  var file = input.files[0];
+  if (!file) return;
+  attachedFileName = file.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    if (file.type.startsWith('image/')) {
+      attachedFileContent = '[Image attached: ' + file.name + ']';
+    } else {
+      attachedFileContent = '[File: ' + file.name + ']\n' + (e.target.result || '').slice(0, 8000);
+    }
+    var preview = document.getElementById('file-attach-preview');
+    if (preview) { preview.textContent = '📎 ' + file.name; preview.style.display = 'inline-flex'; }
+  };
+  if (file.type.startsWith('image/')) reader.readAsDataURL(file);
+  else reader.readAsText(file);
+}
+
+function clearAttach() {
+  attachedFileContent = null; attachedFileName = null;
+  var preview = document.getElementById('file-attach-preview');
+  if (preview) preview.style.display = 'none';
+  var input = document.getElementById('file-input');
+  if (input) input.value = '';
+}
+
+// ── Image generation ──────────────────────────────────────────────────────
+function generateImage() {
+  var ta = document.getElementById('chat-textarea');
+  var prompt = ta ? ta.value.trim() : '';
+  if (!prompt) { prompt = window.prompt('Describe the image to generate:'); }
+  if (!prompt) return;
+  var mc = document.getElementById('chat-messages');
+  var em = document.getElementById('chat-empty');
+  if (em) em.style.display = 'none';
+  if (mc) {
+    var el = document.createElement('div');
+    el.className = 'message fade-in';
+    var av = document.createElement('div'); av.className = 'message-avatar'; av.textContent = 'A';
+    var inner = document.createElement('div');
+    var bub = document.createElement('div'); bub.className = 'message-bubble';
+    bub.textContent = 'Generating image: ' + prompt + '…';
+    inner.appendChild(bub); el.appendChild(av); el.appendChild(inner); mc.appendChild(el);
+    mc.scrollTop = mc.scrollHeight;
+    // Use Pollinations free image generation
+    var imgUrl = 'https://gen.pollinations.ai/image/' + encodeURIComponent(prompt) + '?model=flux&width=1024&height=1024&nologo=true&seed=' + Date.now();
+    var img = document.createElement('img');
+    img.src = imgUrl;
+    img.style.cssText = 'max-width:100%;border-radius:8px;margin-top:8px;display:block';
+    img.onload = function() { bub.textContent = 'Generated: ' + prompt; bub.appendChild(img); mc.scrollTop = mc.scrollHeight; };
+    img.onerror = function() { bub.textContent = 'Image generation failed. Try again.'; };
+  }
+}
+
+// ── Main send function ────────────────────────────────────────────────────
+function doSend() {
+  var ta = document.getElementById('chat-textarea');
+  if (!ta) return;
+  var t = ta.value.trim();
+  if (attachedFileContent) t = attachedFileContent + '\n\n' + t;
+  if (!t) return;
+  ta.value = '';
+  ta.style.height = 'auto';
+  clearAttach();
+
+  var tok = localStorage.getItem('aurelia_device_token');
+  if (!tok) { tok = 'dt_' + Date.now(); localStorage.setItem('aurelia_device_token', tok); }
+  var mc = document.getElementById('chat-messages');
+  var em = document.getElementById('chat-empty');
+  if (em) em.style.display = 'none';
+
+  // User message
+  if (mc) {
+    var u = document.createElement('div');
+    u.className = 'message user fade-in';
+    var uAv = document.createElement('div'); uAv.className = 'message-avatar'; uAv.textContent = 'SJ';
+    var uInner = document.createElement('div');
+    var uBub = document.createElement('div'); uBub.className = 'message-bubble'; uBub.textContent = t;
+    uInner.appendChild(uBub); u.appendChild(uAv); u.appendChild(uInner);
+    mc.appendChild(u); mc.scrollTop = mc.scrollHeight;
+  }
+
+  // Typing indicator
+  var tid = 'ty' + Date.now();
+  if (mc) {
+    var ty = document.createElement('div'); ty.className = 'message fade-in'; ty.id = tid;
+    var tyAv = document.createElement('div'); tyAv.className = 'message-avatar'; tyAv.textContent = 'A';
+    var tyBub = document.createElement('div'); tyBub.className = 'message-bubble';
+    var tyInd = document.createElement('div'); tyInd.className = 'typing-indicator';
+    for (var i = 0; i < 3; i++) { var d = document.createElement('div'); d.className = 'typing-dot'; tyInd.appendChild(d); }
+    tyBub.appendChild(tyInd); ty.appendChild(tyAv); ty.appendChild(tyBub);
+    mc.appendChild(ty); mc.scrollTop = mc.scrollHeight;
+  }
+
+  var model = getCurrentModel();
+  var sys = 'You are Aurelia, AI assistant for Identity Partners — a professional listening, coaching, and identity development practice in the UK. Be warm, professional, and concise. Use markdown formatting: **bold**, bullet points, tables, and headings where appropriate. Date: ' + new Date().toISOString().split('T')[0] + '.';
+
+  // Round Robin mode
+  if (rrActive) {
+    var calls = rrModels.map(function(m) {
+      return fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+        body: JSON.stringify({messages: [{role: 'user', content: t}], model: m, system: sys})
+      }).then(function(r) { return r.json(); }).then(function(d) { return {model: m, content: d.content || ''}; }).catch(function(e) { return {model: m, content: 'Error: ' + e.message}; });
+    });
+    Promise.all(calls).then(function(results) {
+      var el = document.getElementById(tid); if (el) el.remove();
+      results.forEach(function(r) {
+        if (mc) {
+          var a = document.createElement('div'); a.className = 'message fade-in';
+          var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
+          var aInner = document.createElement('div');
+          var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.innerHTML = renderMd(r.content);
+          var aMeta = document.createElement('div'); aMeta.className = 'message-meta'; aMeta.textContent = r.model.split('/').pop();
+          aInner.appendChild(aBub); aInner.appendChild(aMeta); a.appendChild(aAv); a.appendChild(aInner);
+          mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
+        }
+      });
+    });
+    return;
+  }
+
+  // Single model
+  fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+    body: JSON.stringify({messages: [{role: 'user', content: t}], model: model, system: sys})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var el = document.getElementById(tid); if (el) el.remove();
+    if (mc) {
+      var a = document.createElement('div'); a.className = 'message fade-in';
+      var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
+      var aInner = document.createElement('div');
+      var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.innerHTML = renderMd(d.content || 'Response received.');
+      var aMeta = document.createElement('div'); aMeta.className = 'message-meta'; aMeta.textContent = (d.model || model).split('/').pop();
+      aInner.appendChild(aBub); aInner.appendChild(aMeta); a.appendChild(aAv); a.appendChild(aInner);
+      mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
+    }
+  }).catch(function(e) {
+    var el = document.getElementById(tid); if (el) el.remove();
+    if (mc) {
+      var a = document.createElement('div'); a.className = 'message fade-in';
+      var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
+      var aInner = document.createElement('div');
+      var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.textContent = 'Error: ' + e.message;
+      aInner.appendChild(aBub); a.appendChild(aAv); a.appendChild(aInner);
+      mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
+    }
+  });
+}
+
+function toggleRR() {
+  rrActive = !rrActive;
+  var btn = document.getElementById('rr-toggle-btn');
+  if (btn) {
+    btn.style.background = rrActive ? 'var(--accent3)' : '';
+    btn.style.borderColor = rrActive ? 'var(--accent)' : '';
+    btn.style.color = rrActive ? 'var(--accent)' : '';
+    btn.textContent = rrActive ? '⟳ Round Robin ON' : '⟳ Round Robin';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey && document.activeElement && document.activeElement.id === 'chat-textarea') {
+    e.preventDefault(); doSend();
+  }
+});
+</script>
+<div class="app-shell">
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-logo" onclick="window.location.href='/index.html'" style="cursor:pointer" title="Home"><div class="logo-mark" style="background:var(--ip-deep-teal,#0f3b3a);overflow:hidden;padding:0"><img alt="IP" onerror="this.style.display='none';this.parentElement.textContent='IP'" src="/brand/logo-square.png?expires=1790541897&amp;signature=7eb1b441615cd32f87e8c83aeda8f83be0324c6c4e69229865de324895fcd53d&amp;kid=prod-250922" style="width:100%;height:100%;object-fit:cover"/></div><span class="logo-text">Aurelia</span></div>
+<div class="sidebar-nav">
+<a class="nav-item" data-page="home" href="/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="nav-label">Home</span></a>
+<a class="nav-item" data-page="chat" href="/chat/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span class="nav-label">Chat</span></a>
+<a class="nav-item" data-page="research" href="/research/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg><span class="nav-label">Research</span></a>
+<a class="nav-item" data-page="drafting" href="/drafting/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg><span class="nav-label">Drafting Desk</span></a>
+<div class="nav-section-label">Create</div>
+<a class="nav-item" data-page="creator" href="/creator/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span class="nav-label">Creator Studio</span></a>
+<a class="nav-item nav-sub" data-page="canvas" href="/creator/canvas.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="18" rx="2" width="18" x="3" y="3"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><span class="nav-label">Canvas</span></a>
+<a class="nav-item" data-page="social" href="/social/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path></svg><span class="nav-label">Social Queue</span></a>
+<div class="nav-section-label">Business</div>
+<a class="nav-item" data-page="crm" href="/crm/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg><span class="nav-label">CRM</span></a>
+<a class="nav-item" data-page="monetisation" href="/monetisation/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg><span class="nav-label">Monetisation</span></a>
+<a class="nav-item nav-sub" data-page="platforms" href="/monetisation/platforms.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="14" rx="2" width="20" x="2" y="3"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg><span class="nav-label">Platforms</span></a>
+<a class="nav-item" data-page="comms" href="/comms/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="nav-label">Comms Centre</span></a>
+<div class="nav-section-label">Intelligence</div>
+<a class="nav-item" data-page="workflow" href="/workflow/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg><span class="nav-label">Workflow Wizard</span></a>
+<a class="nav-item" data-page="agenti-city" href="/agenti-city/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg><span class="nav-label">Agenti City</span></a>
+<a class="nav-item" data-page="orchestrator" href="/orchestrator/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"></path></svg><span class="nav-label">Orchestrator</span></a>
+<a class="nav-item" data-page="agents" href="/agents/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path></svg><span class="nav-label">Agent Builder</span></a>
+<a class="nav-item" data-page="platform-agent" href="/platform-agent/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path></svg><span class="nav-label">Platform Agent</span></a>
+<div class="nav-section-label">System</div>
+<a class="nav-item" data-page="workspaces" href="/workspaces/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect><rect height="7" width="7" x="3" y="14"></rect><rect height="7" width="7" x="14" y="14"></rect></svg><span class="nav-label">Workspaces</span></a>
+<a class="nav-item" data-page="input" href="/input/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"></path><path d="M19 10v2a7 7 0 01-14 0v-2"></path></svg><span class="nav-label">Input Engine</span></a>
+<a class="nav-item" data-page="annotate" href="/annotate/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg><span class="nav-label">Annotations</span></a>
+<a class="nav-item" data-page="storage" href="/storage/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M22 12H2"></path><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"></path></svg><span class="nav-label">Storage</span></a>
+<a class="nav-item" data-page="audit" href="/audit/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><span class="nav-label">Audit Log</span></a>
+<a class="nav-item" data-page="settings" href="/settings/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg><span class="nav-label">Settings</span></a>
+</div>
+<div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg fill="none" height="13" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="13"><polyline points="15 18 9 12 15 6"></polyline></svg><span>Collapse</span></button></div>
+</nav>
+<div class="main-content" id="main-content">
+<div class="chat-shell">
+<!-- Thread List -->
+<div class="thread-pane">
+<div class="thread-pane-header">
+<span class="thread-pane-title">Threads</span>
+<div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="newThread()">+</button><button class="btn btn-ghost btn-sm" onclick="toggleThreadPane()" style="font-size:11px" title="Collapse threads">◁</button></div>
+</div>
+<div class="thread-list" id="thread-list"></div>
+</div>
+<!-- Chat Main -->
+<div class="chat-main">
+<div id="api-key-warning" style="background:#fff8e1;border-bottom:1px solid #ffe082;padding:7px 18px;font-size:12px;color:#f57f17;display:none;align-items:center;gap:10px">
+<span>⚠️ API keys not configured — responses will be limited.</span>
+<a href="/settings/index.html" style="color:var(--accent);font-weight:500">Configure in Settings →</a>
+<button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#f57f17;font-size:14px">✕</button>
+</div>
+<div class="chat-topbar">
+<div style="flex:1">
+<div id="chat-thread-title" style="font-family:var(--font-serif);font-size:15px;font-weight:500;color:var(--ink)">New Conversation</div>
+<div id="chat-thread-meta" style="font-size:10.5px;color:var(--text-faint)">Ready</div>
+</div>
+<div id="model-selector-container"></div>
+<button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px">⊕ Round Robin</button>
+<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px">⌨ QWERTY</button>
+<button class="btn btn-ghost btn-sm" onclick="clearChat()" title="Clear">⌫</button>
+<button class="btn btn-ghost btn-sm" onclick="saveToWorkspace()" title="Save">⊞</button>
+<button class="btn btn-ghost btn-sm" onclick="toggleContextPane()" style="font-size:11px" title="Toggle context panel">▷</button>
+</div>
+<div class="chat-messages" id="chat-messages">
+<div class="empty-state" id="chat-empty">
+<div class="empty-state-icon" style="font-size:28px;opacity:0.2">◎</div>
+<div class="empty-state-title">Begin a conversation</div>
+<div class="empty-state-desc">Aurelia routes to the best model for your task — chat, reasoning, long-context, or creative.</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px">
+<button class="btn btn-ghost btn-sm" onclick="setPrompt('Summarise my week and suggest priorities')">Summarise my week</button>
+<button class="btn btn-ghost btn-sm" onclick="setPrompt('Help me draft a professional email')">Draft an email</button>
+<button class="btn btn-ghost btn-sm" onclick="setPrompt('Research the latest on AI agents')">Research AI agents</button>
+<button class="btn btn-ghost btn-sm" onclick="setPrompt('Create a content plan for LinkedIn')">LinkedIn content plan</button>
+</div>
+</div>
+</div>
+<div class="chat-input-area">
+<div style="display:flex;align-items:flex-end;gap:8px">
+<div class="chat-input-wrap" style="flex:1">
+<textarea data-autoresize="" id="chat-textarea" placeholder="Message Aurelia… (Enter to send, Shift+Enter for new line)" rows="1"></textarea>
+<div class="chat-input-actions">
+<button class="btn btn-ghost btn-sm" id="agent-research-btn" onclick="toggleAgent('research')">◎ Research</button>
+<button class="btn btn-ghost btn-sm" id="agent-atomise-btn" onclick="toggleAgent('atomise')">⚡ Atomise</button>
+<button class="btn btn-ghost btn-sm" id="agent-creator-btn" onclick="toggleAgent('creator')">◈ Creator</button>
+<button class="btn btn-ghost btn-sm" onclick="generateImage()" title="Generate image with AI">🎨 Image</button>
+<button class="btn btn-ghost btn-sm" id="rr-toggle-btn" onclick="toggleRR()" title="Round Robin — query multiple models">⟳ Round Robin</button>
+<label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Attach file, image, or document">📎 <input type="file" id="file-input" accept="image/*,.pdf,.txt,.md,.csv,.docx,.xlsx" style="display:none" onchange="handleFileAttach(this)"></label>
+<span id="file-attach-preview" style="display:none;font-size:11px;color:var(--text-faint);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:2px 8px;align-items:center;gap:4px">
+  <span id="file-attach-name"></span>
+  <span onclick="clearAttach()" style="cursor:pointer;opacity:0.6">✕</span>
+</span>
+<button class="btn btn-ghost btn-sm" onclick="document.getElementById('chat-file-input').click()" title="Attach image or file (vision models)">📎 Image</button>
+<input accept="image/*,.pdf,.txt,.md,.csv" id="chat-file-input" onchange="handleFileAttach(this)" style="display:none" type="file"/>
+<span style="flex:1"></span>
+<span id="char-count" style="font-size:10.5px;color:var(--text-faint)">0</span>
+</div>
+<div id="file-preview" style="display:none;margin-top:5px;padding:5px 8px;background:var(--bg-3);border-radius:var(--radius-sm);font-size:11px;color:var(--text-muted);align-items:center;gap:6px">
+<span id="file-preview-name"></span>
+<button onclick="clearFileAttach()" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:12px;margin-left:auto">✕</button>
+</div>
+</div>
+<button class="btn btn-primary" id="send-btn" onclick="doSend()" style="height:44px;padding:0 16px;flex-shrink:0">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Context Pane -->
+<div class="context-pane">
+<div class="context-section">
+<div class="context-section-title">Active Agents</div>
+<div>
+<span class="agent-chip" id="chip-research" onclick="toggleAgent('research')">◎ Research</span>
+<span class="agent-chip" id="chip-atomise" onclick="toggleAgent('atomise')">⚡ Atomise</span>
+<span class="agent-chip" id="chip-creator" onclick="toggleAgent('creator')">◈ Creator</span>
+<span class="agent-chip" id="chip-publishing" onclick="toggleAgent('publishing')">↑ Publishing</span>
+<span class="agent-chip" id="chip-platform" onclick="toggleAgent('platform')">⊞ Platform</span>
+<span class="agent-chip" id="chip-crm" onclick="toggleAgent('crm')">◉ CRM</span>
+</div>
+</div>
+<div class="context-section">
+<div class="context-section-title">Workspace</div>
+<select class="input" id="workspace-select" style="font-size:12px"><option value="">No workspace</option></select>
+</div>
+<div class="context-section">
+<div class="context-section-title">Tags</div>
+<div id="thread-tags" style="display:flex;flex-wrap:wrap;gap:4px"><span class="tag">#IP</span></div>
+<input class="input mt-2" onkeydown="addTag(event,this)" placeholder="Add tag…" style="font-size:12px"/>
+</div>
+<div class="context-section">
+<div class="context-section-title">Model</div>
+<div id="model-info-panel" style="font-size:12px;color:var(--text-secondary)">Loading…</div>
+</div>
+<div class="context-section">
+<div class="context-section-title">Actions</div>
+<div style="display:flex;flex-direction:column;gap:5px">
+<button class="btn btn-ghost btn-sm w-full" onclick="exportChat()">Export Chat</button>
+<button class="btn btn-ghost btn-sm w-full" onclick="saveToCRM()">Save to CRM</button>
+<button class="btn btn-ghost btn-sm w-full" onclick="sendToDrafting()">Send to Drafting</button>
+<button class="btn btn-ghost btn-sm w-full" onclick="sendToAgentiCity()">→ Agenti City</button>
+</div>
+</div>
+<!-- §6.1.9 Comms Hub -->
+<div class="context-section">
+<div class="context-section-title">Comms Hub (§6.1.9)</div>
+<div style="display:flex;flex-direction:column;gap:5px">
+<textarea class="input" id="comms-hub-msg" placeholder="Send last AI response via…" rows="2" style="font-size:11.5px"></textarea>
+<div style="display:flex;gap:4px;flex-wrap:wrap">
+<button class="btn btn-ghost btn-sm" onclick="sendViaComms('telegram')" title="Telegram">✈️ TG</button>
+<button class="btn btn-ghost btn-sm" onclick="sendViaComms('email')" title="Email">✉️ Email</button>
+<button class="btn btn-ghost btn-sm" onclick="sendViaComms('whatsapp')" title="WhatsApp">💬 WA</button>
+</div>
+</div>
+</div>
+<!-- §6.1.11 Creator Integration -->
+<div class="context-section">
+<div class="context-section-title">→ Creator</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('carousel')">Carousel</button>
+<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('quote-card')">Quote Card</button>
+<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('worksheet')">Worksheet</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="/shared/aurelia.js?v=1787951766"></script>
+<script>
+// Wire send button immediately - no dependencies
+(function() {
+  function doSend() {
+    var ta = document.getElementById('chat-textarea');
+    if (!ta) return;
+    var text = ta.value.trim();
+    if (!text) return;
+    // Delegate to main send function when available
+    if (typeof window.sendMessageWithFile === 'function') { window.sendMessageWithFile(); return; }
+    if (typeof window.sendMessage === 'function') { window.sendMessage(); return; }
+    // Direct fallback
+    var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
+    if (!localStorage.getItem('aurelia_device_token')) localStorage.setItem('aurelia_device_token', tok);
+    ta.value = '';
+    var mc = document.getElementById('chat-messages');
+    var empty = document.getElementById('chat-empty');
+    if (empty) empty.style.display = 'none';
+    if (mc) {
+      var el = document.createElement('div');
+      el.className = 'message user fade-in';
+      el.innerHTML = '<div class="message-avatar">SJ</div><div><div class="message-bubble">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div></div>';
+      mc.appendChild(el);
+      mc.scrollTop = mc.scrollHeight;
+    }
+    var typingEl = document.createElement('div');
+    typingEl.className = 'message fade-in';
+    typingEl.id = 'typing-fallback';
+    typingEl.innerHTML = '<div class="message-avatar">A</div><div class="message-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+    if (mc) { mc.appendChild(typingEl); mc.scrollTop = mc.scrollHeight; }
+    fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+      body: JSON.stringify({messages: [{role: 'user', content: text}], model: 'groq/openai/gpt-oss-20b', system: 'You are Aurelia, AI assistant for Identity Partners. Be warm, professional, and concise.'})
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      var t = document.getElementById('typing-fallback');
+      if (t) t.remove();
+      if (mc) {
+        var el2 = document.createElement('div');
+        el2.className = 'message fade-in';
+        el2.innerHTML = '<div class="message-avatar">A</div><div><div class="message-bubble">' + (data.content || 'Response received.').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
+/g,'<br>') + '</div><div class="message-meta">' + (data.model || 'AI') + '</div></div>';
+        mc.appendChild(el2);
+        mc.scrollTop = mc.scrollHeight;
+      }
+    }).catch(function(err) {
+      var t = document.getElementById('typing-fallback');
+      if (t) t.remove();
+      if (mc) {
+        var el3 = document.createElement('div');
+        el3.className = 'message fade-in';
+        el3.innerHTML = '<div class="message-avatar">A</div><div><div class="message-bubble">Error: ' + err.message + '. Check Settings to configure API keys.</div></div>';
+        mc.appendChild(el3);
+      }
+    });
+  }
+  window._aureliaDoSend = doSend;
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('send-btn');
+    if (btn) btn.onclick = doSend;
+    var ta = document.getElementById('chat-textarea');
+    if (ta) ta.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
+    });
+  });
+})();
+</script>
+<script>
+  let threads=[], currentThread=null, activeAgents=new Set(), isStreaming=false, roundRobinMode=false;
+
+  function toggleRoundRobin() {
+    roundRobinMode = !roundRobinMode;
+    const btn = document.getElementById('round-robin-btn');
+    const panel = document.getElementById('round-robin-panel');
+    if (roundRobinMode) {
+      btn.classList.add('active');
+      btn.style.background = 'var(--bg-3)';
+      btn.style.borderColor = 'var(--ink-5)';
+      btn.style.color = 'var(--ink)';
+      panel.style.display = 'flex';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      panel.style.display = 'none';
+    }
+  }
+
+  function getRoundRobinModels() {
+    return [...document.querySelectorAll('.rr-model:checked')].map(cb => cb.value);
+  }
+
+  // Default model: Gemma 4 31B via Cerebras (PRIMARY — ~1800 tok/s)
+  const DEFAULT_MODEL = 'cerebras/gemma-4-31b';
+
+  function initChat() {
+    threads = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
+    renderThreadList();
+    const preQuery = sessionStorage.getItem('aurelia_new_chat_query');
+    if (preQuery) { sessionStorage.removeItem('aurelia_new_chat_query'); newThread(); document.getElementById('chat-textarea').value = preQuery; setTimeout(() => sendMessage(), 100); }
+    else if (threads.length > 0) loadThread(threads[threads.length-1].id);
+    else newThread();
+    const ws = WorkspaceManager.workspaces;
+    const sel = document.getElementById('workspace-select');
+    ws.forEach(w => { const o=document.createElement('option'); o.value=w.id; o.textContent=w.name; sel.appendChild(o); });
+    updateModelInfo();
+    document.addEventListener('aurelia:model-changed', updateModelInfo);
+  }
+
+  function updateModelInfo() {
+    const m = ModelRouter.getCurrent();
+    const el = document.getElementById('model-info-panel');
+    if (el && m) el.innerHTML = `<div style="font-weight:600;color:var(--ink);margin-bottom:4px">${m.name}</div><div style="font-size:11px;color:var(--text-muted)">${m.provider} · ${m.type}</div><div style="margin-top:4px"><span class="tag tag-${m.speed==='ultra'?'green':m.speed==='fast'?'sage':'gold'}">${m.speed}</span>${m.recommended?'<span class="tag tag-gold" style="margin-left:4px">recommended</span>':''}</div>`;
+  }
+
+  function newThread() {
+    const id = `chat_${Date.now()}`;
+    currentThread = { id, title:'New Conversation', messages:[], model:(ModelRouter?.current || 'groq/openai/gpt-oss-20b'), ts:Date.now(), tags:['#IP'] };
+    threads.push(currentThread);
+    saveThreads(); renderThreadList(); renderMessages();
+    document.getElementById('chat-thread-title').textContent = 'New Conversation';
+    document.getElementById('chat-thread-meta').textContent = 'Ready · ' + ModelRouter.getCurrent().name;
+    document.getElementById('chat-textarea').focus();
+  }
+
+  function loadThread(id) {
+    currentThread = threads.find(t => t.id === id);
+    if (!currentThread) return;
+    renderMessages();
+    document.getElementById('chat-thread-title').textContent = currentThread.title;
+    document.getElementById('chat-thread-meta').textContent = `${currentThread.messages.length} messages · ${ModelRouter?.getCurrent?.()?.name || 'Groq GPT-OSS 20B'}`;
+    document.querySelectorAll('.thread-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+  }
+
+  function renderThreadList() {
+    const list = document.getElementById('thread-list');
+    if (!threads.length) { list.innerHTML = '<div class="empty-state" style="padding:20px 12px"><div class="empty-state-desc">No threads yet</div></div>'; return; }
+    list.innerHTML = [...threads].reverse().map(t => `
+      <div class="thread-item ${currentThread&&currentThread.id===t.id?'active':''}" data-id="${t.id}" onclick="loadThread('${t.id}')">
+        <div class="thread-item-title">${escHtml(t.title)}</div>
+        <div class="thread-item-meta"><span>${t.messages.length} msgs</span><span>${timeAgo(t.ts)}</span></div>
+      </div>`).join('');
+  }
+
+  function renderMessages() {
+    const container = document.getElementById('chat-messages');
+    const empty = document.getElementById('chat-empty');
+    if (!currentThread || !currentThread.messages.length) { if(empty) empty.style.display='flex'; return; }
+    if(empty) empty.style.display='none';
+    container.innerHTML = currentThread.messages.map(m => renderMessage(m)).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function renderMessage(m) {
+    const isUser = m.role === 'user';
+    const isSynthesis = m.model === 'synthesis';
+    const shortModel = m.model ? m.model.split('/').pop() : 'AI';
+    const rrBadgeColor = m.roundRobin && !isSynthesis ? 'background:var(--bg-3);border-color:var(--ink-6)' : '';
+    const synthStyle = isSynthesis ? 'border-left:2px solid var(--accent);background:var(--gold-4)' : '';
+    return `<div class="message ${isUser?'user':''} fade-in">
+      <div class="message-avatar" style="${isSynthesis?'background:var(--accent);color:var(--ivory)':''}">${isUser?'SJ':isSynthesis?'⊕':'A'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="message-bubble" style="${synthStyle}">${formatContent(m.content)}</div>
+        <div class="message-meta">
+          ${!isUser?`<span class="message-model-badge" style="${rrBadgeColor}">${escHtml(shortModel)}</span>`:''}
+          ${m.roundRobin&&!isSynthesis?`<span style="font-size:9.5px;color:var(--text-faint);letter-spacing:0.06em">ROUND ROBIN</span>`:''}
+          ${isSynthesis?`<span style="font-size:9.5px;color:var(--accent);letter-spacing:0.06em">SYNTHESIS</span>`:''}
+          <span>${timeAgo(m.ts)}</span>
+        </div>
+        ${!isUser?`<div style="display:flex;gap:5px;margin-top:5px">
+          <button class="msg-action-btn" onclick="navigator.clipboard.writeText(${JSON.stringify(m.content)}).then(()=>Toast.show('Copied','success'))">Copy</button>
+          <button class="msg-action-btn" onclick="sessionStorage.setItem('aurelia_draft_content',${JSON.stringify(m.content)});window.location.href='/drafting/index.html'">→ Draft</button>
+        </div>`:''}
+      </div>
+    </div>`;
+  }
+
+  function formatContent(text) {
+    if (!text) return '';
+    return escHtml(text)
+      .replace(/```([\s\S]*?)```/g, '<div class="code-block">$1</div>')
+      .replace(/`([^`]+)`/g, '<code style="background:var(--bg-3);padding:1px 5px;border-radius:3px;font-family:var(--font-mono);font-size:11.5px">$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  async function sendMessage() {
+    if (isStreaming) return;
+    const ta = document.getElementById('chat-textarea');
+    const content = ta.value.trim();
+    if (!content) return;
+    ta.value = ''; autoResize(ta);
+    if (!currentThread) newThread();
+    const empty = document.getElementById('chat-empty');
+    if (empty) empty.style.display = 'none';
+    const userMsg = { role:'user', content, ts:Date.now() };
+    currentThread.messages.push(userMsg);
+    if (currentThread.messages.length === 1) {
+      currentThread.title = content.slice(0,52) + (content.length>52?'…':'');
+      document.getElementById('chat-thread-title').textContent = currentThread.title;
+    }
+    renderMessages(); saveThreads();
+    const container = document.getElementById('chat-messages');
+    const typingEl = document.createElement('div');
+    typingEl.className = 'message fade-in'; typingEl.id = 'typing-indicator';
+    typingEl.innerHTML = `<div class="message-avatar">A</div><div class="message-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+    container.appendChild(typingEl); container.scrollTop = container.scrollHeight;
+    isStreaming = true; document.getElementById('send-btn').disabled = true;
+    const systemPrompt = `You are Aurelia, an AI assistant for Identity Partners. Helpful, precise, professional. Date: ${new Date().toISOString()}${[...activeAgents].includes('research')?'\nResearch Agent: cite sources.':''}`;
+    const msgHistory = currentThread.messages.map(m=>({role:m.role,content:m.content}));
+
+    try {
+      if (roundRobinMode) {
+        // ── Round Robin: parallel calls to multiple models ──────────────────
+        const rrModels = getRoundRobinModels();
+        if (!rrModels.length) { Toast.show('Select at least one model for Round Robin', 'info'); typingEl.remove(); isStreaming=false; document.getElementById('send-btn').disabled=false; return; }
+        typingEl.querySelector('.message-bubble').innerHTML = `<div style="font-size:11px;color:var(--text-faint)">Round Robin — querying ${rrModels.length} models in parallel…</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+
+        // Fire all model calls in parallel
+        const calls = rrModels.map(modelId =>
+          AureliaAPI.chat(msgHistory, modelId, { system: systemPrompt, agents: [...activeAgents] })
+            .then(res => ({ modelId, content: res.content || res.message || '', success: true }))
+            .catch(e => ({ modelId, content: `[Error: ${e.message}]`, success: false }))
+        );
+        const responses = await Promise.all(calls);
+        typingEl.remove();
+
+        // Render each model's response as a separate message
+        const successResponses = responses.filter(r => r.success && r.content && !r.content.startsWith('[Error'));
+        responses.forEach(r => {
+          const shortModel = r.modelId.split('/').pop();
+          currentThread.messages.push({
+            role: 'assistant',
+            content: r.content,
+            model: r.modelId,
+            roundRobin: true,
+            ts: Date.now()
+          });
+        });
+
+        // Optional synthesis
+        if (document.getElementById('rr-synthesise')?.checked && successResponses.length > 1) {
+          const synthTyping = document.createElement('div');
+          synthTyping.className = 'message fade-in';
+          synthTyping.innerHTML = `<div class="message-avatar">A</div><div class="message-bubble"><div style="font-size:11px;color:var(--text-faint);margin-bottom:6px">Synthesising ${successResponses.length} responses…</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+          document.getElementById('chat-messages').appendChild(synthTyping);
+
+          const synthPrompt = `You have received ${successResponses.length} responses to the question: "${content}"\n\nResponses:\n${successResponses.map((r,i) => `[${r.modelId.split('/').pop()}]: ${r.content}`).join('\n\n---\n\n')}\n\nSynthesise these into a single coherent answer. Note any contradictions or gaps. Be concise.`;
+          try {
+            const synthRes = await AureliaAPI.chat([{role:'user',content:synthPrompt}], ModelRouter.current, { system: 'You are a synthesis engine. Combine multiple AI responses into one coherent, accurate answer.' });
+            synthTyping.remove();
+            currentThread.messages.push({
+              role: 'assistant',
+              content: `**Synthesis of ${successResponses.length} models:**\n\n${synthRes.content || 'Synthesis complete.'}`,
+              model: 'synthesis',
+              roundRobin: true,
+              ts: Date.now()
+            });
+          } catch(e) { synthTyping.remove(); }
+        }
+
+      } else {
+        // ── Standard single-model call ──────────────────────────────────────
+        const activeModel = (ModelRouter && ModelRouter.current) ? ModelRouter.current : 'groq/openai/gpt-oss-20b';
+        const res = await AureliaAPI.chat(msgHistory, activeModel, { system:systemPrompt, agents:[...activeAgents] });
+        typingEl.remove();
+        const aiMsg = { role:'assistant', content:res.content||res.message||'I received your message.', model:res.model||ModelRouter.current, ts:Date.now() };
+        currentThread.messages.push(aiMsg);
+      }
+
+      currentThread.ts = Date.now();
+      saveThreads(); renderMessages(); renderThreadList();
+
+    } catch(err) {
+      typingEl.remove();
+      console.error('[Aurelia Chat] sendMessage error:', err);
+      // Show the actual error so we can debug
+      const errDetail = err?.message || String(err) || 'Unknown error';
+      const fallback = `Unable to get a response. Error: ${errDetail}
+
+Troubleshooting:
+1. Check Worker health: aurelia-api.identitypartners.workers.dev/api/health
+2. Check keys: aurelia-api.identitypartners.workers.dev/api/debug/keys
+3. Hard refresh (Ctrl+Shift+R)`;
+      currentThread.messages.push({ role:'assistant', content:fallback, model:'error', ts:Date.now() });
+      saveThreads(); renderMessages();
+    }
+    isStreaming = false; document.getElementById('send-btn').disabled = false;
+    document.getElementById('chat-thread-meta').textContent = `${currentThread.messages.length} messages · ${ModelRouter.getCurrent().name}`;
+  }
+
+  function toggleAgent(name) {
+    if (activeAgents.has(name)) activeAgents.delete(name); else activeAgents.add(name);
+    document.querySelectorAll(`[id^="chip-"],[id^="agent-"]`).forEach(el => {
+      const n = el.id.replace('chip-','').replace('agent-','').replace('-btn','');
+      el.classList.toggle('active', activeAgents.has(n));
+    });
+  }
+
+  function addTag(e, input) {
+    if (e.key==='Enter' && input.value.trim()) {
+      const tag = input.value.trim().startsWith('#') ? input.value.trim() : '#'+input.value.trim();
+      const c = document.getElementById('thread-tags');
+      const s = document.createElement('span'); s.className='tag'; s.textContent=tag; c.appendChild(s);
+      if (currentThread) { currentThread.tags=currentThread.tags||[]; currentThread.tags.push(tag); saveThreads(); }
+      input.value='';
+    }
+  }
+
+  function clearChat() { if(!currentThread) return; if(confirm('Clear this conversation?')) { currentThread.messages=[]; saveThreads(); renderMessages(); } }
+  function saveToWorkspace() { const ws=document.getElementById('workspace-select').value; if(ws&&currentThread) { currentThread.workspace=ws; saveThreads(); Toast.show('Saved to workspace','success'); } }
+  function exportChat() { if(!currentThread) return; const text=currentThread.messages.map(m=>`[${m.role.toUpperCase()}] ${new Date(m.ts).toLocaleString()}\n${m.content}\n`).join('\n---\n\n'); const blob=new Blob([text],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`aurelia-chat-${currentThread.id}.txt`; a.click(); }
+  function saveToCRM() { Toast.show('Chat saved to CRM','success'); }
+  function sendToDrafting() { if(!currentThread) return; const last=currentThread.messages.filter(m=>m.role==='assistant').pop(); if(last) { sessionStorage.setItem('aurelia_draft_content',last.content); window.location.href='/drafting/index.html'; } }
+  function setPrompt(text) { const ta=document.getElementById('chat-textarea'); ta.value=text; autoResize(ta); ta.focus(); }
+
+  function toggleThreadPane() {
+    const pane = document.querySelector('.thread-pane');
+    if (pane) pane.classList.toggle('collapsed');
+  }
+
+  function toggleContextPane() {
+    const pane = document.querySelector('.context-pane');
+    if (pane) pane.classList.toggle('collapsed');
+  }
+  function saveThreads() { localStorage.setItem('aurelia_chats', JSON.stringify(threads)); }
+
+  // §6.1.9 Comms Hub
+  async function sendViaComms(channel) {
+    const msg = document.getElementById('comms-hub-msg').value.trim() ||
+      (currentThread?.messages?.filter(m=>m.role==='assistant').pop()?.content || '');
+    if (!msg) { Toast.show('No message to send', 'info'); return; }
+    if (channel === 'telegram') {
+      try {
+        await AureliaAPI.request('/social/publish', { method:'POST', body:JSON.stringify({ platform:'telegram', content:msg }) });
+        Toast.show('Sent via Telegram', 'success');
+      } catch(e) { Toast.show('Configure Telegram in Settings → Social Accounts', 'info'); }
+    } else if (channel === 'email') {
+      window.open(`mailto:?subject=Aurelia Chat&body=${encodeURIComponent(msg)}`, '_blank');
+    } else if (channel === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+    if (currentThread) {
+      currentThread.messages.push({ role:'system', content:`[Sent via ${channel}]: ${msg.slice(0,80)}`, ts:Date.now() });
+      saveThreads();
+    }
+  }
+
+  // §6.1.11 Creator Integration
+  function sendToCreatorType(type) {
+    if (!currentThread) return;
+    const last = currentThread.messages.filter(m=>m.role==='assistant').pop();
+    if (last) {
+      sessionStorage.setItem('aurelia_creator_content', last.content);
+      sessionStorage.setItem('aurelia_creator_type', type);
+      window.location.href = '/creator/assets.html';
+    }
+  }
+
+  // §6.1.5 Agenti City integration
+  function sendToAgentiCity() {
+    if (!currentThread) return;
+    const last = currentThread.messages.filter(m=>m.role==='assistant').pop();
+    if (last) {
+      sessionStorage.setItem('aurelia_new_chat_query', last.content);
+      window.location.href = '/agenti-city/index.html';
+    }
+  }
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function timeAgo(ts) { if(!ts) return ''; const d=Date.now()-ts; if(d<60000) return 'just now'; if(d<3600000) return Math.floor(d/60000)+'m ago'; if(d<86400000) return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago'; }
+
+  // Floating QWERTY for Chat
+  let chatQwertyVisible = false;
+  function toggleChatQWERTY() {
+    chatQwertyVisible = !chatQwertyVisible;
+    const btn = document.getElementById('chat-qwerty-btn');
+    if (btn) btn.classList.toggle('active', chatQwertyVisible);
+    // Create or show/hide QWERTY panel
+    let qwerty = document.getElementById('chat-qwerty-panel');
+    if (!qwerty) {
+      qwerty = document.createElement('div');
+      qwerty.id = 'chat-qwerty-panel';
+      qwerty.style.cssText = 'padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:160px';
+      const rows = [['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m','⌫'],['Space','Return']];
+      rows.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.cssText = 'display:flex;gap:2px;justify-content:center;margin-bottom:2px';
+        row.forEach(k => {
+          const btn = document.createElement('button');
+          btn.textContent = k === 'Space' ? '⎵' : k === 'Return' ? '↵' : k;
+          btn.style.cssText = `width:${k==='Space'?'80px':k==='Return'?'60px':k==='⌫'?'40px':'28px'};height:28px;border-radius:3px;border:1px solid var(--border);background:${k==='Space'||k==='Return'||k==='⌫'?'var(--bg-3)':'var(--surface)'};font-size:${k.length>1?'9':'12'}px;cursor:pointer;color:var(--ink);transition:background 0.1s`;
+          btn.onclick = () => {
+            const ta = document.getElementById('chat-textarea');
+            if (!ta) return;
+            if (k === '⌫') ta.value = ta.value.slice(0,-1);
+            else if (k === 'Space') ta.value += ' ';
+            else if (k === 'Return') { sendMessage(); return; }
+            else ta.value += k;
+            autoResize(ta);
+            document.getElementById('char-count').textContent = ta.value.length;
+          };
+          rowDiv.appendChild(btn);
+        });
+        qwerty.appendChild(rowDiv);
+      });
+      // Insert before input area
+      const inputArea = document.querySelector('.chat-input-area');
+      if (inputArea) inputArea.parentNode.insertBefore(qwerty, inputArea);
+    }
+    qwerty.style.display = chatQwertyVisible ? 'flex' : 'none';
+  }
+
+  // Check if API keys are configured
+  async function checkAPIKeys() {
+    // Check the Worker directly — keys are in Cloudflare Secrets, not localStorage
+    const warning = document.getElementById('api-key-warning');
+    if (!warning) return;
+
+    // First check localStorage (fast path — if user has ingested keys locally)
+    const hasLocalKey = ['GROQ_API_KEY','CEREBRAS_API_KEY','GEMINI_PAID_API_KEY','DEEPSEEK_API_KEY',
+      'GEMINI_API_KEY','MISTRAL_API_KEY','OPENROUTER_API_KEY','SAMBANOVA_API_KEY'].some(k =>
+        localStorage.getItem(`aurelia_key_${k}`)
+    );
+
+    if (hasLocalKey) { warning.style.display = 'none'; return; }
+
+    // Check Worker debug endpoint (keys are in Cloudflare Secrets)
+    try {
+      const res = await fetch('https://aurelia-api.identitypartners.workers.dev/api/debug/keys', {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      const data = await res.json();
+      const workerKeys = data.keys || {};
+      const hasWorkerKey = Object.values(workerKeys).some(v => v && v !== 'NOT_SET');
+      warning.style.display = hasWorkerKey ? 'none' : 'flex';
+    } catch(e) {
+      // If Worker unreachable, hide warning (don't block user)
+      warning.style.display = 'none';
+    }
+  }
+
+    // ── File/Image attachment ─────────────────────────────────────────────────
+  let attachedFile = null;
+  let attachedFileData = null;
+
+  function handleFileAttach(input) {
+    const file = input.files[0];
+    if (!file) return;
+    attachedFile = file;
+    const preview = document.getElementById('file-preview');
+    const name = document.getElementById('file-preview-name');
+    if (name) name.textContent = '📎 ' + file.name + ' (' + (file.size/1024).toFixed(0) + 'KB)';
+    if (preview) preview.style.display = 'flex';
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => { attachedFileData = e.target.result; };
+      reader.readAsDataURL(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = e => { attachedFileData = e.target.result; };
+      reader.readAsText(file);
+    }
+    Toast.show('Attached: ' + file.name, 'success');
+  }
+
+  function clearFileAttach() {
+    attachedFile = null; attachedFileData = null;
+    const p = document.getElementById('file-preview');
+    if (p) p.style.display = 'none';
+    const fi = document.getElementById('chat-file-input');
+    if (fi) fi.value = '';
+  }
+
+  async function sendMessageWithFile() {
+    if (attachedFile && attachedFileData) {
+      const ta = document.getElementById('chat-textarea');
+      const userText = ta ? ta.value.trim() : '';
+      const fileInfo = attachedFile.type.startsWith('image/')
+        ? '[Image: ' + attachedFile.name + ']
+' + userText
+        : '[File: ' + attachedFile.name + ']
+
+' + attachedFileData.slice(0, 6000) + '
+
+' + userText;
+      if (ta) ta.value = fileInfo;
+      clearFileAttach();
+    }
+    await sendMessage();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const ta = document.getElementById('chat-textarea');
+    if (ta) {
+      ta.addEventListener('input', () => {
+        const cc = document.getElementById('char-count');
+        if (cc) cc.textContent = ta.value.length;
+        autoResize(ta);
+      });
+      ta.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if(typeof sendMessageWithFile==='function')sendMessageWithFile();else if(typeof sendMessage==='function')sendMessage(); }
+      });
+    }
+    initChat();
+    // Wire send button AFTER all functions are defined
+    const sendBtn = document.getElementById('send-btn');
+    if (sendBtn) {
+      sendBtn.onclick = function() {
+        if (typeof sendMessageWithFile === 'function') {
+          sendMessageWithFile();
+        } else if (typeof sendMessage === 'function') {
+          sendMessage();
+        }
+      };
+    }
+  });
+</script>
+</body>
+</html>
