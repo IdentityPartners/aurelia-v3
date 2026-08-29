@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Workspaces</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Workspaces</span><div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="showNewWorkspace()">+ New Workspace</button></div></div>
+<div style="padding:20px;max-width:1000px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Workspaces</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Visual folders — organise and filter content. Never gate navigation.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px" id="workspaces-grid"></div>
+</div>
+<div class="modal-overlay" id="new-ws-modal">
+  <div class="modal"><div class="modal-header"><span class="modal-title">New Workspace</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="input-group"><label class="input-label">Name</label><input class="input" id="ws-name" placeholder="e.g. Identity Partners"></div>
+    <div class="input-group"><label class="input-label">Tags</label><input class="input" id="ws-tags" placeholder="#IP #business"></div>
+    <div class="input-group"><label class="input-label">Colour</label><input type="color" id="ws-color" value="#0f3b3a" style="width:48px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"></div>
+    <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveWorkspace()">Create</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
+  </div></div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+function init(){renderWorkspaces();}
+function renderWorkspaces(){
+  var workspaces=JSON.parse(localStorage.getItem("aurelia_workspaces")||"[]");
+  if(!workspaces.length){workspaces=[{id:"ip",name:"Identity Partners",tags:["#IP","#business"],color:"#0f3b3a",ts:Date.now()},{id:"personal",name:"Personal",tags:["#personal"],color:"#5c2d3f",ts:Date.now()},{id:"research",name:"Research",tags:["#research"],color:"#1a5554",ts:Date.now()}];localStorage.setItem("aurelia_workspaces",JSON.stringify(workspaces));}
+  var grid=document.getElementById("workspaces-grid");
+  var chats=JSON.parse(localStorage.getItem("aurelia_chats")||"[]");
+  var drafts=JSON.parse(localStorage.getItem("aurelia_drafts")||"[]");
+  grid.innerHTML=workspaces.map(function(w){return "<div style='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden'><div style='position:absolute;top:0;left:0;right:0;height:3px;background:"+w.color+"'></div><div style='display:flex;align-items:center;gap:10px;margin-bottom:10px'><div style='width:36px;height:36px;border-radius:50%;background:"+w.color+";display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:15px;color:#fff'>"+w.name[0]+"</div><div><div style='font-size:14px;font-weight:600;color:var(--ink)'>"+w.name+"</div><div style='font-size:11px;color:var(--text-faint)'>"+(w.tags||[]).join(" ")+"</div></div></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px'><div style='background:var(--bg-2);border-radius:6px;padding:8px;text-align:center'><div style='font-size:18px;font-weight:600;color:var(--ink)'>"+chats.filter(function(c){return c.workspace===w.id;}).length+"</div><div style='font-size:10px;color:var(--text-faint)'>Chats</div></div><div style='background:var(--bg-2);border-radius:6px;padding:8px;text-align:center'><div style='font-size:18px;font-weight:600;color:var(--ink)'>"+drafts.filter(function(d){return d.workspace===w.id;}).length+"</div><div style='font-size:10px;color:var(--text-faint)'>Drafts</div></div></div><div style='display:flex;gap:6px'><button class='btn btn-primary btn-sm' onclick='applyLens(""+w.id+"")'>Apply Lens</button><button class='btn btn-ghost btn-sm' onclick='deleteWorkspace(""+w.id+"")'>Delete</button></div></div>";}).join("")+"<div style='background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;min-height:180px;cursor:pointer' onclick='showNewWorkspace()'><div style='text-align:center;color:var(--text-faint)'><div style='font-size:28px;margin-bottom:6px'>+</div><div style='font-size:13px'>New Workspace</div></div></div>";}
+function showNewWorkspace(){document.getElementById("new-ws-modal").classList.add("open");}
+function closeModal(){document.getElementById("new-ws-modal").classList.remove("open");}
+function saveWorkspace(){var name=document.getElementById("ws-name").value.trim();if(!name){Toast.show("Name required","error");return;}var workspaces=JSON.parse(localStorage.getItem("aurelia_workspaces")||"[]");workspaces.push({id:"ws_"+Date.now(),name,tags:document.getElementById("ws-tags").value.trim().split(/\s+/).filter(Boolean),color:document.getElementById("ws-color").value,ts:Date.now()});localStorage.setItem("aurelia_workspaces",JSON.stringify(workspaces));renderWorkspaces();closeModal();Toast.show("Workspace created","success");}
+function deleteWorkspace(id){var workspaces=JSON.parse(localStorage.getItem("aurelia_workspaces")||"[]").filter(function(w){return w.id!==id;});localStorage.setItem("aurelia_workspaces",JSON.stringify(workspaces));renderWorkspaces();}
+function applyLens(id){localStorage.setItem("aurelia_active_workspace",id);Toast.show("Workspace lens applied","success");}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
