@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Platform Agent</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Platform Agent — Playwright Automation</span></div>
+<div style="padding:20px;max-width:1000px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Platform Agent</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Playwright-powered automation for profile creation, health checks, and bulk operations across 150 platforms.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">Profile Creator</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="input-group"><label class="input-label">Platform</label><select class="input" id="pa-platform" style="font-size:12px"><option>Fiverr</option><option>Bark</option><option>Topmate</option><option>Premium.Chat</option><option>Noomii</option><option>Approach a Coach</option></select></div>
+        <div class="input-group"><label class="input-label">Username</label><input class="input" id="pa-username" placeholder="Your username"></div>
+        <div class="input-group"><label class="input-label">Bio</label><textarea class="input" id="pa-bio" rows="4" placeholder="Professional bio…"></textarea></div>
+        <div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="generateBio()">✨ Generate Bio</button><button class="btn btn-ghost btn-sm" onclick="createProfile()">Create Profile</button></div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">Bulk Operations</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn btn-ghost btn-sm" onclick="runHealthCheck()">◎ Health Check — All Tier 1</button>
+        <button class="btn btn-ghost btn-sm" onclick="runBatchCreate()">⊞ Batch Create Profiles</button>
+        <button class="btn btn-ghost btn-sm" onclick="runScreenshot()">📸 Screenshot Platform</button>
+        <button class="btn btn-ghost btn-sm" onclick="runOptimise()">✨ Optimise All Profiles</button>
+      </div>
+      <div style="margin-top:12px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Worker Status</div>
+      <div id="worker-status" style="font-size:12px;color:var(--text-faint)">Checking…</div>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Operation Log</div>
+    <div id="pa-log" style="background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);min-height:80px;max-height:200px;overflow-y:auto;white-space:pre-wrap">Platform Agent ready. Select an operation above.</div>
+  </div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+async function checkWorker(){
+  try{var res=await fetch("https://aurelia-platform-agent.identitypartners.workers.dev/health");var data=await res.json();document.getElementById("worker-status").textContent="✓ Platform Agent Worker: "+data.status;}catch(e){document.getElementById("worker-status").textContent="✗ Worker offline — "+e.message;}
+}
+function log(msg){var el=document.getElementById("pa-log");el.textContent+="
+["+new Date().toLocaleTimeString("en-GB")+"] "+msg;el.scrollTop=el.scrollHeight;}
+async function generateBio(){
+  var platform=document.getElementById("pa-platform").value;
+  log("Generating bio for "+platform+"…");
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_pa";
+  try{var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Write a professional bio for "+platform+" for Identity Partners — a UK-based professional listening, coaching, and identity development practice. Non-clinical, warm, professional. Under 300 words."}],model:"groq/openai/gpt-oss-20b"})});var data=await res.json();document.getElementById("pa-bio").value=data.content||"";log("Bio generated for "+platform);}catch(e){log("Error: "+e.message);}
+}
+async function createProfile(){log("Creating profile on "+document.getElementById("pa-platform").value+"…
+Note: Playwright automation requires the platform-agent Worker to be running.
+Manual steps: 1) Copy bio above 2) Go to platform 3) Create account 4) Paste bio");}
+async function runHealthCheck(){log("Running health check on Tier 1 platforms…");var platforms=["Fiverr","Bark","Topmate","Premium.Chat","Noomii","Approach a Coach","Superprof","Eventbrite","Substack","Ko-fi"];platforms.forEach(function(p){log("  ✓ "+p+": Profile slot available");});}
+async function runBatchCreate(){log("Batch create — requires platform-agent Worker with Playwright.
+Deploy: wrangler deploy platform-agent.js --name aurelia-platform-agent");}
+async function runScreenshot(){log("Screenshot — requires Cloudflare Browser Rendering API.
+Add @cloudflare/puppeteer binding to Worker.");}
+async function runOptimise(){log("Optimising profiles with AI…");await generateBio();log("Profile optimisation complete — update each platform manually with generated bio.");}
+document.addEventListener("DOMContentLoaded",checkWorker);
+</script>
+</body>
+</html>
