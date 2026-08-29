@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Orchestrator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Orchestrator</span><div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="runOrchestrator()">▶ Run</button></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px;height:calc(100vh - var(--topbar-h));overflow-y:auto">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-2);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)">Context Injection</div>
+    <div style="padding:14px" id="context-panel"></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-2);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)">Model Routing</div>
+    <div style="padding:14px">
+      <div class="input-group mb-3"><label class="input-label">Intent</label><input class="input" id="routing-intent" placeholder="Describe your intent…"></div>
+      <button class="btn btn-primary btn-sm" onclick="inferRouting()">Infer Routing</button>
+      <div id="routing-result" style="margin-top:10px;font-size:12.5px;color:var(--text-secondary)"></div>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;grid-column:1/-1">
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-2);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)">Audit Log</div>
+    <div style="padding:14px;max-height:300px;overflow-y:auto" id="audit-log"><div style="font-size:12px;color:var(--text-faint)">No audit entries yet. Run the orchestrator to generate entries.</div></div>
+  </div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+function init(){
+  var ctx=document.getElementById("context-panel");
+  var tok=localStorage.getItem("aurelia_device_token")||"—";
+  var model=localStorage.getItem("aurelia_model")||"groq/openai/gpt-oss-20b";
+  var ws=localStorage.getItem("aurelia_active_workspace")||"None";
+  ctx.innerHTML=["User: SJ — Identity Partners","Device Token: "+tok.slice(0,20)+"…","Active Model: "+model,"Workspace: "+ws,"Time: "+new Date().toLocaleString("en-GB"),"LCT: "+window.__AURELIA_LCT__].map(function(line){return "<div style='padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--ink)'>"+line+"</div>";}).join("");
+}
+function inferRouting(){
+  var intent=document.getElementById("routing-intent").value.toLowerCase();
+  var result="";
+  if(/research|find|search|paper/.test(intent))result="Research path → Research Agent → Tavily+Brave+Exa";
+  else if(/reason|analys|complex|why/.test(intent))result="Reasoning path → DeepSeek V4 Flash (1M ctx, thinking mode)";
+  else if(/write|draft|create|content/.test(intent))result="Creative path → Mistral Large 3 (MoE 675B/41B active)";
+  else if(/crm|contact|client/.test(intent))result="CRM path → CRM Agent → Gemma 4 31B";
+  else result="Chat path → GPT-OSS 20B (Groq) → Gemma 4 31B (Cerebras)";
+  document.getElementById("routing-result").textContent=result;
+  addAudit("routing","Intent traced: "+document.getElementById("routing-intent").value.slice(0,40),"→ "+result);
+}
+function addAudit(type,action,detail){
+  var log=document.getElementById("audit-log");
+  var entry=document.createElement("div");
+  entry.style.cssText="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px";
+  entry.innerHTML="<div style='font-size:10.5px;color:var(--text-faint)'>"+new Date().toLocaleTimeString("en-GB")+" · "+type+"</div><div style='color:var(--ink);margin-top:2px'>"+action+"</div><div style='color:var(--text-muted);font-size:11.5px'>"+detail+"</div>";
+  log.insertBefore(entry,log.firstChild);
+}
+async function runOrchestrator(){
+  Toast.show("Orchestrator running…","info");
+  inferRouting();
+  addAudit("orchestrator","Full run triggered","Context injected, routing inferred");
+  Toast.show("Orchestrator run complete","success");
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
