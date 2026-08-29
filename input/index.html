@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Input Engine</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Input Engine</span></div>
+<div style="padding:20px;max-width:900px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Input Engine</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Stylus-first, handwriting-everywhere, hybrid-input-native.</p>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Ink Canvas</div>
+    <div style="display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="setTool('pen')" id="tool-pen" style="border-color:var(--accent);color:var(--accent)">✏️ Pen</button>
+      <button class="btn btn-ghost btn-sm" onclick="setTool('highlighter')" id="tool-highlighter">🖊️ Highlight</button>
+      <button class="btn btn-ghost btn-sm" onclick="setTool('eraser')" id="tool-eraser">⬜ Erase</button>
+      <input type="color" id="ink-color" value="#0f3b3a" style="width:32px;height:32px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px">
+      <button class="btn btn-ghost btn-sm" onclick="clearCanvas()">Clear</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportSVG()">Export SVG</button>
+      <button class="btn btn-ghost btn-sm" onclick="sendToChat()">→ Chat</button>
+    </div>
+    <canvas id="ink-canvas" style="width:100%;height:400px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);cursor:crosshair;touch-action:none;display:block"></canvas>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Dictation</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-primary" id="dictate-btn" onclick="toggleDictation()">🎙️ Start Dictation</button>
+      <div id="dictation-status" style="font-size:12px;color:var(--text-faint)">Ready</div>
+    </div>
+    <textarea id="dictation-output" class="input mt-3" rows="4" placeholder="Dictated text will appear here…" style="margin-top:10px"></textarea>
+  </div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var currentTool="pen",isDrawing=false,lastPos=null,strokes=[];
+function init(){
+  var canvas=document.getElementById("ink-canvas");
+  var rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*window.devicePixelRatio||800;
+  canvas.height=400*window.devicePixelRatio||400;
+  var ctx=canvas.getContext("2d");
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  ctx.lineCap="round";ctx.lineJoin="round";
+  function getPos(e){var r=canvas.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left),y:(t.clientY-r.top),pressure:e.pressure||0.5};}
+  canvas.addEventListener("pointerdown",function(e){e.preventDefault();isDrawing=true;var p=getPos(e);lastPos=p;ctx.beginPath();ctx.moveTo(p.x,p.y);});
+  canvas.addEventListener("pointermove",function(e){e.preventDefault();if(!isDrawing)return;var p=getPos(e);ctx.strokeStyle=currentTool==="eraser"?"var(--bg-2)":document.getElementById("ink-color").value;ctx.lineWidth=currentTool==="eraser"?20:currentTool==="highlighter"?12:2+p.pressure*3;ctx.globalAlpha=currentTool==="highlighter"?0.4:1;ctx.globalCompositeOperation=currentTool==="eraser"?"destination-out":"source-over";if(lastPos){var mx=(lastPos.x+p.x)/2,my=(lastPos.y+p.y)/2;ctx.quadraticCurveTo(lastPos.x,lastPos.y,mx,my);ctx.stroke();ctx.beginPath();ctx.moveTo(mx,my);}lastPos=p;});
+  canvas.addEventListener("pointerup",function(){isDrawing=false;lastPos=null;ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";});
+  canvas.addEventListener("touchstart",function(e){e.preventDefault();},{"passive":false});
+  canvas.addEventListener("touchmove",function(e){e.preventDefault();},{"passive":false});
+}
+function setTool(t){currentTool=t;["pen","highlighter","eraser"].forEach(function(x){var b=document.getElementById("tool-"+x);if(b){b.style.borderColor=x===t?"var(--accent)":"";b.style.color=x===t?"var(--accent)":"";};});}
+function clearCanvas(){var canvas=document.getElementById("ink-canvas");var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);}
+function exportSVG(){Toast.show("SVG export — use browser screenshot for now","info");}
+function sendToChat(){var canvas=document.getElementById("ink-canvas");var dataUrl=canvas.toDataURL("image/png");sessionStorage.setItem("aurelia_new_chat_query","[Handwriting attached — please analyse this ink input]");window.location.href="/chat/index.html";}
+var recognition=null,isDictating=false;
+function toggleDictation(){
+  if(!("webkitSpeechRecognition" in window||"SpeechRecognition" in window)){Toast.show("Speech recognition not supported in this browser","error");return;}
+  if(isDictating){recognition&&recognition.stop();isDictating=false;document.getElementById("dictate-btn").textContent="🎙️ Start Dictation";document.getElementById("dictation-status").textContent="Stopped";return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang="en-GB";
+  recognition.onresult=function(e){var final="";for(var i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;}if(final){var ta=document.getElementById("dictation-output");ta.value+=(ta.value?" ":"")+final;}};
+  recognition.start();isDictating=true;document.getElementById("dictate-btn").textContent="⏹ Stop Dictation";document.getElementById("dictation-status").textContent="🔴 Recording…";
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
