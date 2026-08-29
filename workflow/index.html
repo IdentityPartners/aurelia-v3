@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Workflow Wizard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Workflow Wizard</span></div>
+<div style="padding:20px;max-width:900px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Workflow Wizard</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Build and run multi-step agentic workflows. Chain agents, models, and actions.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px">
+    <div class="card" style="cursor:pointer" onclick="loadTemplate('research-to-social')"><div class="card-header"><span class="card-title">Research → Social</span><span class="tag tag-green">Template</span></div><div class="card-body">Research a topic → atomise → create LinkedIn post → schedule.</div></div>
+    <div class="card" style="cursor:pointer" onclick="loadTemplate('draft-to-publish')"><div class="card-header"><span class="card-title">Draft → Publish</span><span class="tag tag-green">Template</span></div><div class="card-body">Write draft → improve → atomise → publish to social queue.</div></div>
+    <div class="card" style="cursor:pointer" onclick="loadTemplate('crm-followup')"><div class="card-header"><span class="card-title">CRM Follow-up</span><span class="tag tag-green">Template</span></div><div class="card-body">Review CRM contacts → generate follow-up messages → send via Comms.</div></div>
+    <div class="card" style="cursor:pointer" onclick="loadTemplate('platform-update')"><div class="card-header"><span class="card-title">Platform Update</span><span class="tag tag-green">Template</span></div><div class="card-body">Generate optimised bio → update all Tier 1 platform profiles.</div></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Workflow Builder</div>
+    <div id="workflow-steps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+    <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="addStep()">+ Add Step</button><button class="btn btn-primary btn-sm" onclick="runWorkflow()">▶ Run Workflow</button><button class="btn btn-ghost btn-sm" onclick="clearWorkflow()">Clear</button></div>
+  </div>
+  <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);min-height:80px;max-height:200px;overflow-y:auto;white-space:pre-wrap" id="workflow-log">Workflow Wizard ready. Load a template or build your own.</div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var steps=[];
+var TEMPLATES={
+  "research-to-social":[{name:"Research",action:"research",input:"Topic to research"},{name:"Atomise",action:"atomise",input:"Research results"},{name:"Create Post",action:"create-post",input:"Atomised content"},{name:"Schedule",action:"schedule",input:"LinkedIn post"}],
+  "draft-to-publish":[{name:"Write Draft",action:"draft",input:"Topic"},{name:"Improve",action:"improve",input:"Draft"},{name:"Atomise",action:"atomise",input:"Improved draft"},{name:"Publish",action:"publish",input:"Atomised content"}],
+  "crm-followup":[{name:"Review CRM",action:"crm-review",input:"All contacts"},{name:"Generate Messages",action:"generate-messages",input:"Contact list"},{name:"Send",action:"send-comms",input:"Messages"}],
+  "platform-update":[{name:"Generate Bio",action:"generate-bio",input:"Identity Partners profile"},{name:"Update Platforms",action:"update-platforms",input:"Generated bio"}]
+};
+function loadTemplate(name){steps=TEMPLATES[name]||[];renderSteps();log("Loaded template: "+name);}
+function renderSteps(){var el=document.getElementById("workflow-steps");if(!steps.length){el.innerHTML="<div style='font-size:12.5px;color:var(--text-faint)'>No steps yet. Load a template or add steps.</div>";return;}el.innerHTML=steps.map(function(s,i){return "<div style='background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:10px'><div style='width:22px;height:22px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--ivory);flex-shrink:0'>"+(i+1)+"</div><div style='flex:1'><div style='font-size:13px;font-weight:500;color:var(--ink)'>"+s.name+"</div><div style='font-size:11px;color:var(--text-faint)'>"+s.action+" · "+s.input+"</div></div><button style='background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:14px' onclick='removeStep("+i+")'>✕</button></div>";}).join("");}
+function addStep(){var name=window.prompt("Step name:");if(!name)return;steps.push({name,action:"custom",input:"Input"});renderSteps();}
+function removeStep(i){steps.splice(i,1);renderSteps();}
+function clearWorkflow(){steps=[];renderSteps();document.getElementById("workflow-log").textContent="Workflow cleared.";}
+function log(msg){var el=document.getElementById("workflow-log");el.textContent+="
+["+new Date().toLocaleTimeString("en-GB")+"] "+msg;el.scrollTop=el.scrollHeight;}
+async function runWorkflow(){
+  if(!steps.length){Toast.show("Add steps first","info");return;}
+  log("Starting workflow with "+steps.length+" steps…");
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_workflow";
+  var context="Identity Partners workflow";
+  for(var i=0;i<steps.length;i++){
+    var step=steps[i];log("Step "+(i+1)+"/"+steps.length+": "+step.name+"…");
+    try{var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Execute this workflow step: "+step.name+". Action: "+step.action+". Context: "+context}],model:"groq/openai/gpt-oss-20b",system:"You are a workflow execution agent for Identity Partners."})});var data=await res.json();context=data.content||context;log("  ✓ "+step.name+" complete");}catch(e){log("  ✗ "+step.name+" failed: "+e.message);}
+  }
+  log("Workflow complete.");Toast.show("Workflow complete","success");
+}
+document.addEventListener("DOMContentLoaded",renderSteps);
+</script>
+</body>
+</html>
