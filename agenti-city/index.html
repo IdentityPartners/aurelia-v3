@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Agenti City</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Agenti City</span></div>
+<div style="padding:20px;max-width:1000px">
+  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Agenti City</h1>
+  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Multi-agent collaboration: Round Tables, Debate Mode, Synthesis, Pipeline Builder.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">⟳ Round Table</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Query multiple models simultaneously and synthesise responses.</div>
+      <div class="input-group mb-3"><label class="input-label">Question</label><textarea class="input" id="rt-question" rows="3" placeholder="Ask all models…"></textarea></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+        <span class="chip on" data-m="groq/openai/gpt-oss-20b" onclick="toggleRTModel(this)">GPT-OSS 20B</span>
+        <span class="chip on" data-m="sambanova/Gemma-4-31B-IT" onclick="toggleRTModel(this)">Gemma 4 31B</span>
+        <span class="chip on" data-m="gemini/gemini-2.5-flash" onclick="toggleRTModel(this)">Gemini Flash</span>
+        <span class="chip" data-m="mistral/mistral-large-latest" onclick="toggleRTModel(this)">Mistral Large</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="runRoundTable()">▶ Run Round Table</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">⚡ Debate Mode</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Two models argue opposing positions on a topic.</div>
+      <div class="input-group mb-3"><label class="input-label">Topic</label><input class="input" id="debate-topic" placeholder="e.g. AI will replace therapists"></div>
+      <button class="btn btn-primary btn-sm" onclick="runDebate()">▶ Start Debate</button>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px">
+    <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">Results</div>
+    <div id="agenti-results" style="font-size:13px;color:var(--text-secondary);line-height:1.7;min-height:80px"><div style="color:var(--text-faint)">Run a Round Table or Debate to see results here.</div></div>
+  </div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var rtModels=new Set(["groq/openai/gpt-oss-20b","sambanova/Gemma-4-31B-IT","gemini/gemini-2.5-flash"]);
+function toggleRTModel(el){var m=el.dataset.m;if(rtModels.has(m)){rtModels.delete(m);el.classList.remove("on");}else{rtModels.add(m);el.classList.add("on");}}
+async function runRoundTable(){
+  var q=document.getElementById("rt-question").value.trim();if(!q){Toast.show("Enter a question","info");return;}
+  var results=document.getElementById("agenti-results");results.innerHTML="<div style='color:var(--text-faint)'>Running Round Table across "+rtModels.size+" models…</div>";
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_agenti";
+  var calls=[...rtModels].map(function(m){return fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:q}],model:m,system:"You are a specialist AI. Answer concisely and precisely."})}).then(function(r){return r.json();}).then(function(d){return{model:m,content:d.content||"No response"};}).catch(function(e){return{model:m,content:"Error: "+e.message};});});
+  var responses=await Promise.all(calls);
+  results.innerHTML=responses.map(function(r){return "<div style='margin-bottom:14px;padding:12px;background:var(--bg-2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:var(--text-faint);margin-bottom:6px'>"+r.model.split("/").pop()+"</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+r.content+"</div></div>";}).join("");
+}
+async function runDebate(){
+  var topic=document.getElementById("debate-topic").value.trim();if(!topic){Toast.show("Enter a topic","info");return;}
+  var results=document.getElementById("agenti-results");results.innerHTML="<div style='color:var(--text-faint)'>Running debate…</div>";
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_agenti";
+  try{
+    var [pro,con]=await Promise.all([
+      fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue strongly FOR: "+topic+". Be concise, 3 key points."}],model:"groq/openai/gpt-oss-20b"})}).then(function(r){return r.json();}),
+      fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue strongly AGAINST: "+topic+". Be concise, 3 key points."}],model:"sambanova/Gemma-4-31B-IT"})}).then(function(r){return r.json();})
+    ]);
+    results.innerHTML="<div style='display:grid;grid-template-columns:1fr 1fr;gap:12px'><div style='padding:12px;background:rgba(46,125,50,.08);border:1px solid rgba(46,125,50,.2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:#2e7d32;margin-bottom:6px'>✓ FOR</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+(pro.content||"")+"</div></div><div style='padding:12px;background:rgba(198,40,40,.08);border:1px solid rgba(198,40,40,.2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:#c62828;margin-bottom:6px'>✗ AGAINST</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+(con.content||"")+"</div></div></div>";
+  }catch(e){results.innerHTML="<div style='color:var(--text-faint)'>Error: "+e.message+"</div>";}
+}
+</script>
+</body>
+</html>
