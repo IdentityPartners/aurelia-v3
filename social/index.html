@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Social Queue</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:4px 11px;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Social Queue</span><div class="topbar-actions"><span style="font-size:11px;color:var(--text-faint)" id="queue-count">0 queued</span><button class="btn btn-primary btn-sm" onclick="publishAll()">Publish All</button></div></div>
+<div style="display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)">
+  <div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;gap:6px;flex-wrap:wrap">
+    <div style="display:flex;gap:4px"><div class="chip on" data-p="all" onclick="filterPlatform(this)">All</div><div class="chip" data-p="linkedin" onclick="filterPlatform(this)">💼 LinkedIn</div><div class="chip" data-p="bluesky" onclick="filterPlatform(this)">🦋 Bluesky</div><div class="chip" data-p="telegram" onclick="filterPlatform(this)">✈️ Telegram</div></div>
+    <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="showCompose()">+ Compose</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px" id="queue-list"><div class="empty-state"><div class="empty-state-icon" style="font-size:28px;opacity:.2">📱</div><div class="empty-state-title">Social Queue is empty</div><div class="empty-state-desc">Compose a post or send content from Drafting Desk.</div></div></div>
+</div>
+<div style="width:320px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);padding:14px;overflow-y:auto">
+  <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Compose Post</div>
+  <div class="input-group mb-3"><label class="input-label">Platform</label><select class="input" id="compose-platform" style="font-size:12px"><option value="linkedin">💼 LinkedIn</option><option value="bluesky">🦋 Bluesky</option><option value="telegram">✈️ Telegram</option></select></div>
+  <div class="input-group mb-3"><label class="input-label">Content</label><textarea class="input" id="compose-content" rows="6" placeholder="Write your post…" oninput="updateCharCount()"></textarea><div style="font-size:10.5px;color:var(--text-faint);text-align:right;margin-top:3px" id="char-counter">0</div></div>
+  <div class="input-group mb-3"><label class="input-label">Schedule (optional)</label><input class="input" type="datetime-local" id="compose-schedule"></div>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <button class="btn btn-primary w-full" onclick="addToQueue('queued')">+ Add to Queue</button>
+    <button class="btn btn-ghost w-full" onclick="addToQueue('draft')">Save as Draft</button>
+    <button class="btn btn-ghost w-full" onclick="generatePost()">✨ Generate with AI</button>
+  </div>
+</div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var queue=[],activePlatform="all";
+function init(){queue=JSON.parse(localStorage.getItem("aurelia_social_queue")||"[]");var pre=sessionStorage.getItem("aurelia_social_content");if(pre){sessionStorage.removeItem("aurelia_social_content");document.getElementById("compose-content").value=pre;updateCharCount();}renderQueue();}
+function updateCharCount(){var limits={linkedin:3000,bluesky:300,telegram:4096};var p=document.getElementById("compose-platform").value;var len=document.getElementById("compose-content").value.length;var limit=limits[p]||3000;var el=document.getElementById("char-counter");el.textContent=len+" / "+limit;el.style.color=len>limit?"var(--crimson)":len>limit*.9?"var(--amber)":"var(--text-faint)";}
+function addToQueue(status){var content=document.getElementById("compose-content").value.trim();if(!content){Toast.show("Write something first","info");return;}var platform=document.getElementById("compose-platform").value;var schedule=document.getElementById("compose-schedule").value;queue.push({id:"sq_"+Date.now(),platform,content,status,schedule:schedule||null,tags:[],ts:Date.now()});saveQueue();renderQueue();document.getElementById("compose-content").value="";document.getElementById("compose-schedule").value="";updateCharCount();Toast.show(status==="draft"?"Saved as draft":"Added to queue","success");}
+async function generatePost(){var topic=window.prompt("Topic for the post:");if(!topic)return;Toast.show("Generating…","info");var tok=localStorage.getItem("aurelia_device_token")||"dt_social";try{var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Write a professional LinkedIn post about: "+topic+". Identity Partners brand — warm, professional, non-clinical. Under 1500 chars."}],model:"groq/openai/gpt-oss-20b"})});var data=await res.json();document.getElementById("compose-content").value=data.content||"";updateCharCount();}catch(e){Toast.show("Error: "+e.message,"error");}}
+function renderQueue(){var list=document.getElementById("queue-list");var filtered=queue.filter(i=>activePlatform==="all"||i.platform===activePlatform);document.getElementById("queue-count").textContent=queue.filter(i=>i.status==="queued").length+" queued";if(!filtered.length){list.innerHTML="<div class='empty-state'><div class='empty-state-icon' style='font-size:28px;opacity:.2'>📱</div><div class='empty-state-title'>No posts</div></div>";return;}var icons={linkedin:"💼",bluesky:"🦋",telegram:"✈️"};var statusColors={queued:"tag-blue",scheduled:"tag-amber",published:"tag-green",draft:"tag-ink"};list.innerHTML=filtered.map(item=>"<div style='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;margin-bottom:9px;display:flex;gap:10px'><div style='font-size:20px;flex-shrink:0'>"+(icons[item.platform]||"📱")+"</div><div style='flex:1'><div style='font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:7px'>"+item.content.slice(0,200)+(item.content.length>200?"…":"")+"</div><div style='display:flex;align-items:center;gap:7px'><span class='tag "+(statusColors[item.status]||"tag-ink")+"'>"+item.status+"</span>"+(item.schedule?"<span style='font-size:11px;color:var(--text-faint)'>📅 "+new Date(item.schedule).toLocaleString("en-GB")+"</span>":"")+"<span style='margin-left:auto;display:flex;gap:5px'>"+(item.status!=="published"?"<button class='btn btn-primary btn-sm' onclick='publishItem(""+item.id+"")'>Publish</button>":"")+"<button class='btn btn-ghost btn-sm' onclick='deleteItem(""+item.id+"")'>✕</button></span></div></div></div>").join("");}
+function filterPlatform(el){activePlatform=el.dataset.p;document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));el.classList.add("on");renderQueue();}
+async function publishItem(id){var item=queue.find(i=>i.id===id);if(!item)return;item.status="published";item.publishedAt=Date.now();saveQueue();renderQueue();Toast.show("Published (connect social accounts in Settings for live publishing)","info");}
+function deleteItem(id){queue=queue.filter(i=>i.id!==id);saveQueue();renderQueue();}
+function publishAll(){queue.filter(i=>i.status==="queued").forEach(i=>publishItem(i.id));}
+function showCompose(){document.getElementById("compose-content").focus();}
+function saveQueue(){localStorage.setItem("aurelia_social_queue",JSON.stringify(queue));}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
