@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Annotation Layer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Annotation Layer</span></div>
+<div style="display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden">
+<div style="width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:12px;overflow-y:auto">
+  <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Source</div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+    <button class="btn btn-ghost btn-sm" onclick="setSource('pdf')">📄 PDF / Document</button>
+    <button class="btn btn-ghost btn-sm" onclick="setSource('web')">🌐 Web Page</button>
+    <button class="btn btn-ghost btn-sm" onclick="setSource('video')">▶️ YouTube / Video</button>
+    <button class="btn btn-ghost btn-sm" onclick="setSource('text')">📝 Plain Text</button>
+  </div>
+  <div id="source-input"></div>
+  <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:14px 0 8px">Annotation Tools</div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <button class="btn btn-ghost btn-sm" onclick="setAnnotTool('highlight')" id="tool-highlight">🟡 Highlight</button>
+    <button class="btn btn-ghost btn-sm" onclick="setAnnotTool('note')" id="tool-note">📝 Note</button>
+    <button class="btn btn-ghost btn-sm" onclick="extractKeyPoints()">⚡ Extract Key Points</button>
+    <button class="btn btn-ghost btn-sm" onclick="sendAnnotToChat()">→ Send to Chat</button>
+  </div>
+  <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:14px 0 8px">Annotations</div>
+  <div id="annotations-list" style="font-size:12px;color:var(--text-faint)">No annotations yet.</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)">
+  <div id="source-viewer" style="flex:1;overflow:auto;padding:20px">
+    <div class="empty-state"><div class="empty-state-icon" style="font-size:28px;opacity:.2">📄</div><div class="empty-state-title">Annotation Layer</div><div class="empty-state-desc">Select a source type from the left panel to begin annotating.</div></div>
+  </div>
+</div>
+</div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+var annotations=[],currentTool="highlight";
+function setSource(type){
+  var input=document.getElementById("source-input");
+  var viewer=document.getElementById("source-viewer");
+  if(type==="pdf"){input.innerHTML="<div class='input-group'><label class='input-label'>PDF URL or Upload</label><input class='input' id='src-url' placeholder='https://…' style='font-size:12px;margin-bottom:6px'><input type='file' accept='.pdf' style='font-size:12px'></div><button class='btn btn-primary btn-sm mt-2' onclick='loadSource()'>Load</button>";}
+  else if(type==="web"){input.innerHTML="<div class='input-group'><label class='input-label'>Web Page URL</label><input class='input' id='src-url' placeholder='https://…' style='font-size:12px'></div><button class='btn btn-primary btn-sm mt-2' onclick='loadSource()'>Load</button>";}
+  else if(type==="video"){input.innerHTML="<div class='input-group'><label class='input-label'>YouTube URL</label><input class='input' id='src-url' placeholder='https://youtube.com/watch?v=…' style='font-size:12px'></div><button class='btn btn-primary btn-sm mt-2' onclick='loadSource()'>Load</button>";}
+  else if(type==="text"){input.innerHTML="<div class='input-group'><label class='input-label'>Paste Text</label><textarea class='input' id='src-text' rows='6' placeholder='Paste text to annotate…' style='font-size:12px'></textarea></div><button class='btn btn-primary btn-sm mt-2' onclick='loadTextSource()'>Load</button>";}
+}
+function loadSource(){var url=document.getElementById("src-url")?.value.trim();if(!url)return;var viewer=document.getElementById("source-viewer");if(url.includes("youtube.com")||url.includes("youtu.be")){var vid=url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);if(vid)viewer.innerHTML="<iframe width='100%' height='400' src='https://www.youtube.com/embed/"+vid[1]+"' frameborder='0' allowfullscreen style='border-radius:8px'></iframe>";}else{viewer.innerHTML="<iframe src='"+url+"' style='width:100%;height:100%;border:none;border-radius:8px' sandbox='allow-scripts allow-same-origin'></iframe>";}}
+function loadTextSource(){var text=document.getElementById("src-text")?.value;if(!text)return;var viewer=document.getElementById("source-viewer");viewer.innerHTML="<div style='font-size:14px;line-height:1.8;color:var(--ink);max-width:700px;margin:0 auto;user-select:text'>"+text.replace(/
+/g,"<br>")+"</div>";}
+function setAnnotTool(t){currentTool=t;["highlight","note"].forEach(function(x){var b=document.getElementById("tool-"+x);if(b){b.style.borderColor=x===t?"var(--accent)":"";b.style.color=x===t?"var(--accent)":"";};});}
+async function extractKeyPoints(){
+  var viewer=document.getElementById("source-viewer");var text=viewer.innerText.slice(0,4000);if(!text.trim()){Toast.show("Load a source first","info");return;}
+  Toast.show("Extracting key points…","info");
+  var tok=localStorage.getItem("aurelia_device_token")||"dt_annotate";
+  try{var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Extract 5-7 key points from this text as bullet points:\n\n"+text}],model:"groq/openai/gpt-oss-20b"})});var data=await res.json();var list=document.getElementById("annotations-list");list.innerHTML="<div style='font-size:12px;color:var(--ink);line-height:1.6'>"+data.content.replace(/
+/g,"<br>")+"</div>";}catch(e){Toast.show("Error: "+e.message,"error");}
+}
+function sendAnnotToChat(){var list=document.getElementById("annotations-list");sessionStorage.setItem("aurelia_new_chat_query","[Annotations]: "+list.innerText);window.location.href="/chat/index.html";}
+</script>
+</body>
+</html>
