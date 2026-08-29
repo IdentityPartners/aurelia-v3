@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="no-store, no-cache, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<title>Aurelia — Home</title>
+<link href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='4' fill='%230f3b3a'/&gt;&lt;text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23faf8f5'&gt;A&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
+<link href="/shared/aurelia.css" rel="stylesheet"/>
+<style>
+    .home-hero {
+      position: relative;
+      padding: 40px 32px 28px;
+      overflow: hidden;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .home-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: opacity 1s ease;
+    }
+    .home-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(247,243,233,0.1) 0%, rgba(247,243,233,0.85) 60%, rgba(247,243,233,0.98) 100%);
+    }
+    .home-hero-content { position: relative; z-index: 2; }
+    .home-greeting {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 3px;
+      letter-spacing: 0.01em;
+    }
+    .home-date {
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-bottom: 22px;
+      letter-spacing: 0.04em;
+    }
+    .new-chat-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-2);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-xl);
+      padding: 11px 16px;
+      cursor: text;
+      transition: all var(--transition);
+      max-width: 680px;
+      box-shadow: var(--shadow-sm);
+    }
+    .new-chat-bar:hover, .new-chat-bar:focus-within {
+      border-color: var(--ink-4);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .new-chat-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+    }
+    .new-chat-bar input::placeholder { color: var(--text-faint); }
+    .quick-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+    }
+    .quick-action:hover {
+      border-color: var(--ink-5);
+      color: var(--ink);
+      background: var(--bg-2);
+    }
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item {
+      padding: 14px 20px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-value {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label { font-size: 10px; color: var(--text-faint); margin-top: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .feed-container { flex: 1; overflow-y: auto; }
+    .feed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+      display: block;
+    }
+    .feed-card:hover {
+      border-color: var(--ink-6);
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+    .feed-card-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      margin-bottom: 10px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+    }
+    .feed-card-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed-card-preview { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .feed-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 11px; color: var(--text-faint); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-logo" style="cursor:pointer" onclick="window.location.href='/index.html'" title="Home">
+<div class="logo-mark" style="background:var(--ip-deep-teal);overflow:hidden;padding:0">
+<img src="/brand/logo-square.png" alt="IP" style="width:100%;height:100%;object-fit:cover">
+</div>
+<span class="logo-text" style="color:var(--ip-deep-rose)">Identity Partners</span>
+</div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item" data-page="home"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item" data-page="chat"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item" data-page="research"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item" data-page="drafting"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item" data-page="creator"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/creator/canvas.html" class="nav-item nav-sub" data-page="canvas"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span class="nav-label">Canvas</span></a>
+      <a href="/social/index.html" class="nav-item" data-page="social"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item" data-page="crm"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item" data-page="monetisation"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item nav-sub" data-page="platforms"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <a href="/comms/index.html" class="nav-item" data-page="comms"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Comms Centre</span></a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="/workflow/index.html" class="nav-item" data-page="workflow"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
+      <a href="/agenti-city/index.html" class="nav-item" data-page="agenti-city"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item" data-page="orchestrator"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <a href="/agents/index.html" class="nav-item" data-page="agents"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agent Builder</span></a>
+      <a href="/platform-agent/index.html" class="nav-item" data-page="platform-agent"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg><span class="nav-label">Platform Agent</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/workspaces/index.html" class="nav-item" data-page="workspaces"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="nav-label">Workspaces</span></a>
+      <a href="/input/index.html" class="nav-item" data-page="input"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg><span class="nav-label">Input Engine</span></a>
+      <a href="/annotate/index.html" class="nav-item" data-page="annotate"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span class="nav-label">Annotations</span></a>
+      <a href="/storage/index.html" class="nav-item" data-page="storage"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg><span class="nav-label">Storage</span></a>
+      <a href="/audit/index.html" class="nav-item" data-page="audit"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nav-label">Audit Log</span></a>
+      <a href="/settings/index.html" class="nav-item" data-page="settings"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+</nav>
+<!-- Main -->
+<div class="main-content" id="main-content">
+<!-- World Clocks -->
+<div class="clock-strip" id="world-clocks"></div>
+<!-- Atmosphere -->
+<div class="atmosphere-strip">
+<div id="pomodoro-container"></div>
+<div class="atm-tile" data-audio="white-noise" onclick="AudioAmbience.toggle('white-noise')">○ White Noise</div>
+<div class="atm-tile" data-audio="nature" onclick="AudioAmbience.toggle('nature')">◎ Nature</div>
+<div class="atm-tile" data-audio="lofi" onclick="AudioAmbience.toggle('lofi')">♩ Lo-Fi</div>
+<div class="atm-tile" id="atm-music-btn" onclick="toggleMusicPanel()">♫ Music</div>
+<div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+<div id="model-selector-container"></div>
+<button class="btn btn-ghost btn-sm" onclick="ThemeSystem.cycle()" title="Cycle theme">◈ Theme</button>
+<a class="btn btn-ghost btn-sm" href="/input/index.html" title="Input Engine">✍</a>
+</div>
+</div>
+<!-- Atmosphere / Music Panel (§2.10) -->
+<div id="music-panel" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)">Atmosphere — Music</span>
+    <button onclick="toggleMusicPanel()" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:14px">✕</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <!-- Spotify -->
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#1DB954;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">♫</div>
+        <span style="font-size:13px;font-weight:500;color:var(--ink)">Spotify</span>
+      </div>
+      <input class="input" id="spotify-url" placeholder="Paste Spotify URL…" style="font-size:12px;margin-bottom:8px">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DX4sWSpwq3LiO')">Peaceful Piano</button>
+        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DWZeKCadgRdKQ')">Deep Focus</button>
+        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DX3Ogo9pFvBkY')">Ambient Chill</button>
+      </div>
+      <button class="btn btn-primary btn-sm w-full" onclick="embedSpotify()">Embed</button>
+      <div id="spotify-embed-container" style="margin-top:8px"></div>
+    </div>
+    <!-- YouTube -->
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#FF0000;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">▶</div>
+        <span style="font-size:13px;font-weight:500;color:var(--ink)">YouTube</span>
+      </div>
+      <input class="input" id="youtube-url" placeholder="Paste YouTube URL…" style="font-size:12px;margin-bottom:8px">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('jfKfPfyJRdk')">Lo-Fi Hip Hop</button>
+        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('5qap5aO4i9A')">Chillhop</button>
+        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('DWcJFNfaw9c')">Study Music</button>
+      </div>
+      <button class="btn btn-primary btn-sm w-full" onclick="embedYouTube()">Embed</button>
+      <div id="youtube-embed-container" style="margin-top:8px"></div>
+    </div>
+    <!-- White noise / ambient -->
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ip-deep-teal,#0f3b3a);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">○</div>
+        <span style="font-size:13px;font-weight:500;color:var(--ink)">Ambient</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="atm-tile w-full" data-audio="white-noise" onclick="AudioAmbience.toggle('white-noise')" style="justify-content:flex-start">○ White Noise</button>
+        <button class="atm-tile w-full" data-audio="nature" onclick="AudioAmbience.toggle('nature')" style="justify-content:flex-start">◎ Nature Sounds</button>
+        <button class="atm-tile w-full" data-audio="lofi" onclick="AudioAmbience.toggle('lofi')" style="justify-content:flex-start">♩ Lo-Fi Beats</button>
+        <button class="atm-tile w-full" onclick="AudioAmbience.stop()" style="justify-content:flex-start;color:var(--crimson)">✕ Stop All</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Hero -->
+<div class="home-hero">
+<div class="home-greeting">Good <span id="greeting-time">day</span>, <span id="greeting-name">SJ</span></div>
+<div class="home-date" id="today-date"></div>
+<div class="new-chat-bar" onclick="document.getElementById('new-chat-input').focus()">
+<svg fill="none" height="15" stroke="var(--text-faint)" stroke-width="1.5" viewbox="0 0 24 24" width="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+<input autocomplete="off" id="new-chat-input" placeholder="Begin a conversation, start a task, or describe a goal…"/>
+<button class="btn btn-primary btn-sm" onclick="startNewChat()">
+<svg fill="none" height="13" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="13"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+</div>
+<div class="quick-actions">
+<a class="quick-action" href="/drafting/index.html">✦ New Draft</a>
+<a class="quick-action" href="/research/index.html">◎ New Research</a>
+<a class="quick-action" href="/creator/index.html">◈ Creator Studio</a>
+<a class="quick-action" href="/crm/index.html">◉ New Contact</a>
+<a class="quick-action" href="/monetisation/platforms.html">⊞ Platforms</a>
+<a class="quick-action" href="/platform-agent/index.html" style="background:var(--ip-deep-teal,#0f3b3a);color:#f7f3e9;border-color:var(--ip-deep-teal,#0f3b3a)">▶ Platform Agent</a>
+<a class="quick-action" href="/agenti-city/index.html" style="background:var(--ip-deep-rose,#5c2d3f);color:#f7f3e9;border-color:var(--ip-deep-rose,#5c2d3f)">⊕ Agenti City</a>
+<a class="quick-action" href="/orchestrator/index.html" style="background:var(--bg-3);color:var(--ink)">◎ Orchestrator</a>
+</div>
+</div>
+<!-- Stats -->
+<div class="stats-strip">
+<div class="stat-item"><div class="stat-value" id="stat-chats">0</div><div class="stat-label">Chats</div></div>
+<div class="stat-item"><div class="stat-value" id="stat-drafts">0</div><div class="stat-label">Drafts</div></div>
+<div class="stat-item"><div class="stat-value" id="stat-research">0</div><div class="stat-label">Research Runs</div></div>
+<div class="stat-item"><div class="stat-value" id="stat-contacts">0</div><div class="stat-label">Contacts</div></div>
+</div>
+<!-- Feed -->
+<div class="section-header">
+<span class="section-header-title">Recent Chats</span>
+<a class="section-view-all" href="/chat/index.html">View all →</a>
+</div>
+<div class="feed-grid" id="feed-chats">
+<a class="feed-card fade-in" href="/chat/index.html">
+<div class="feed-card-icon">◎</div>
+<div class="feed-card-title">Begin your first conversation</div>
+<div class="feed-card-preview">Multi-model routing across Cerebras, Groq, DeepSeek, Gemini, NVIDIA and 10+ providers.</div>
+<div class="feed-card-footer"><span>Chat</span><span class="tag tag-ink">New</span></div>
+</a>
+</div>
+<div class="section-header">
+<span class="section-header-title">Recent Drafts</span>
+<a class="section-view-all" href="/drafting/index.html">View all →</a>
+</div>
+<div class="feed-grid" id="feed-drafts">
+<a class="feed-card fade-in" href="/drafting/index.html">
+<div class="feed-card-icon">✦</div>
+<div class="feed-card-title">Open Drafting Desk</div>
+<div class="feed-card-preview">Longform drafting with handwriting capture, dictation and AI atomisation.</div>
+<div class="feed-card-footer"><span>Drafting</span><span class="tag">Surface-first</span></div>
+</a>
+</div>
+<div class="section-header">
+<span class="section-header-title">Monetisation</span>
+<a class="section-view-all" href="/monetisation/index.html">View all →</a>
+</div>
+<div class="feed-grid" id="feed-monetisation">
+<a class="feed-card fade-in" href="/monetisation/platforms.html">
+<div class="feed-card-icon">⊞</div>
+<div class="feed-card-title">Platform Manager</div>
+<div class="feed-card-preview">150 Anglophone platforms tracked and ready. Fiverr, Bark, Premium.Chat, Topmate and more — all active.</div>
+<div class="feed-card-footer"><span>Monetisation</span><span class="tag tag-gold">150 platforms</span></div>
+</a>
+<a class="feed-card fade-in" href="/monetisation/index.html">
+<div class="feed-card-icon">◈</div>
+<div class="feed-card-title">Monetisation Station</div>
+<div class="feed-card-preview">Offers, memberships, programmes and revenue funnels for Identity Partners.</div>
+<div class="feed-card-footer"><span>Revenue</span><span class="tag tag-sage">Active</span></div>
+</a>
+</div>
+<div style="height:48px"></div>
+<!-- News Feed (§4) -->
+<div style="padding:0 20px 8px;display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);display:flex;align-items:center;gap:8px"><span style="width:2px;height:10px;background:var(--accent);border-radius:1px;display:inline-block"></span>News & Intelligence</span>
+<button class="btn btn-ghost btn-sm" onclick="refreshNews()" style="font-size:11px">↻ Refresh</button>
+</div>
+<div class="feed-grid" id="feed-news">
+<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center" id="news-placeholder">
+Configure TAVILY_API_KEY in Settings to enable live news. Quick searches:
+<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px">
+<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('AI coaching identity development 2026')">AI & Coaching</button>
+<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('neurodivergent ADHD support UK')">Neurodivergent</button>
+<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('online coaching platforms UK 2026')">Coaching Platforms</button>
+<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('identity wellbeing sobriety support')">Wellbeing</button>
+</div>
+</div>
+</div>
+<div style="height:48px"></div>
+</div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+  // Time-of-day hero background images (Unsplash curated)
+  const TIME_BACKGROUNDS = {
+    dawn:     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80', // misty dawn
+    morn:     'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80', // morning light
+    noon:     'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600&q=80', // bright day
+    arvo:     'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1600&q=80', // afternoon
+    dusk:     'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1600&q=80', // dusk
+    midnight: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80', // night stars
+  };
+
+  const h = new Date().getHours();
+  let timeKey = 'midnight';
+  if (h >= 5 && h < 8) timeKey = 'dawn';
+  else if (h >= 8 && h < 12) timeKey = 'morn';
+  else if (h >= 12 && h < 15) timeKey = 'noon';
+  else if (h >= 15 && h < 18) timeKey = 'arvo';
+  else if (h >= 18 && h < 21) timeKey = 'dusk';
+
+  // Set hero background
+  const heroBg = document.getElementById('hero-bg');
+  if (heroBg) {
+    heroBg.style.backgroundImage = `url('${TIME_BACKGROUNDS[timeKey]}')`;
+  }
+
+  const greetEl = document.getElementById('greeting-time');
+  if (greetEl) {
+    if (h >= 5 && h < 12) greetEl.textContent = 'morning';
+    else if (h >= 12 && h < 17) greetEl.textContent = 'afternoon';
+    else greetEl.textContent = 'evening';
+  }
+  const dateEl = document.getElementById('today-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  // Multi-user: show current user name
+  const user = Auth.getUser();
+  const userName = user?.name || 'SJ';
+  const greetNameEl = document.getElementById('greeting-name');
+  if (greetNameEl) greetNameEl.textContent = userName;
+
+  function loadStats() {
+    const chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
+    const drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]');
+    const research = JSON.parse(localStorage.getItem('aurelia_research') || '[]');
+    const contacts = JSON.parse(localStorage.getItem('aurelia_contacts') || '[]');
+    document.getElementById('stat-chats').textContent = chats.length;
+    document.getElementById('stat-drafts').textContent = drafts.length;
+    document.getElementById('stat-research').textContent = research.length;
+    document.getElementById('stat-contacts').textContent = contacts.length;
+    const badge = document.getElementById('nav-chat-badge');
+    if (chats.length > 0) { badge.textContent = chats.length; badge.style.display = ''; }
+  }
+  loadStats();
+
+  function startNewChat() {
+    const input = document.getElementById('new-chat-input');
+    const q = input ? input.value.trim() : '';
+    if (q) sessionStorage.setItem('aurelia_new_chat_query', q);
+    window.location.href = '/chat/index.html';
+  }
+  document.getElementById('new-chat-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startNewChat(); }
+  });
+
+  // ── Atmosphere / Music Panel (§2.10) ──────────────────────────────────────
+  function toggleMusicPanel() {
+    const panel = document.getElementById('music-panel');
+    const btn = document.getElementById('atm-music-btn');
+    const visible = panel.style.display !== 'none';
+    panel.style.display = visible ? 'none' : 'block';
+    if (btn) btn.classList.toggle('active', !visible);
+  }
+
+  function embedSpotify() {
+    const url = document.getElementById('spotify-url').value.trim();
+    if (!url) return;
+    embedSpotifyFromUrl(url);
+  }
+
+  function embedSpotifyQuick(playlistId) {
+    embedSpotifyFromUrl(`https://open.spotify.com/playlist/${playlistId}`);
+  }
+
+  function embedSpotifyFromUrl(url) {
+    // Convert Spotify URL to embed format
+    let embedUrl = url
+      .replace('open.spotify.com/', 'open.spotify.com/embed/')
+      .replace('/playlist/', '/embed/playlist/')
+      .replace('/track/', '/embed/track/')
+      .replace('/album/', '/embed/album/');
+    if (!embedUrl.includes('/embed/')) {
+      embedUrl = url.replace('open.spotify.com/', 'open.spotify.com/embed/');
+    }
+    const container = document.getElementById('spotify-embed-container');
+    container.innerHTML = `<iframe 
+      src="${embedUrl}?utm_source=generator&theme=0" 
+      width="100%" height="152" frameborder="0" 
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+      loading="lazy"
+      style="border-radius:8px;border:none"></iframe>`;
+  }
+
+  function embedYouTube() {
+    const url = document.getElementById('youtube-url').value.trim();
+    if (!url) return;
+    const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+    if (match) embedYouTubeQuick(match[1]);
+    else Toast.show('Could not parse YouTube URL', 'error');
+  }
+
+  function embedYouTubeQuick(videoId) {
+    const container = document.getElementById('youtube-embed-container');
+    container.innerHTML = `<iframe 
+      width="100%" height="120" 
+      src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0" 
+      frameborder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen
+      style="border-radius:8px"></iframe>`;
+  }
+
+  function openMusic(url) { window.open(url, '_blank', 'noopener'); }
+
+  function loadFeed() {
+    const chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]').slice(-3).reverse();
+    const feedChats = document.getElementById('feed-chats');
+    if (chats.length && feedChats) {
+      feedChats.innerHTML = chats.map(c => `
+        <a href="/chat/index.html?id=${c.id}" class="feed-card fade-in">
+          <div class="feed-card-icon">◎</div>
+          <div class="feed-card-title">${escHtml(c.title || 'Untitled Chat')}</div>
+          <div class="feed-card-preview">${escHtml((c.preview || '').slice(0,100))}</div>
+          <div class="feed-card-footer"><span>${escHtml(c.model || 'AI')}</span><span>${timeAgo(c.ts)}</span></div>
+        </a>`).join('');
+    }
+    const drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]').slice(-3).reverse();
+    const feedDrafts = document.getElementById('feed-drafts');
+    if (drafts.length && feedDrafts) {
+      feedDrafts.innerHTML = drafts.map(d => `
+        <a href="/drafting/index.html" class="feed-card fade-in">
+          <div class="feed-card-icon">✦</div>
+          <div class="feed-card-title">${escHtml(d.title || 'Untitled Draft')}</div>
+          <div class="feed-card-preview">${escHtml((d.body || '').slice(0,100))}</div>
+          <div class="feed-card-footer"><span>${wordCount(d.body)} words</span><span>${timeAgo(d.ts)}</span></div>
+        </a>`).join('');
+    }
+  }
+  loadFeed();
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function timeAgo(ts) { if(!ts) return ''; const d=Date.now()-ts; if(d<60000) return 'just now'; if(d<3600000) return Math.floor(d/60000)+'m ago'; if(d<86400000) return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago'; }
+  function wordCount(t) { return t ? t.trim().split(/\s+/).filter(Boolean).length : 0; }
+  // News feed (§4)
+  async function loadNewsQuery(q) {
+    const grid = document.getElementById('feed-news');
+    const placeholder = document.getElementById('news-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">Searching: ${escHtml(q)}…</div>`;
+    try {
+      const token = Auth.getToken();
+      const res = await fetch('/api/research?_lct=' + Date.now(), {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Cache-Control':'no-store'},
+        body:JSON.stringify({query:q,sources:['tavily','brave']})
+      });
+      const data = await res.json();
+      const results = data.results || [];
+      if (!results.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">No results — configure TAVILY_API_KEY in Settings → Key Ingester.</div>`;
+        return;
+      }
+      // Render with images using Unsplash for visual interest
+      const unsplashKey = localStorage.getItem('aurelia_key_UNSPLASH_API_KEY');
+      grid.innerHTML = results.slice(0,6).map((r, i) => {
+        // Use a relevant background image based on query keywords
+        const imgKeywords = q.split(' ').slice(0,2).join('+');
+        const imgUrl = unsplashKey 
+          ? `https://source.unsplash.com/400x200/?${encodeURIComponent(imgKeywords)}&sig=${i}`
+          : `https://images.unsplash.com/photo-${['1506905925346-21bda4d32df4','1470252649378-9c29740c9fa8','1500534314209-a25ddb2bd429','1504701954957-2010ec3bcec1','1495616811223-4d98c6e9c869','1419242902214-272b3f66ee7a'][i % 6]}?w=400&q=60`;
+        return `<a href="${escHtml(r.url||'#')}" target="_blank" class="feed-card fade-in" style="text-decoration:none;display:block">
+          <div style="height:100px;background:var(--bg-3);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;position:relative">
+            <img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.7" loading="lazy" onerror="this.style.display='none'">
+            <div style="position:absolute;bottom:4px;right:6px"><span class="tag" style="font-size:9.5px;background:rgba(247,243,233,0.9)">${escHtml(r.source||'news')}</span></div>
+          </div>
+          <div class="feed-card-title">${escHtml((r.title||'').slice(0,60))}</div>
+          <div class="feed-card-preview">${escHtml((r.snippet||'').slice(0,100))}</div>
+          <div class="feed-card-footer"><span style="font-size:10px;color:var(--text-faint)">↗ Read more</span></div>
+        </a>`;
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">News requires API keys. Configure TAVILY_API_KEY in Settings → Key Ingester.</div>`;
+    }
+  }
+
+  function refreshNews() { loadNewsQuery('AI coaching identity development wellbeing 2026'); }
+
+  // Auto-load news on page load if API key exists
+  document.addEventListener('DOMContentLoaded', () => {
+    const hasKey = localStorage.getItem('aurelia_key_TAVILY_API_KEY') || localStorage.getItem('aurelia_key_BRAVE_API_KEY');
+    if (hasKey) setTimeout(() => loadNewsQuery('AI coaching identity development 2026'), 1000);
+  });
+
+</script>
+</body>
+</html>
