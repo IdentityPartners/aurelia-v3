@@ -917,8 +917,12 @@ function loadFeed() {
 function startChat() {
   var input = document.getElementById('hero-input');
   var q = input ? input.value.trim() : '';
-  if (q) sessionStorage.setItem('aurelia_new_chat_query', q);
-  window.location.href = '/chat/index.html';
+  if (q) {
+    sessionStorage.setItem('aurelia_new_chat_query', q);
+    window.location.href = '/chat/index.html?q=' + encodeURIComponent(q);
+  } else {
+    window.location.href = '/chat/index.html';
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
