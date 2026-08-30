@@ -970,7 +970,10 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
   function initChat() {
     threads = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
     renderThreadList();
-    const preQuery = sessionStorage.getItem('aurelia_new_chat_query');
+    // Read from URL parameter first, then sessionStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlQuery = urlParams.get('q');
+    const preQuery = urlQuery || sessionStorage.getItem('aurelia_new_chat_query');
     if (preQuery) { sessionStorage.removeItem('aurelia_new_chat_query'); newThread(); document.getElementById('chat-textarea').value = preQuery; setTimeout(() => sendMessage(), 100); }
     else if (threads.length > 0) loadThread(threads[threads.length-1].id);
     else newThread();
