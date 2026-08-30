@@ -1230,4 +1230,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('textarea[data-autoresize]').forEach(ta => {
     ta.addEventListener('input', () => autoResize(ta));
   });
+
+  // Load saved visual theme
+  var savedVisualTheme = localStorage.getItem("aurelia_visual_theme");
+  if (savedVisualTheme) {
+    document.documentElement.setAttribute("data-theme", savedVisualTheme);
+  }
 });
