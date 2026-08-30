@@ -481,6 +481,31 @@ DEEPSEEK_API_KEY=sk_ghi789
     if (window.AureliaHelp) AureliaHelp.setEnabled(enabled);
     Toast.show(enabled ? 'Help system enabled' : 'Help system hidden', 'success');
   }
+  
+  function applyVisualTheme(theme) {
+    if (theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    localStorage.setItem("aurelia_visual_theme", theme);
+    // Update active state
+    document.querySelectorAll("[id^='vt-']").forEach(function(el) {
+      el.style.borderColor = "var(--border)";
+    });
+    var active = document.getElementById("vt-" + (theme || "default"));
+    if (active) active.style.borderColor = "var(--ink)";
+    if (typeof Toast !== "undefined") Toast.show("Theme applied: " + (theme || "IP Brand"), "success");
+  }
+  
+  // Load saved visual theme on init
+  (function() {
+    var saved = localStorage.getItem("aurelia_visual_theme");
+    if (saved) {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  })();
+
   function showSection(name,el){
     document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));
