@@ -7,6 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
   <link rel="stylesheet" href="/shared/aurelia.css">
   <style></style>
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
 </head>
 <body>
 <div class="app-shell">
@@ -96,5 +97,119 @@ document.getElementById("draft-title").addEventListener("input",onDraftInput);
 document.addEventListener("DOMContentLoaded",init);
 </script>
 <script src="/shared/help.js"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js">
+  var quillEditor = null;
+  var editorMode = "plain";
+  var isDictating = false;
+  var recognition = null;
+
+  function setEditorMode(mode) {
+    editorMode = mode;
+    var plainArea = document.getElementById("typing-area");
+    var richArea = document.getElementById("quill-editor-wrap");
+    var modeTypBtn = document.getElementById("mode-type-btn");
+    var modeRichBtn = document.getElementById("mode-rich-btn");
+    
+    if (mode === "rich") {
+      if (plainArea) plainArea.style.display = "none";
+      if (!richArea) {
+        var wrap = document.createElement("div");
+        wrap.id = "quill-editor-wrap";
+        wrap.style.cssText = "flex:1;overflow:hidden;display:flex;flex-direction:column";
+        var editorDiv = document.createElement("div");
+        editorDiv.id = "quill-editor";
+        editorDiv.style.cssText = "flex:1;font-size:14px;line-height:1.7";
+        wrap.appendChild(editorDiv);
+        var canvasArea = document.getElementById("canvas-area");
+        if (canvasArea) canvasArea.appendChild(wrap);
+        
+        if (window.Quill) {
+          quillEditor = new Quill("#quill-editor", {
+            theme: "snow",
+            placeholder: "Begin writing in rich text mode...",
+            modules: {
+              toolbar: [
+                [{header:[1,2,3,false]}],
+                ["bold","italic","underline","strike"],
+                [{list:"ordered"},{list:"bullet"}],
+                ["blockquote","code-block"],
+                ["link"],
+                ["clean"]
+              ]
+            }
+          });
+          quillEditor.on("text-change", function() {
+            if (currentDraft) {
+              currentDraft.body = quillEditor.getText();
+              currentDraft.bodyHtml = quillEditor.root.innerHTML;
+              currentDraft.ts = Date.now();
+              updateWordCount();
+            }
+          });
+          // Sync plain text to rich
+          var ta = document.getElementById("draft-body");
+          if (ta && ta.value) quillEditor.setText(ta.value);
+        }
+      } else {
+        richArea.style.display = "flex";
+      }
+      if (modeTypBtn) modeTypBtn.classList.remove("on");
+      if (modeRichBtn) modeRichBtn.classList.add("on");
+    } else {
+      if (richArea) richArea.style.display = "none";
+      if (plainArea) plainArea.style.display = "block";
+      // Sync rich to plain
+      if (quillEditor) {
+        var ta = document.getElementById("draft-body");
+        if (ta) ta.value = quillEditor.getText();
+      }
+      if (modeTypBtn) modeTypBtn.classList.add("on");
+      if (modeRichBtn) modeRichBtn.classList.remove("on");
+    }
+  }
+
+  function toggleDictation() {
+    var btn = document.getElementById("mode-dict-btn");
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+      if (typeof Toast !== "undefined") Toast.show("Speech recognition not supported in this browser", "error");
+      return;
+    }
+    if (isDictating) {
+      if (recognition) recognition.stop();
+      isDictating = false;
+      if (btn) btn.classList.remove("on");
+      if (typeof Toast !== "undefined") Toast.show("Dictation stopped", "info");
+      return;
+    }
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-GB";
+    recognition.onresult = function(e) {
+      var final = "";
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      }
+      if (final) {
+        var ta = document.getElementById("draft-body");
+        if (ta) { ta.value += (ta.value ? " " : "") + final; onDraftInput(); }
+        if (quillEditor && editorMode === "rich") {
+          var len = quillEditor.getLength();
+          quillEditor.insertText(len - 1, " " + final);
+        }
+      }
+    };
+    recognition.onerror = function() { isDictating = false; if (btn) btn.classList.remove("on"); };
+    recognition.start();
+    isDictating = true;
+    if (btn) btn.classList.add("on");
+    if (typeof Toast !== "undefined") Toast.show("Dictation started — speak now", "success");
+  }
+
+  // QuillJS alias
+  var QuillJS = window.Quill;
+
+</script>
 </body>
 </html>
