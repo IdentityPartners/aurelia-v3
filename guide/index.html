@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Integration Guide</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .guide-body{padding:24px;max-width:860px}
+    .guide-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:22px;margin-bottom:16px}
+    .guide-section-title{font-family:var(--font-serif,Georgia);font-size:20px;font-weight:400;color:var(--ink);margin-bottom:4px}
+    .guide-section-desc{font-size:12.5px;color:var(--faint,#a8a29e);margin-bottom:16px;line-height:1.6}
+    .step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+    .step-num{width:28px;height:28px;border-radius:50%;background:var(--accent,#0f3b3a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;margin-top:1px}
+    .step-content{flex:1}
+    .step-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px}
+    .step-desc{font-size:12.5px;color:var(--muted,#78716c);line-height:1.6}
+    code{background:var(--bg-3,#e8ddd4);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:11.5px;color:var(--ink)}
+    .note{background:var(--gold-4,#f5e9d4);border:1px solid var(--gold-3,#e2c99a);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--ink);margin-top:10px}
+    .warning{background:#fce4ec;border:1px solid #f8bbd0;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#c62828;margin-top:10px}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><span class="nav-label">Comms Centre</span></a>
+      <a href="/comms/zoho.html" class="nav-item"><span class="nav-label">Zoho Integration</span></a>
+      <a href="/guide/index.html" class="nav-item active"><span class="nav-label">Integration Guide</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar"><span class="topbar-title">Integration Guide</span></div>
+    <div class="guide-body">
+
+      <!-- Zoho Social -->
+      <div class="guide-section">
+        <div class="guide-section-title">Zoho Social — Direct Posting</div>
+        <div class="guide-section-desc">Zoho Social supports direct posting AND scheduling. You do NOT need Google Calendar as a middleman. Connect once and post directly from Aurelia's Social Queue.</div>
+        
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Create a Zoho Social app</div><div class="step-desc">Go to <a href="https://api-console.zoho.eu" target="_blank">api-console.zoho.eu</a> → Create Client → Self Client. Set redirect URI to: <code>https://aurelia.identitypartners.uk/comms/zoho.html</code></div></div></div>
+        
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Copy credentials</div><div class="step-desc">Copy your Client ID and Client Secret. Go to <a href="/settings/index.html">Settings → Key Ingester</a> and paste:<br><code>Zoho_Client_ID=your_client_id</code><br><code>Zoho_Client_Secret=your_client_secret</code></div></div></div>
+        
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Connect Zoho Social</div><div class="step-desc">Go to <a href="/comms/zoho.html">Comms → Zoho Integration</a> and click "Connect Zoho Social". You'll be redirected to Zoho to authorise. After authorising, you'll return to Aurelia automatically.</div></div></div>
+        
+        <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Post directly</div><div class="step-desc">In Social Queue, click "Publish via Zoho" on any queued post. Zoho Social supports: LinkedIn, Facebook, Twitter/X, Instagram, Google My Business. <strong>This is direct posting, not just scheduling.</strong></div></div></div>
+        
+        <div class="note">&#9888; Zoho Social's free plan supports 1 brand and 7 channels. Paid plans add more brands and team members.</div>
+      </div>
+
+      <!-- Zoho Calendar -->
+      <div class="guide-section">
+        <div class="guide-section-title">Zoho Calendar — No Google Calendar needed</div>
+        <div class="guide-section-desc">Connect Zoho Calendar directly. You do NOT need Google Calendar as an intermediary.</div>
+        
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Same app, different scope</div><div class="step-desc">Use the same Zoho app you created above. Go to <a href="/comms/zoho.html">Comms → Zoho Integration</a> and click "Connect Zoho Calendar". This requests calendar-specific permissions.</div></div></div>
+        
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Calendar appears on Home</div><div class="step-desc">Once connected, your Zoho Calendar events will appear in the Home page sidebar calendar widget and in the CRM for session scheduling.</div></div></div>
+      </div>
+
+      <!-- Setmore -->
+      <div class="guide-section">
+        <div class="guide-section-title">Setmore — Booking Calendar</div>
+        <div class="guide-section-desc">Setmore's free plan includes a booking page, email reminders, and basic integrations. No API key needed for the embed.</div>
+        
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Get your Setmore booking URL</div><div class="step-desc">Log in to <a href="https://setmore.com" target="_blank">setmore.com</a> → Settings → Booking Page → copy your booking URL (e.g. <code>https://book.setmore.com/scheduleappointment/...</code>)</div></div></div>
+        
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add to your profile</div><div class="step-desc">Go to <a href="/profile/index.html">My Profile</a> → Personal → Booking Link. Paste your Setmore URL. This will appear in your platform bios and social posts.</div></div></div>
+        
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Embed on identitypartners.uk</div><div class="step-desc">Add this to your website: <code>&lt;iframe src="YOUR_SETMORE_URL" width="100%" height="600" frameborder="0"&gt;&lt;/iframe&gt;</code></div></div></div>
+        
+        <div class="note">For Setmore API access (to sync with Aurelia's CRM), you need Setmore Pro ($5/mo). The free embed works without an API key.</div>
+      </div>
+
+      <!-- CRM Options -->
+      <div class="guide-section">
+        <div class="guide-section-title">CRM Options — Zoho CRM, HubSpot & Others</div>
+        <div class="guide-section-desc">Aurelia has a built-in CRM, but you can also integrate with external CRMs for bulk email and advanced features.</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:14px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Zoho CRM (Free)</div>
+            <div style="font-size:12px;color:var(--muted,#78716c);line-height:1.6">Free for 3 users. Includes contacts, deals, bulk email (2,000/day), and Zoho Social integration. Best if you're already using Zoho.</div>
+            <a href="https://www.zoho.com/crm/" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-flex">Zoho CRM &#8599;</a>
+          </div>
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:14px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">HubSpot (Free)</div>
+            <div style="font-size:12px;color:var(--muted,#78716c);line-height:1.6">Free CRM with unlimited contacts, email marketing (2,000/mo), and a good API. Best for bulk email campaigns.</div>
+            <a href="https://www.hubspot.com/products/crm" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-flex">HubSpot CRM &#8599;</a>
+          </div>
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:14px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Brevo (formerly Sendinblue)</div>
+            <div style="font-size:12px;color:var(--muted,#78716c);line-height:1.6">Free: 300 emails/day, unlimited contacts. Best for transactional email and newsletters. Good API.</div>
+            <a href="https://www.brevo.com" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-flex">Brevo &#8599;</a>
+          </div>
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:14px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px">Mailchimp (Free)</div>
+            <div style="font-size:12px;color:var(--muted,#78716c);line-height:1.6">Free: 500 contacts, 1,000 emails/mo. Good for newsletters and audience building. Integrates with most platforms.</div>
+            <a href="https://mailchimp.com" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:8px;display:inline-flex">Mailchimp &#8599;</a>
+          </div>
+        </div>
+        
+        <div class="note" style="margin-top:12px">&#128161; <strong>Recommendation for Identity Partners:</strong> Use Zoho CRM (already in your Zoho ecosystem) for contact management + Brevo for bulk email campaigns. Both have free tiers sufficient for a solo practice.</div>
+      </div>
+
+      <!-- Social Posting — Direct vs Queue -->
+      <div class="guide-section">
+        <div class="guide-section-title">Social Posting — Direct vs Scheduled</div>
+        <div class="guide-section-desc">Clarifying what Zoho Social, Playwright, and the Social Queue each do.</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:12px">
+            <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:5px">Zoho Social</div>
+            <div style="font-size:11.5px;color:var(--muted,#78716c);line-height:1.6">&#10003; Direct posting NOW<br>&#10003; Scheduled posting<br>&#10003; LinkedIn, Facebook, Twitter, Instagram, GMB<br>&#10007; TikTok, Bluesky, Telegram</div>
+          </div>
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:12px">
+            <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:5px">Bluesky API</div>
+            <div style="font-size:11.5px;color:var(--muted,#78716c);line-height:1.6">&#10003; Direct posting (free)<br>&#10003; No rate limits<br>&#10003; Already configured<br>Use: BLUESKY_HANDLE + BLUESKY_APP_PASSWORD</div>
+          </div>
+          <div style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:12px">
+            <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:5px">Playwright/Puppeteer</div>
+            <div style="font-size:11.5px;color:var(--muted,#78716c);line-height:1.6">&#10003; Any platform<br>&#10003; Profile creation<br>&#10007; Slower, may break<br>&#10007; Requires Cloudflare Worker with browser</div>
+          </div>
+        </div>
+        
+        <div class="note" style="margin-top:10px">&#128161; <strong>For today's goal:</strong> Use Zoho Social for LinkedIn/Facebook/Twitter/Instagram + Bluesky API directly + Telegram API (already configured). This covers your main platforms without Playwright.</div>
+      </div>
+
+      <!-- Chatbot for identitypartners.uk -->
+      <div class="guide-section">
+        <div class="guide-section-title">Chatbot for identitypartners.uk</div>
+        <div class="guide-section-desc">Deploy an Aurelia-powered chatbot on your website. Visitors can ask about your services, book sessions, and get information.</div>
+        
+        <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Get the embed code</div><div class="step-desc">Go to <a href="/agenti-city/index.html">Agenti City</a> → select or create an agent → click "Deploy as Chatbot". Copy the embed code.</div></div></div>
+        
+        <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Add to identitypartners.uk</div><div class="step-desc">Paste this before <code>&lt;/body&gt;</code> on your website:<br><code>&lt;script src="https://aurelia.identitypartners.uk/chatbot/embed.js" data-agent="ip-default"&gt;&lt;/script&gt;</code></div></div></div>
+        
+        <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Customise the chatbot</div><div class="step-desc">The chatbot uses your Identity Partners brand colours, knows about your services, and can direct visitors to your Setmore booking page.</div></div></div>
+        
+        <div class="note">The chatbot embed is being built. Go to Agenti City to configure your IP Default agent first.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+</body>
+</html>
