@@ -54,7 +54,33 @@
 </div>
   </div>
 </div>
-<script src="/shared/aurelia.js"></script>
+<script src="/shared/aurelia.js">
+async function zohoPublish(item) {
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_social";
+  var zohoClientId = localStorage.getItem("aurelia_social_zoho-client-id") || "";
+  if (!zohoClientId) {
+    if (typeof Toast !== "undefined") Toast.show("Configure Zoho Social in Settings → Social Accounts", "info");
+    return;
+  }
+  try {
+    var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/zoho/social/publish", {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+      body: JSON.stringify({content: item.content || item.text, platform: item.platform, schedule: item.schedule})
+    });
+    var data = await res.json();
+    if (data.success) {
+      item.status = "published";
+      item.publishedAt = Date.now();
+      if (typeof Toast !== "undefined") Toast.show("Published via Zoho Social", "success");
+    } else {
+      if (typeof Toast !== "undefined") Toast.show("Zoho: " + (data.error || "Unknown error"), "error");
+    }
+  } catch(e) {
+    if (typeof Toast !== "undefined") Toast.show("Zoho publish failed: " + e.message, "error");
+  }
+}
+</script>
 <script>
 var queue=[],activePlatform="all";
 function init(){queue=JSON.parse(localStorage.getItem("aurelia_social_queue")||"[]");var pre=sessionStorage.getItem("aurelia_social_content");if(pre){sessionStorage.removeItem("aurelia_social_content");document.getElementById("compose-content").value=pre;updateCharCount();}renderQueue();}
