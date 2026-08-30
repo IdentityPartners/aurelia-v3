@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — My Profile</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .profile-shell{max-width:860px;margin:0 auto;padding:24px}
+    .profile-hero{background:linear-gradient(135deg,var(--accent,#0f3b3a),var(--accent2,#1a5554));border-radius:var(--radius-lg,12px);padding:28px;margin-bottom:20px;display:flex;align-items:center;gap:20px;color:#fff}
+    .profile-avatar-wrap{position:relative;flex-shrink:0}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,0.3);object-fit:cover;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-serif,Georgia);font-size:32px;color:#fff}
+    .profile-avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--accent,#0f3b3a)}
+    .profile-name{font-family:var(--font-serif,Georgia);font-size:26px;font-weight:400;margin-bottom:3px}
+    .profile-title{font-size:13px;opacity:0.8;margin-bottom:8px}
+    .profile-tags{display:flex;gap:6px;flex-wrap:wrap}
+    .profile-tag{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:3px 10px;font-size:11px}
+    .tab-bar{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius,8px);overflow:hidden;margin-bottom:20px}
+    .tab-btn{flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted,#78716c);font-family:var(--font,Inter);transition:all .15s;border-right:1px solid var(--border)}
+    .tab-btn:last-child{border-right:none}
+    .tab-btn.on{background:var(--bg-2,#f0e9e0);color:var(--ink)}
+    .tab-panel{display:none}.tab-panel.on{display:block}
+    .form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:20px;margin-bottom:14px}
+    .form-section-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:14px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .char-count{font-size:10.5px;color:var(--faint,#a8a29e);text-align:right;margin-top:3px}
+    .platform-bio-card{background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:var(--radius,8px);padding:12px;margin-bottom:8px}
+    .platform-bio-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px}
+    .save-indicator{font-size:11px;color:var(--faint,#a8a29e);margin-left:8px}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/profile/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">My Profile</span></a>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <span class="topbar-title">My Profile</span>
+      <div class="topbar-actions">
+        <span class="save-indicator" id="save-indicator">All saved</span>
+        <button class="btn btn-primary btn-sm" onclick="saveAll()">Save All</button>
+        <button class="btn btn-ghost btn-sm" onclick="generateBios()">&#10024; Generate Bios with AI</button>
+      </div>
+    </div>
+
+    <div style="overflow-y:auto;flex:1">
+    <div class="profile-shell">
+
+      <!-- Profile hero -->
+      <div class="profile-hero">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profile-avatar-display">SJ</div>
+          <button class="profile-avatar-edit" onclick="document.getElementById('avatar-upload').click()" title="Change photo">&#9998;</button>
+          <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+        </div>
+        <div style="flex:1">
+          <div class="profile-name" id="hero-name">SJ Johnson</div>
+          <div class="profile-title" id="hero-title">Identity Partners — Professional Listening & Coaching</div>
+          <div class="profile-tags">
+            <span class="profile-tag">Professional Listener</span>
+            <span class="profile-tag">Identity Coach</span>
+            <span class="profile-tag">ADHD Specialist</span>
+            <span class="profile-tag">Non-clinical</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;opacity:0.7;margin-bottom:4px">Profile completeness</div>
+          <div style="font-size:24px;font-weight:600" id="completeness-pct">0%</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn on" onclick="showTab('personal',this)">Personal</button>
+        <button class="tab-btn" onclick="showTab('ip',this)">Identity Partners</button>
+        <button class="tab-btn" onclick="showTab('bios',this)">Platform Bios</button>
+        <button class="tab-btn" onclick="showTab('credentials',this)">Credentials</button>
+        <button class="tab-btn" onclick="showTab('media',this)">Media & Assets</button>
+      </div>
+
+      <!-- Personal tab -->
+      <div class="tab-panel on" id="tab-personal">
+        <div class="form-section">
+          <div class="form-section-title">Personal Information</div>
+          <div class="form-grid">
+            <div class="input-group"><label class="input-label">First Name</label><input class="input" id="p-first" placeholder="Simon" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Last Name</label><input class="input" id="p-last" placeholder="Johnson" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Preferred Name / Handle</label><input class="input" id="p-preferred" placeholder="SJ" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Pronouns</label><input class="input" id="p-pronouns" placeholder="he/him" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Location</label><input class="input" id="p-location" placeholder="UK" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Primary Email</label><input class="input" id="p-email" type="email" placeholder="simon@identitypartners.uk" oninput="autoSave()"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Personal Bio</div>
+          <div class="input-group">
+            <label class="input-label">Short bio (1-2 sentences, for social profiles)</label>
+            <textarea class="input" id="p-bio-short" rows="3" maxlength="160" placeholder="Professional listener, identity coach, and thinking partner. Non-clinical support for life transitions, neurodivergent adults, and sobriety accountability." oninput="updateCharCount('p-bio-short','p-bio-short-count',160);autoSave()"></textarea>
+            <div class="char-count" id="p-bio-short-count">0/160</div>
+          </div>
+          <div class="input-group mt-3">
+            <label class="input-label">Full bio (for directories, websites)</label>
+            <textarea class="input" id="p-bio-full" rows="8" placeholder="Write your full professional bio here..." oninput="autoSave()"></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Qualifications & Background</div>
+          <div class="input-group">
+            <label class="input-label">Qualifications (one per line)</label>
+            <textarea class="input" id="p-quals" rows="5" placeholder="Level 3 Diploma in Counselling Skills&#10;ACCPH Member&#10;..." oninput="autoSave()"></textarea>
+          </div>
+          <div class="input-group mt-3">
+            <label class="input-label">Areas of specialism</label>
+            <textarea class="input" id="p-specialism" rows="4" placeholder="Identity development, life transitions, late-diagnosed neurodivergent adults, sobriety accountability, professional listening..." oninput="autoSave()"></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Social & Contact Links</div>
+          <div class="form-grid">
+            <div class="input-group"><label class="input-label">LinkedIn URL</label><input class="input" id="p-linkedin" placeholder="https://linkedin.com/in/..." oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Bluesky Handle</label><input class="input" id="p-bluesky" placeholder="@handle.bsky.social" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Website</label><input class="input" id="p-website" placeholder="https://identitypartners.uk" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Booking Link</label><input class="input" id="p-booking" placeholder="https://setmore.com/..." oninput="autoSave()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Identity Partners tab -->
+      <div class="tab-panel" id="tab-ip">
+        <div class="form-section">
+          <div class="form-section-title">Identity Partners — Organisation Profile</div>
+          <div class="form-grid">
+            <div class="input-group"><label class="input-label">Organisation Name</label><input class="input" id="ip-name" value="Identity Partners" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Trading Name (if different)</label><input class="input" id="ip-trading" placeholder="Identity Partners" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Website</label><input class="input" id="ip-website" placeholder="https://identitypartners.uk" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Email</label><input class="input" id="ip-email" placeholder="identitypartners@pm.me" oninput="autoSave()"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Organisation Description</div>
+          <div class="input-group">
+            <label class="input-label">Tagline</label>
+            <input class="input" id="ip-tagline" placeholder="Understand your past. Appreciate the present. Define your future." oninput="autoSave()">
+          </div>
+          <div class="input-group mt-3">
+            <label class="input-label">Short description (for directories)</label>
+            <textarea class="input" id="ip-desc-short" rows="3" maxlength="300" placeholder="Identity Partners offers professional listening, coaching, and identity development services. Non-clinical, non-judgmental support for adults navigating life transitions." oninput="updateCharCount('ip-desc-short','ip-desc-short-count',300);autoSave()"></textarea>
+            <div class="char-count" id="ip-desc-short-count">0/300</div>
+          </div>
+          <div class="input-group mt-3">
+            <label class="input-label">Full description</label>
+            <textarea class="input" id="ip-desc-full" rows="8" placeholder="Full organisation description..." oninput="autoSave()"></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Services Offered</div>
+          <div class="input-group">
+            <label class="input-label">Services (one per line)</label>
+            <textarea class="input" id="ip-services" rows="8" placeholder="Professional listening sessions&#10;Identity development coaching&#10;Life transition support&#10;Neurodivergent identity exploration&#10;Sobriety accountability (non-clinical)&#10;Body doubling and executive function support&#10;Ikigai and values clarification&#10;Weekly accountability partnership" oninput="autoSave()"></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Positioning & Compliance</div>
+          <div class="input-group">
+            <label class="input-label">What we are NOT (important for compliance)</label>
+            <textarea class="input" id="ip-not" rows="4" placeholder="We do not provide therapy, counselling, medical advice, or crisis support. We are not a substitute for clinical mental health services." oninput="autoSave()"></textarea>
+          </div>
+          <div class="input-group mt-3">
+            <label class="input-label">Insurance & professional body</label>
+            <input class="input" id="ip-insurance" placeholder="e.g. ACCPH member, insured for coaching and listening services" oninput="autoSave()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Bios tab -->
+      <div class="tab-panel" id="tab-bios">
+        <div style="margin-bottom:14px;display:flex;gap:8px;align-items:center">
+          <div style="font-size:13px;color:var(--muted,#78716c)">Platform-specific bios optimised for each context. Click Generate to create AI-optimised versions.</div>
+          <button class="btn btn-primary btn-sm" onclick="generateBios()" style="flex-shrink:0">&#10024; Generate All</button>
+        </div>
+        <div id="platform-bios-list"></div>
+      </div>
+
+      <!-- Credentials tab -->
+      <div class="tab-panel" id="tab-credentials">
+        <div class="form-section">
+          <div class="form-section-title">Qualifications & Credentials</div>
+          <div id="credentials-list"></div>
+          <button class="btn btn-ghost btn-sm mt-3" onclick="addCredential()">+ Add Credential</button>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Professional Memberships</div>
+          <div class="input-group">
+            <label class="input-label">Memberships (one per line)</label>
+            <textarea class="input" id="p-memberships" rows="5" placeholder="ACCPH Member&#10;..." oninput="autoSave()"></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Supervision & Insurance</div>
+          <div class="form-grid">
+            <div class="input-group"><label class="input-label">Supervisor name/org</label><input class="input" id="p-supervisor" placeholder="Supervisor name" oninput="autoSave()"></div>
+            <div class="input-group"><label class="input-label">Insurance provider</label><input class="input" id="p-insurer" placeholder="Insurance provider" oninput="autoSave()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Media & Assets tab -->
+      <div class="tab-panel" id="tab-media">
+        <div class="form-section">
+          <div class="form-section-title">Profile Photos</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="text-align:center">
+              <div id="photo-main" style="width:100px;height:100px;border-radius:50%;background:var(--bg-3,#e8ddd4);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:6px">SJ</div>
+              <div style="font-size:11px;color:var(--faint,#a8a29e)">Main photo</div>
+              <label class="btn btn-ghost btn-sm mt-2" style="cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="uploadPhoto(this,'main')"></label>
+            </div>
+            <div style="text-align:center">
+              <div id="photo-professional" style="width:100px;height:100px;border-radius:8px;background:var(--bg-3,#e8ddd4);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:6px">🏛️</div>
+              <div style="font-size:11px;color:var(--faint,#a8a29e)">Professional</div>
+              <label class="btn btn-ghost btn-sm mt-2" style="cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="uploadPhoto(this,'professional')"></label>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Identity Partners Logo</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <img id="ip-logo-preview" src="/uploaded_files/logo-square.png" style="height:80px;border-radius:8px;border:1px solid var(--border)" onerror="this.style.display='none'">
+            <div>
+              <div style="font-size:12.5px;color:var(--ink);margin-bottom:6px">Identity Partners logo files are stored in your uploads.</div>
+              <div style="font-size:11.5px;color:var(--muted,#78716c)">logo-square.png, logo-rect-left.png, logo-rect-right.png, logo-hero-tag.png</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Auto-Save Destinations</div>
+          <div style="font-size:12.5px;color:var(--muted,#78716c);margin-bottom:12px">Drafts, canvases, and generated images will be automatically saved to these destinations.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);border:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:500;color:var(--ink)">OneDrive</div><div style="font-size:11px;color:var(--faint,#a8a29e)">Microsoft OneDrive — Surface-native</div></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input class="input" id="onedrive-folder" placeholder="Aurelia/" style="max-width:120px;font-size:12px">
+                <div class="tog" id="tog-onedrive" onclick="this.classList.toggle('on');autoSave()"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);border:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:500;color:var(--ink)">Proton Drive</div><div style="font-size:11px;color:var(--faint,#a8a29e)">End-to-end encrypted cloud storage</div></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input class="input" id="proton-folder" placeholder="Aurelia/" style="max-width:120px;font-size:12px">
+                <div class="tog" id="tog-proton" onclick="this.classList.toggle('on');autoSave()"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);border:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:500;color:var(--ink)">Google Drive</div><div style="font-size:11px;color:var(--faint,#a8a29e)">Google Drive integration</div></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input class="input" id="gdrive-folder" placeholder="Aurelia/" style="max-width:120px;font-size:12px">
+                <div class="tog" id="tog-gdrive" onclick="this.classList.toggle('on');autoSave()"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);border:1px solid var(--border)">
+              <div><div style="font-size:13px;font-weight:500;color:var(--ink)">Zoho WorkDrive</div><div style="font-size:11px;color:var(--faint,#a8a29e)">Zoho cloud storage</div></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input class="input" id="zoho-folder" placeholder="Aurelia/" style="max-width:120px;font-size:12px">
+                <div class="tog" id="tog-zoho" onclick="this.classList.toggle('on');autoSave()"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+<script>
+var PLATFORM_BIO_TEMPLATES = [
+  {platform:'Fiverr', maxLen:150, context:'freelance gig marketplace'},
+  {platform:'Bark', maxLen:200, context:'UK lead generation for coaches'},
+  {platform:'Premium.Chat', maxLen:160, context:'paid conversation platform'},
+  {platform:'Topmate', maxLen:200, context:'paid mentoring sessions'},
+  {platform:'LinkedIn', maxLen:2000, context:'professional networking'},
+  {platform:'Noomii', maxLen:500, context:'life coaching directory'},
+  {platform:'Approach a Coach', maxLen:400, context:'coaching directory'},
+  {platform:'Life Coach Directory', maxLen:500, context:'UK coaching directory'},
+];
+
+var autosaveTimer = null;
+var profile = {};
+
+function init() {
+  profile = JSON.parse(localStorage.getItem('aurelia_profile') || '{}');
+  loadProfile();
+  renderPlatformBios();
+  renderCredentials();
+  updateCompleteness();
+}
+
+function loadProfile() {
+  var fields = ['p-first','p-last','p-preferred','p-pronouns','p-location','p-email',
+    'p-bio-short','p-bio-full','p-quals','p-specialism','p-linkedin','p-bluesky','p-website','p-booking',
+    'ip-name','ip-trading','ip-website','ip-email','ip-tagline','ip-desc-short','ip-desc-full','ip-services','ip-not','ip-insurance',
+    'p-memberships','p-supervisor','p-insurer','onedrive-folder','proton-folder','gdrive-folder','zoho-folder'];
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && profile[id]) el.value = profile[id];
+  });
+  
+  // Toggles
+  ['onedrive','proton','gdrive','zoho'].forEach(function(t) {
+    var tog = document.getElementById('tog-' + t);
+    if (tog && profile['tog-' + t]) tog.classList.add('on');
+  });
+  
+  // Update hero
+  updateHero();
+  
+  // Char counts
+  updateCharCount('p-bio-short','p-bio-short-count',160);
+  updateCharCount('ip-desc-short','ip-desc-short-count',300);
+}
+
+function updateHero() {
+  var first = document.getElementById('p-first');
+  var last = document.getElementById('p-last');
+  var preferred = document.getElementById('p-preferred');
+  var heroName = document.getElementById('hero-name');
+  var heroTitle = document.getElementById('hero-title');
+  var avatarDisplay = document.getElementById('profile-avatar-display');
+  
+  var name = (preferred && preferred.value) ? preferred.value : ((first && first.value ? first.value : 'SJ') + ' ' + (last && last.value ? last.value : ''));
+  if (heroName) heroName.textContent = name.trim() || 'SJ Johnson';
+  
+  var ipName = document.getElementById('ip-name');
+  var ipTagline = document.getElementById('ip-tagline');
+  if (heroTitle) heroTitle.textContent = (ipName && ipName.value ? ipName.value : 'Identity Partners') + (ipTagline && ipTagline.value ? ' — ' + ipTagline.value.slice(0,60) : '');
+  
+  if (avatarDisplay && !avatarDisplay.querySelector('img')) {
+    avatarDisplay.textContent = name.trim() ? name.trim().slice(0,2).toUpperCase() : 'SJ';
+  }
+}
+
+function autoSave() {
+  clearTimeout(autosaveTimer);
+  document.getElementById('save-indicator').textContent = 'Saving...';
+  autosaveTimer = setTimeout(function() {
+    saveAll();
+    document.getElementById('save-indicator').textContent = 'Saved ✓';
+    updateHero();
+    updateCompleteness();
+  }, 1200);
+}
+
+function saveAll() {
+  var fields = ['p-first','p-last','p-preferred','p-pronouns','p-location','p-email',
+    'p-bio-short','p-bio-full','p-quals','p-specialism','p-linkedin','p-bluesky','p-website','p-booking',
+    'ip-name','ip-trading','ip-website','ip-email','ip-tagline','ip-desc-short','ip-desc-full','ip-services','ip-not','ip-insurance',
+    'p-memberships','p-supervisor','p-insurer','onedrive-folder','proton-folder','gdrive-folder','zoho-folder'];
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) profile[id] = el.value;
+  });
+  ['onedrive','proton','gdrive','zoho'].forEach(function(t) {
+    var tog = document.getElementById('tog-' + t);
+    if (tog) profile['tog-' + t] = tog.classList.contains('on');
+  });
+  localStorage.setItem('aurelia_profile', JSON.stringify(profile));
+  if (typeof Toast !== 'undefined') Toast.show('Profile saved', 'success');
+}
+
+function updateCompleteness() {
+  var fields = ['p-first','p-bio-short','p-quals','ip-desc-short','ip-services'];
+  var filled = fields.filter(function(id) { var el = document.getElementById(id); return el && el.value.trim().length > 10; }).length;
+  var pct = Math.round(filled / fields.length * 100);
+  var el = document.getElementById('completeness-pct');
+  if (el) el.textContent = pct + '%';
+}
+
+function updateCharCount(inputId, countId, max) {
+  var input = document.getElementById(inputId);
+  var count = document.getElementById(countId);
+  if (input && count) count.textContent = input.value.length + '/' + max;
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('on'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('on'); });
+  var panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+function renderPlatformBios() {
+  var list = document.getElementById('platform-bios-list');
+  if (!list) return;
+  list.innerHTML = '';
+  PLATFORM_BIO_TEMPLATES.forEach(function(tpl) {
+    var saved = profile['bio-' + tpl.platform] || '';
+    var card = document.createElement('div');
+    card.className = 'platform-bio-card';
+    var header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px';
+    var name = document.createElement('div');
+    name.className = 'platform-bio-name';
+    name.textContent = tpl.platform + ' (max ' + tpl.maxLen + ' chars)';
+    var genBtn = document.createElement('button');
+    genBtn.className = 'btn btn-ghost btn-sm';
+    genBtn.textContent = '✦ Generate';
+    genBtn.onclick = function() { generatePlatformBio(tpl); };
+    header.appendChild(name);
+    header.appendChild(genBtn);
+    var ta = document.createElement('textarea');
+    ta.className = 'input';
+    ta.id = 'bio-' + tpl.platform;
+    ta.rows = 3;
+    ta.maxLength = tpl.maxLen;
+    ta.placeholder = 'Bio for ' + tpl.platform + '...';
+    ta.value = saved;
+    ta.oninput = function() { autoSave(); };
+    var charDiv = document.createElement('div');
+    charDiv.className = 'char-count';
+    charDiv.textContent = saved.length + '/' + tpl.maxLen;
+    ta.addEventListener('input', function() { charDiv.textContent = ta.value.length + '/' + tpl.maxLen; });
+    card.appendChild(header);
+    card.appendChild(ta);
+    card.appendChild(charDiv);
+    list.appendChild(card);
+  });
+}
+
+async function generatePlatformBio(tpl) {
+  var bioShort = document.getElementById('p-bio-short');
+  var quals = document.getElementById('p-quals');
+  var specialism = document.getElementById('p-specialism');
+  var ipServices = document.getElementById('ip-services');
+  
+  var context = 'Name: SJ Johnson. Organisation: Identity Partners. ';
+  if (bioShort && bioShort.value) context += 'Bio: ' + bioShort.value + '. ';
+  if (quals && quals.value) context += 'Qualifications: ' + quals.value.slice(0,200) + '. ';
+  if (specialism && specialism.value) context += 'Specialism: ' + specialism.value.slice(0,200) + '. ';
+  
+  var tok = localStorage.getItem('aurelia_device_token') || 'dt_profile';
+  try {
+    var res = await fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+tok,'Origin':'https://aurelia.identitypartners.uk'},
+      body: JSON.stringify({
+        messages: [{role:'user',content:'Write a professional bio for ' + tpl.platform + ' (' + tpl.context + '). Maximum ' + tpl.maxLen + ' characters. Context: ' + context + ' The bio should be warm, professional, non-clinical, and focused on identity development, listening, and personal growth. Do NOT claim to be a therapist or counsellor. Use first person.'}],
+        model: 'groq/openai/gpt-oss-20b'
+      })
+    });
+    var data = await res.json();
+    var ta = document.getElementById('bio-' + tpl.platform);
+    if (ta && data.content) {
+      ta.value = data.content.slice(0, tpl.maxLen);
+      ta.dispatchEvent(new Event('input'));
+      profile['bio-' + tpl.platform] = ta.value;
+      localStorage.setItem('aurelia_profile', JSON.stringify(profile));
+    }
+  } catch(e) {
+    if (typeof Toast !== 'undefined') Toast.show('Generate failed: ' + e.message, 'error');
+  }
+}
+
+async function generateBios() {
+  if (typeof Toast !== 'undefined') Toast.show('Generating all platform bios...', 'info');
+  for (var i = 0; i < PLATFORM_BIO_TEMPLATES.length; i++) {
+    await generatePlatformBio(PLATFORM_BIO_TEMPLATES[i]);
+  }
+  if (typeof Toast !== 'undefined') Toast.show('All bios generated!', 'success');
+}
+
+function renderCredentials() {
+  var list = document.getElementById('credentials-list');
+  if (!list) return;
+  var creds = profile.credentials || [];
+  list.innerHTML = '';
+  creds.forEach(function(c, i) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
+    var input = document.createElement('input');
+    input.className = 'input';
+    input.value = c;
+    input.oninput = function() { profile.credentials[i] = input.value; localStorage.setItem('aurelia_profile', JSON.stringify(profile)); };
+    var del = document.createElement('button');
+    del.className = 'btn btn-ghost btn-sm';
+    del.textContent = '✕';
+    del.onclick = function() { profile.credentials.splice(i, 1); renderCredentials(); localStorage.setItem('aurelia_profile', JSON.stringify(profile)); };
+    row.appendChild(input);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function addCredential() {
+  if (!profile.credentials) profile.credentials = [];
+  profile.credentials.push('');
+  renderCredentials();
+}
+
+function uploadAvatar(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var av = document.getElementById('profile-avatar-display');
+    if (av) {
+      av.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+      av.appendChild(img);
+    }
+    profile.avatarDataUrl = e.target.result;
+    localStorage.setItem('aurelia_profile', JSON.stringify(profile));
+  };
+  reader.readAsDataURL(file);
+}
+
+function uploadPhoto(input, type) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var el = document.getElementById('photo-' + type);
+    if (el) {
+      el.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:' + (type==='main'?'50%':'8px');
+      el.appendChild(img);
+    }
+    profile['photo-' + type] = e.target.result;
+    localStorage.setItem('aurelia_profile', JSON.stringify(profile));
+  };
+  reader.readAsDataURL(file);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
