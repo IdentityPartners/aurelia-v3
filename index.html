@@ -27,7 +27,7 @@
     }
     .hero-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to bottom, rgba(15,59,58,0.3) 0%, rgba(15,59,58,0.7) 100%);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
     }
     .hero-content { position: relative; z-index: 2; }
     .hero-greeting {
@@ -477,34 +477,34 @@
 // ── Background images by time of day ─────────────────────────────────────
 var BG_IMAGES = {
   dawn: [
-    'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=90&fit=crop',
   ],
   morn: [
-    'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=90&fit=crop',
   ],
   noon: [
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=90&fit=crop',
   ],
   arvo: [
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=90&fit=crop',
   ],
   dusk: [
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1490750967868-88df5691cc5e?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=90&fit=crop',
   ],
   midnight: [
-    'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1920&q=85&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=85&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1920&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=1920&q=90&fit=crop',
   ],
 };
 
@@ -582,96 +582,97 @@ async function loadNews() {
   loading.textContent = "Loading news...";
   feed.appendChild(loading);
   
-  // Use multiple RSS-to-JSON services for reliability
-  var RSS_APIS = [
-    "https://api.rss2json.com/v1/api.json?rss_url=",
-    "https://rss.app/feeds/v1.1/",
-  ];
-  
-  var FEEDS = {
+  // Curated fallback articles — always shown if RSS fails
+  var FALLBACK = {
     general: [
-      {name:"BBC News", url:"https://feeds.bbci.co.uk/news/rss.xml", icon:"https://www.bbc.co.uk/favicon.ico"},
-      {name:"The Guardian", url:"https://www.theguardian.com/uk/rss", icon:"https://www.theguardian.com/favicon.ico"},
-      {name:"Sky News", url:"https://feeds.skynews.com/feeds/rss/uk.xml", icon:"https://news.sky.com/favicon.ico"},
+      {source:"BBC News",title:"Latest UK and world news",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
+      {source:"The Guardian",title:"Independent journalism from The Guardian",url:"https://www.theguardian.com",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
+      {source:"Sky News",title:"Breaking news and analysis",url:"https://news.sky.com",image:"https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70",date:"Live"},
     ],
     ai: [
-      {name:"MIT Tech Review", url:"https://www.technologyreview.com/feed/", icon:"https://www.technologyreview.com/favicon.ico"},
-      {name:"The Verge", url:"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml", icon:"https://www.theverge.com/favicon.ico"},
-      {name:"Wired", url:"https://www.wired.com/feed/tag/ai/latest/rss", icon:"https://www.wired.com/favicon.ico"},
+      {source:"MIT Tech Review",title:"AI and emerging technology news",url:"https://www.technologyreview.com",image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&q=70",date:"Live"},
+      {source:"The Verge",title:"Technology, science, art and culture",url:"https://www.theverge.com/ai-artificial-intelligence",image:"https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=200&q=70",date:"Live"},
+      {source:"Wired",title:"How technology is changing everything",url:"https://www.wired.com",image:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&q=70",date:"Live"},
     ],
     psychology: [
-      {name:"Psychology Today", url:"https://www.psychologytoday.com/intl/front-page/feed", icon:"https://www.psychologytoday.com/favicon.ico"},
-      {name:"APA", url:"https://www.apa.org/news/press/releases/rss", icon:"https://www.apa.org/favicon.ico"},
+      {source:"Psychology Today",title:"Mental health, wellbeing and behaviour",url:"https://www.psychologytoday.com",image:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=200&q=70",date:"Live"},
+      {source:"APA",title:"American Psychological Association news",url:"https://www.apa.org/news",image:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=70",date:"Live"},
+      {source:"SocArXiv",title:"Social science preprints and research",url:"https://osf.io/preprints/socarxiv",image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70",date:"Live"},
     ],
     coaching: [
-      {name:"Positive Psychology", url:"https://positivepsychology.com/feed/", icon:"https://positivepsychology.com/favicon.ico"},
-      {name:"ICF", url:"https://coachingfederation.org/feed", icon:"https://coachingfederation.org/favicon.ico"},
+      {source:"ICF",title:"International Coaching Federation news",url:"https://coachingfederation.org",image:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&q=70",date:"Live"},
+      {source:"Positive Psychology",title:"Science of wellbeing and flourishing",url:"https://positivepsychology.com",image:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200&q=70",date:"Live"},
     ],
     neurodivergent: [
-      {name:"ADHD UK", url:"https://adhduk.co.uk/feed/", icon:"https://adhduk.co.uk/favicon.ico"},
-      {name:"Neurodiversity Hub", url:"https://neurodiversityhub.org/feed/", icon:"https://neurodiversityhub.org/favicon.ico"},
+      {source:"ADHD UK",title:"ADHD resources, community and support",url:"https://adhduk.co.uk",image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70",date:"Live"},
+      {source:"Neurodiversity Hub",title:"Neurodiversity in education and work",url:"https://neurodiversityhub.org",image:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&q=70",date:"Live"},
     ],
     uk: [
-      {name:"BBC UK", url:"https://feeds.bbci.co.uk/news/uk/rss.xml", icon:"https://www.bbc.co.uk/favicon.ico"},
-      {name:"Sky News UK", url:"https://feeds.skynews.com/feeds/rss/uk.xml", icon:"https://news.sky.com/favicon.ico"},
-      {name:"Independent", url:"https://www.independent.co.uk/news/uk/rss", icon:"https://www.independent.co.uk/favicon.ico"},
+      {source:"BBC UK",title:"UK news from the BBC",url:"https://www.bbc.co.uk/news/uk",image:"https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=200&q=70",date:"Live"},
+      {source:"The Guardian UK",title:"UK politics, society and culture",url:"https://www.theguardian.com/uk",image:"https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=200&q=70",date:"Live"},
+      {source:"Sky News UK",title:"UK breaking news",url:"https://news.sky.com/uk",image:"https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=200&q=70",date:"Live"},
     ],
     world: [
-      {name:"BBC World", url:"https://feeds.bbci.co.uk/news/world/rss.xml", icon:"https://www.bbc.co.uk/favicon.ico"},
-      {name:"Reuters", url:"https://feeds.reuters.com/reuters/topNews", icon:"https://www.reuters.com/favicon.ico"},
+      {source:"BBC World",title:"World news from the BBC",url:"https://www.bbc.co.uk/news/world",image:"https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200&q=70",date:"Live"},
+      {source:"Reuters",title:"International news and analysis",url:"https://www.reuters.com",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
+      {source:"NYT",title:"The New York Times world coverage",url:"https://www.nytimes.com/section/world",image:"https://images.unsplash.com/photo-1485081669829-bacb8c7bb1f3?w=200&q=70",date:"Live"},
     ],
   };
   
+  var FEEDS = {
+    general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"},{name:"Sky News",url:"https://feeds.skynews.com/feeds/rss/uk.xml"}],
+    ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"},{name:"The Verge",url:"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml"}],
+    psychology: [{name:"Psychology Today",url:"https://www.psychologytoday.com/intl/front-page/feed"}],
+    coaching: [{name:"Positive Psychology",url:"https://positivepsychology.com/feed/"}],
+    neurodivergent: [{name:"ADHD UK",url:"https://adhduk.co.uk/feed/"}],
+    uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"},{name:"Sky News UK",url:"https://feeds.skynews.com/feeds/rss/uk.xml"}],
+    world: [{name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}],
+  };
+  
   var sources = FEEDS[catVal] || FEEDS.general;
+  var fallbacks = FALLBACK[catVal] || FALLBACK.general;
   var allItems = [];
+  var rssWorked = false;
   
-  var promises = sources.map(async function(src) {
-    try {
-      var apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(src.url) + "&count=4&api_key=";
-      var res = await fetch(apiUrl, {signal: AbortSignal.timeout(6000)});
-      var data = await res.json();
-      if (data.status === "ok" && data.items) {
-        data.items.forEach(function(item) {
-          // Extract image from content or enclosure
-          var img = item.thumbnail || 
-                    (item.enclosure && item.enclosure.link) || 
-                    extractFirstImage(item.content || item.description || "") ||
-                    null;
-          allItems.push({
-            source: src.name,
-            sourceIcon: src.icon,
-            title: item.title || "",
-            description: stripHtml(item.description || item.content || "").slice(0, 160),
-            url: item.link || "#",
-            image: img,
-            date: item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-GB", {day:"numeric",month:"short"}) : "",
+  // Try RSS with timeout
+  try {
+    var promises = sources.map(async function(src) {
+      try {
+        var apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(src.url) + "&count=3";
+        var res = await fetch(apiUrl, {signal: AbortSignal.timeout(5000)});
+        var data = await res.json();
+        if (data.status === "ok" && data.items && data.items.length > 0) {
+          rssWorked = true;
+          data.items.forEach(function(item) {
+            var img = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
+            if (!img && item.content) {
+              var m = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+              if (m) img = m[1];
+            }
+            allItems.push({
+              source: src.name,
+              title: item.title || "",
+              description: (item.description || "").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,160),
+              url: item.link || "#",
+              image: img,
+              date: item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "",
+            });
           });
-        });
-      }
-    } catch(e) {}
-  });
-  
-  await Promise.all(promises);
+        }
+      } catch(e) {}
+    });
+    await Promise.all(promises);
+  } catch(e) {}
   
   feed.innerHTML = "";
   
-  if (!allItems.length) {
-    // Fallback: show curated links with source favicons
-    var fallbacks = [
-      {source:"BBC News", sourceIcon:"https://www.bbc.co.uk/favicon.ico", title:"BBC News — UK and world news", url:"https://www.bbc.co.uk/news", image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70", date:"Live"},
-      {source:"The Guardian", sourceIcon:"https://www.theguardian.com/favicon.ico", title:"The Guardian — independent journalism", url:"https://www.theguardian.com", image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70", date:"Live"},
-      {source:"Psychology Today", sourceIcon:"https://www.psychologytoday.com/favicon.ico", title:"Psychology Today — mental health and wellbeing", url:"https://www.psychologytoday.com", image:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=200&q=70", date:"Live"},
-      {source:"MIT Tech Review", sourceIcon:"https://www.technologyreview.com/favicon.ico", title:"MIT Technology Review — AI and emerging technology", url:"https://www.technologyreview.com", image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&q=70", date:"Live"},
-      {source:"ADHD UK", sourceIcon:"https://adhduk.co.uk/favicon.ico", title:"ADHD UK — neurodivergent resources", url:"https://adhduk.co.uk", image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70", date:"Live"},
-    ];
+  if (allItems.length > 0) {
+    allItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
+  } else {
+    // Always show fallback cards with real Unsplash images
     fallbacks.forEach(function(item) { renderNewsCard(feed, item); });
-    return;
   }
-  
-  // Sort by date and show top 6
-  allItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
 }
-
 function extractFirstImage(html) {
   var match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
   return match ? match[1] : null;
