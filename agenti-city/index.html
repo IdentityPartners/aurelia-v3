@@ -6,86 +6,1081 @@
   <title>Aurelia — Agenti City</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
   <link rel="stylesheet" href="/shared/aurelia.css">
-  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+  <style>
+    .ac-shell{display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden}
+    .ac-sidebar{width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .ac-sidebar-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .ac-sidebar-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint,#a8a29e)}
+    .agent-list{flex:1;overflow-y:auto;padding:6px}
+    .agent-item{padding:10px 12px;border-radius:var(--radius,8px);cursor:pointer;transition:all var(--transition,.15s);margin-bottom:3px;border:1px solid transparent;display:flex;align-items:center;gap:10px}
+    .agent-item:hover{background:var(--bg-2,#f0e9e0)}
+    .agent-item.active{background:var(--bg-2,#f0e9e0);border-color:var(--border)}
+    .agent-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+    .agent-avatar-emoji{width:36px;height:36px;border-radius:50%;background:var(--bg-3,#e8ddd4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .agent-info{flex:1;min-width:0}
+    .agent-name{font-size:13px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .agent-role{font-size:11px;color:var(--text-faint,#a8a29e);margin-top:1px}
+    .ac-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg,#f7f3e9)}
+    .ac-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+    .ac-tab{padding:10px 16px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--text-muted,#78716c);border-bottom:2px solid transparent;transition:all var(--transition,.15s)}
+    .ac-tab.on{color:var(--ink);border-bottom-color:var(--accent,#0f3b3a)}
+    .ac-content{flex:1;overflow-y:auto;padding:18px}
+    .ac-panel{display:none}.ac-panel.on{display:block}
+    .agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:18px;margin-bottom:12px}
+    .agent-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+    .agent-card-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+    .agent-card-avatar-emoji{width:56px;height:56px;border-radius:50%;background:var(--bg-3,#e8ddd4);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--border)}
+    .agent-card-name{font-family:var(--font-serif,Georgia);font-size:20px;font-weight:500;color:var(--ink)}
+    .agent-card-role{font-size:12.5px;color:var(--text-muted,#78716c);margin-top:2px}
+    .agent-card-model{font-size:11px;color:var(--text-faint,#a8a29e);margin-top:2px}
+    .persona-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+    .persona-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius,8px);padding:14px;cursor:pointer;transition:all var(--transition,.15s)}
+    .persona-card:hover{border-color:var(--ink-6,#d6d3d1);box-shadow:var(--shadow-sm)}
+    .persona-card.selected{border-color:var(--accent,#0f3b3a);background:var(--accent3,rgba(15,59,58,0.06))}
+    .persona-avatar{font-size:32px;margin-bottom:8px}
+    .persona-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+    .persona-desc{font-size:11.5px;color:var(--text-muted,#78716c);line-height:1.5}
+    .avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
+    .avatar-option{width:72px;height:72px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all var(--transition,.15s);object-fit:cover}
+    .avatar-option:hover{border-color:var(--ink-5,#a8a29e);transform:scale(1.05)}
+    .avatar-option.selected{border-color:var(--accent,#0f3b3a)}
+    .avatar-emoji-option{width:72px;height:72px;border-radius:50%;background:var(--bg-3,#e8ddd4);display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;border:3px solid transparent;transition:all var(--transition,.15s)}
+    .avatar-emoji-option:hover{border-color:var(--ink-5,#a8a29e);transform:scale(1.05)}
+    .avatar-emoji-option.selected{border-color:var(--accent,#0f3b3a)}
+    .chat-wrap{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);margin-bottom:10px}
+    .msg{padding:10px 13px;border-radius:var(--radius,8px);font-size:13.5px;line-height:1.6;max-width:88%}
+    .msg-u{background:var(--accent,#0f3b3a);color:#fff;align-self:flex-end}
+    .msg-a{background:var(--surface);border:1px solid var(--border);color:var(--ink);align-self:flex-start}
+    .msg-meta{font-size:10px;opacity:.55;margin-top:3px}
+    .rr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+    .rr-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius,8px);padding:14px}
+    .rr-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .rr-card-model{font-size:12px;font-weight:600;color:var(--ink)}
+    .rr-card-content{font-size:13px;color:var(--text-secondary,#44403c);line-height:1.6}
+    .synthesis-box{background:var(--accent3,rgba(15,59,58,0.06));border:1px solid var(--accent,#0f3b3a);border-radius:var(--radius,8px);padding:16px;margin-top:14px}
+    .synthesis-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent,#0f3b3a);margin-bottom:8px}
+    .lifecycle-steps{display:flex;gap:0;margin-bottom:16px;overflow-x:auto}
+    .lifecycle-step{flex:1;min-width:80px;padding:10px 8px;text-align:center;font-size:11px;font-weight:500;color:var(--text-muted,#78716c);border-bottom:2px solid var(--border);transition:all var(--transition,.15s)}
+    .lifecycle-step.active{color:var(--accent,#0f3b3a);border-bottom-color:var(--accent,#0f3b3a)}
+    .lifecycle-step.done{color:var(--green,#2e7d32);border-bottom-color:var(--green,#2e7d32)}
+    .lifecycle-log{background:var(--bg-3,#e8ddd4);border:1px solid var(--border);border-radius:var(--radius,8px);padding:10px;font-family:monospace;font-size:11px;color:var(--text-muted,#78716c);min-height:60px;max-height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.6}
+  </style>
 </head>
 <body>
 <div class="app-shell">
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
     <div class="sidebar-nav">
-      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
-<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
-<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
-<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
-
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
       <div class="nav-section-label">Create</div>
-      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
-      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
       <div class="nav-section-label">Business</div>
-      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
-      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="/agenti-city/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <a href="/agents/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Agent Builder</span></a>
       <div class="nav-section-label">System</div>
-      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
     </div>
     <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
   </nav>
+
   <div class="main-content" id="main-content">
-    <div class="topbar"><span class="topbar-title">Agenti City</span></div>
-<div style="padding:20px;max-width:1000px">
-  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Agenti City</h1>
-  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Multi-agent collaboration: Round Tables, Debate Mode, Synthesis, Pipeline Builder.</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
-      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">⟳ Round Table</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Query multiple models simultaneously and synthesise responses.</div>
-      <div class="input-group mb-3"><label class="input-label">Question</label><textarea class="input" id="rt-question" rows="3" placeholder="Ask all models…"></textarea></div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-        <span class="chip on" data-m="groq/openai/gpt-oss-20b" onclick="toggleRTModel(this)">GPT-OSS 20B</span>
-        <span class="chip on" data-m="sambanova/Gemma-4-31B-IT" onclick="toggleRTModel(this)">Gemma 4 31B</span>
-        <span class="chip on" data-m="gemini/gemini-2.5-flash" onclick="toggleRTModel(this)">Gemini Flash</span>
-        <span class="chip" data-m="mistral/mistral-large-latest" onclick="toggleRTModel(this)">Mistral Large</span>
+    <div class="topbar">
+      <span class="topbar-title">Agenti City</span>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportAgents()">Export Agents</button>
+        <button class="btn btn-primary btn-sm" onclick="showCreateAgent()">+ Create Agent</button>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="runRoundTable()">▶ Run Round Table</button>
     </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
-      <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">⚡ Debate Mode</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Two models argue opposing positions on a topic.</div>
-      <div class="input-group mb-3"><label class="input-label">Topic</label><input class="input" id="debate-topic" placeholder="e.g. AI will replace therapists"></div>
-      <button class="btn btn-primary btn-sm" onclick="runDebate()">▶ Start Debate</button>
+
+    <div class="ac-shell">
+      <!-- Agent List Sidebar -->
+      <div class="ac-sidebar">
+        <div class="ac-sidebar-header">
+          <span class="ac-sidebar-title">Agents</span>
+          <button class="btn btn-primary btn-sm" onclick="showCreateAgent()">+</button>
+        </div>
+        <div class="agent-list" id="agent-list"></div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="ac-main">
+        <div class="ac-tabs">
+          <div class="ac-tab on" onclick="showTab('agent',this)">Agent</div>
+          <div class="ac-tab" onclick="showTab('chat',this)">Chat with Agent</div>
+          <div class="ac-tab" onclick="showTab('round-table',this)">Round Table</div>
+          <div class="ac-tab" onclick="showTab('debate',this)">Debate Mode</div>
+          <div class="ac-tab" onclick="showTab('lifecycle',this)">Lifecycle</div>
+          <div class="ac-tab" onclick="showTab('personas',this)">Personas</div>
+        </div>
+
+        <div class="ac-content">
+
+          <!-- Agent Panel -->
+          <div class="ac-panel on" id="panel-agent">
+            <div id="agent-detail">
+              <div class="empty-state">
+                <div class="empty-state-icon" style="font-size:32px;opacity:.2">◉</div>
+                <div class="empty-state-title">Select an agent</div>
+                <div class="empty-state-desc">Choose an agent from the list, or create a new one.</div>
+                <button class="btn btn-primary mt-3" onclick="showCreateAgent()">+ Create Agent</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat with Agent -->
+          <div class="ac-panel" id="panel-chat">
+            <div style="margin-bottom:12px;display:flex;align-items:center;gap:10px">
+              <div id="chat-agent-avatar" class="agent-avatar-emoji" style="width:36px;height:36px;font-size:18px">◉</div>
+              <div>
+                <div style="font-size:13.5px;font-weight:600;color:var(--ink)" id="chat-agent-name">Select an agent first</div>
+                <div style="font-size:11px;color:var(--text-faint,#a8a29e)" id="chat-agent-model">—</div>
+              </div>
+            </div>
+            <div class="chat-wrap" id="agent-chat-messages">
+              <div class="msg msg-a">Select an agent from the list, then chat with them here. Each agent has their own personality, expertise, and model.<div class="msg-meta">Agenti City</div></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input class="input" id="agent-chat-input" placeholder="Message this agent..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMessage();}">
+              <button class="btn btn-primary" onclick="sendAgentMessage()">Send</button>
+            </div>
+          </div>
+
+          <!-- Round Table -->
+          <div class="ac-panel" id="panel-round-table">
+            <div style="margin-bottom:14px">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px">Select models for Round Table</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="rt-model-chips"></div>
+              <div class="input-group mb-3">
+                <label class="input-label">Question / Prompt</label>
+                <textarea class="input" id="rt-prompt" rows="3" placeholder="Ask a question to all selected models simultaneously..."></textarea>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-primary" onclick="runRoundTable()">&#9654; Run Round Table</button>
+                <button class="btn btn-ghost btn-sm" onclick="toggleSynthesis()" id="synthesis-toggle">Synthesis: ON</button>
+              </div>
+            </div>
+            <div id="rt-results"></div>
+          </div>
+
+          <!-- Debate Mode -->
+          <div class="ac-panel" id="panel-debate">
+            <div style="margin-bottom:14px">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px">Structured Debate</div>
+              <div class="grid-2 mb-3">
+                <div class="input-group">
+                  <label class="input-label">Proposition (For)</label>
+                  <select class="input" id="debate-model-for">
+                    <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
+                    <option value="sambanova/Gemma-4-31B-IT">Gemma 4 31B (SambaNova)</option>
+                    <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
+                    <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="mistral/mistral-large-latest">Mistral Large</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label class="input-label">Opposition (Against)</label>
+                  <select class="input" id="debate-model-against">
+                    <option value="sambanova/Gemma-4-31B-IT">Gemma 4 31B (SambaNova)</option>
+                    <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
+                    <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
+                    <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="mistral/mistral-large-latest">Mistral Large</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-label">Motion to debate</label>
+                <input class="input" id="debate-motion" placeholder="e.g. AI will replace human coaches within 10 years">
+              </div>
+              <button class="btn btn-primary" onclick="runDebate()">&#9654; Start Debate</button>
+            </div>
+            <div id="debate-results"></div>
+          </div>
+
+          <!-- Lifecycle -->
+          <div class="ac-panel" id="panel-lifecycle">
+            <div style="margin-bottom:14px">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px">Agent Lifecycle Runner</div>
+              <div style="font-size:12px;color:var(--text-faint,#a8a29e);margin-bottom:12px">Run a full agent workflow: Trigger &#8594; Context &#8594; Plan &#8594; Execute &#8594; Verify &#8594; Persist &#8594; Audit</div>
+              <div class="lifecycle-steps" id="lifecycle-steps">
+                <div class="lifecycle-step" data-step="trigger">Trigger</div>
+                <div class="lifecycle-step" data-step="context">Context</div>
+                <div class="lifecycle-step" data-step="plan">Plan</div>
+                <div class="lifecycle-step" data-step="execute">Execute</div>
+                <div class="lifecycle-step" data-step="verify">Verify</div>
+                <div class="lifecycle-step" data-step="persist">Persist</div>
+                <div class="lifecycle-step" data-step="audit">Audit</div>
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-label">Task / Intent</label>
+                <textarea class="input" id="lifecycle-task" rows="3" placeholder="Describe the task for the agent to execute..."></textarea>
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-label">Agent</label>
+                <select class="input" id="lifecycle-agent-select"></select>
+              </div>
+              <button class="btn btn-primary" onclick="runLifecycle()">&#9654; Run Full Lifecycle</button>
+            </div>
+            <div class="lifecycle-log" id="lifecycle-log">Lifecycle runner ready. Select an agent and describe a task, then click Run.</div>
+          </div>
+
+          <!-- Personas -->
+          <div class="ac-panel" id="panel-personas">
+            <div style="margin-bottom:14px">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px">Chat Personas</div>
+              <div style="font-size:12px;color:var(--text-faint,#a8a29e);margin-bottom:14px">Choose a persona for your chat assistant. Personas change the tone, style, and approach of responses.</div>
+            </div>
+            <div class="persona-grid" id="persona-grid"></div>
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+              <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px">Create Custom Persona</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="input-group"><label class="input-label">Persona Name</label><input class="input" id="persona-name" placeholder="e.g. The Philosopher"></div>
+                <div class="input-group"><label class="input-label">Emoji / Avatar</label><input class="input" id="persona-emoji" placeholder="e.g. 🧠" style="max-width:80px"></div>
+                <div class="input-group"><label class="input-label">System Prompt</label><textarea class="input" id="persona-prompt" rows="4" placeholder="You are... Describe the persona's personality, tone, and approach."></textarea></div>
+                <button class="btn btn-primary" onclick="saveCustomPersona()" style="width:fit-content">Save Persona</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
-  </div>
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px">
-    <div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px">Results</div>
-    <div id="agenti-results" style="font-size:13px;color:var(--text-secondary);line-height:1.7;min-height:80px"><div style="color:var(--text-faint)">Run a Round Table or Debate to see results here.</div></div>
   </div>
 </div>
+
+<!-- Create Agent Modal -->
+<div class="modal-overlay" id="create-agent-modal">
+  <div class="modal" style="max-width:600px;max-height:85vh;overflow-y:auto">
+    <div class="modal-header">
+      <span class="modal-title" id="create-agent-title">Create Agent</span>
+      <button class="modal-close" onclick="closeModal('create-agent-modal')">&#10005;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="input-group"><label class="input-label">Agent Name</label><input class="input" id="new-agent-name" placeholder="e.g. Research Associate"></div>
+      <div class="input-group"><label class="input-label">Role / Domain</label><input class="input" id="new-agent-role" placeholder="e.g. Academic research and citation"></div>
+      <div class="input-group">
+        <label class="input-label">Avatar</label>
+        <div style="margin-bottom:8px;font-size:11.5px;color:var(--text-faint,#a8a29e)">Choose an emoji avatar:</div>
+        <div class="avatar-grid" id="avatar-emoji-grid"></div>
+        <div style="margin-top:10px;font-size:11.5px;color:var(--text-faint,#a8a29e)">Or use an image URL:</div>
+        <input class="input mt-2" id="new-agent-avatar-url" placeholder="https://... (image URL)" style="font-size:12px">
+      </div>
+      <div class="input-group">
+        <label class="input-label">AI Model</label>
+        <select class="input" id="new-agent-model">
+          <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq) — Ultra-fast, free</option>
+          <option value="groq/openai/gpt-oss-120b">GPT-OSS 120B (Groq) — MoE, free</option>
+          <option value="sambanova/Gemma-4-31B-IT">Gemma 4 31B (SambaNova) — Ultra-fast, free</option>
+          <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash — 1M context</option>
+          <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash — Multimodal</option>
+          <option value="mistral/mistral-large-latest">Mistral Large — MoE quality</option>
+          <option value="openrouter/auto">OpenRouter Auto — Best available</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Tone / Personality</label>
+        <select class="input" id="new-agent-tone">
+          <option value="scholarly">Scholarly — precise, cited, academic</option>
+          <option value="warm">Warm — empathetic, supportive, relational</option>
+          <option value="strategic">Strategic — analytical, goal-oriented</option>
+          <option value="creative">Creative — expressive, imaginative</option>
+          <option value="sardonic">Sardonic — dry wit, cutting observations</option>
+          <option value="professional">Professional — formal, structured</option>
+          <option value="conversational">Conversational — casual, friendly</option>
+          <option value="critical">Critical — challenges assumptions, devil's advocate</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">System Prompt</label>
+        <textarea class="input" id="new-agent-prompt" rows="5" placeholder="You are... Describe this agent's expertise, approach, and how they should respond."></textarea>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="generateAgentPrompt()">&#10024; Generate from name/role</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Trigger (when should this agent activate?)</label>
+        <input class="input" id="new-agent-trigger" placeholder="e.g. When user asks about research, citations, or academic sources">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-primary" onclick="saveNewAgent()">Save Agent</button>
+        <button class="btn btn-ghost" onclick="closeModal('create-agent-modal')">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
+
 <script src="/shared/aurelia.js"></script>
-<script>
-var rtModels=new Set(["groq/openai/gpt-oss-20b","sambanova/Gemma-4-31B-IT","gemini/gemini-2.5-flash"]);
-function toggleRTModel(el){var m=el.dataset.m;if(rtModels.has(m)){rtModels.delete(m);el.classList.remove("on");}else{rtModels.add(m);el.classList.add("on");}}
-async function runRoundTable(){
-  var q=document.getElementById("rt-question").value.trim();if(!q){Toast.show("Enter a question","info");return;}
-  var results=document.getElementById("agenti-results");results.innerHTML="<div style='color:var(--text-faint)'>Running Round Table across "+rtModels.size+" models…</div>";
-  var tok=localStorage.getItem("aurelia_device_token")||"dt_agenti";
-  var calls=[...rtModels].map(function(m){return fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:q}],model:m,system:"You are a specialist AI. Answer concisely and precisely."})}).then(function(r){return r.json();}).then(function(d){return{model:m,content:d.content||"No response"};}).catch(function(e){return{model:m,content:"Error: "+e.message};});});
-  var responses=await Promise.all(calls);
-  results.innerHTML=responses.map(function(r){return "<div style='margin-bottom:14px;padding:12px;background:var(--bg-2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:var(--text-faint);margin-bottom:6px'>"+r.model.split("/").pop()+"</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+r.content+"</div></div>";}).join("");
-}
-async function runDebate(){
-  var topic=document.getElementById("debate-topic").value.trim();if(!topic){Toast.show("Enter a topic","info");return;}
-  var results=document.getElementById("agenti-results");results.innerHTML="<div style='color:var(--text-faint)'>Running debate…</div>";
-  var tok=localStorage.getItem("aurelia_device_token")||"dt_agenti";
-  try{
-    var [pro,con]=await Promise.all([
-      fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue strongly FOR: "+topic+". Be concise, 3 key points."}],model:"groq/openai/gpt-oss-20b"})}).then(function(r){return r.json();}),
-      fetch("https://aurelia-api.identitypartners.workers.dev/api/chat",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue strongly AGAINST: "+topic+". Be concise, 3 key points."}],model:"sambanova/Gemma-4-31B-IT"})}).then(function(r){return r.json();})
-    ]);
-    results.innerHTML="<div style='display:grid;grid-template-columns:1fr 1fr;gap:12px'><div style='padding:12px;background:rgba(46,125,50,.08);border:1px solid rgba(46,125,50,.2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:#2e7d32;margin-bottom:6px'>✓ FOR</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+(pro.content||"")+"</div></div><div style='padding:12px;background:rgba(198,40,40,.08);border:1px solid rgba(198,40,40,.2);border-radius:var(--radius)'><div style='font-size:10.5px;font-weight:600;color:#c62828;margin-bottom:6px'>✗ AGAINST</div><div style='font-size:13px;color:var(--ink);line-height:1.6'>"+(con.content||"")+"</div></div></div>";
-  }catch(e){results.innerHTML="<div style='color:var(--text-faint)'>Error: "+e.message+"</div>";}
-}
-</script>
 <script src="/shared/help.js"></script>
+<script>
+var WORKER = "https://aurelia-api.identitypartners.workers.dev";
+var agents = [];
+var currentAgent = null;
+var synthesisEnabled = true;
+var selectedRTModels = new Set(["groq/openai/gpt-oss-20b","sambanova/Gemma-4-31B-IT"]);
+
+// ── Preset Agents ─────────────────────────────────────────────────────────
+var PRESET_AGENTS = [
+  {id:"research",name:"Research Associate",role:"Academic research & citations",emoji:"🦉",model:"groq/openai/gpt-oss-20b",tone:"scholarly",prompt:"You are a Research Associate for Identity Partners. You specialise in academic research, citations, and evidence synthesis. You always cite sources, identify contradictions, and flag gaps in the literature. You are precise, thorough, and scholarly in tone.",trigger:"research, citations, academic, evidence, literature"},
+  {id:"atomisation",name:"Atomisation Agent",role:"Content structuring & reuse",emoji:"⚡",model:"groq/openai/gpt-oss-20b",tone:"analytical",prompt:"You are the Atomisation Agent for Identity Partners. You break long-form content into reusable atomic units: quotes, bullet points, social posts, headlines, key insights, and podcast scripts. You are analytical, efficient, and structured.",trigger:"atomise, break down, structure, reuse, social posts"},
+  {id:"creator",name:"Creator Agent",role:"Content creation & brand voice",emoji:"🎨",model:"groq/openai/gpt-oss-20b",tone:"creative",prompt:"You are the Creator Agent for Identity Partners. You specialise in content creation, brand voice, and creative synthesis. You write in the Identity Partners voice: warm, professional, non-clinical, and focused on identity development, listening, and personal growth.",trigger:"create, write, content, brand, social media"},
+  {id:"crm",name:"CRM Agent",role:"Relationship management",emoji:"💛",model:"groq/openai/gpt-oss-20b",tone:"warm",prompt:"You are the CRM Agent for Identity Partners. You specialise in relationship management, session notes, follow-ups, and relational insights. You are warm, empathetic, and focused on the human relationship. You help SJ maintain meaningful connections with clients and prospects.",trigger:"CRM, client, contact, session, relationship"},
+  {id:"monetisation",name:"Monetisation Agent",role:"Offers, pricing & funnels",emoji:"💰",model:"groq/openai/gpt-oss-20b",tone:"strategic",prompt:"You are the Monetisation Agent for Identity Partners. You specialise in offers, pricing, programmes, and funnels. You are strategic, commercially minded, and focused on sustainable revenue for a non-clinical coaching and listening practice.",trigger:"offer, price, programme, funnel, revenue, monetise"},
+  {id:"platform",name:"Platform Agent",role:"Platform profiles & positioning",emoji:"🌐",model:"groq/openai/gpt-oss-20b",tone:"professional",prompt:"You are the Platform Agent for Identity Partners. You specialise in platform profiles, positioning, and multi-platform strategy across 150+ Anglophone platforms. You help SJ optimise profiles for Fiverr, Bark, Premium.Chat, Topmate, and other platforms.",trigger:"platform, profile, Fiverr, Bark, positioning"},
+  {id:"inbox",name:"Inbox Agent",role:"Communications & messaging",emoji:"📬",model:"groq/openai/gpt-oss-20b",tone:"professional",prompt:"You are the Inbox Agent for Identity Partners. You handle email, Telegram, and other communications. You draft professional, warm responses and help manage the communications workload.",trigger:"email, message, inbox, reply, communicate"},
+  {id:"life-admin",name:"Life Admin Agent",role:"Tasks, scheduling & organisation",emoji:"📋",model:"groq/openai/gpt-oss-20b",tone:"practical",prompt:"You are the Life Admin Agent for Identity Partners. You handle tasks, scheduling, organisation, and practical life administration. You are efficient, practical, and focused on reducing cognitive load.",trigger:"task, schedule, organise, admin, calendar"},
+  {id:"sardonic-butler",name:"Sardonic Butler",role:"Dry wit & cutting observations",emoji:"🎩",model:"groq/openai/gpt-oss-20b",tone:"sardonic",prompt:"You are the Sardonic Butler — a persona of dry wit, cutting observations, and impeccable manners. You are helpful but cannot resist a wry observation. You speak with the world-weary elegance of someone who has seen everything and is mildly disappointed by most of it. You are never cruel, but always honest.",trigger:"sardonic, butler, wit, dry humour"},
+  {id:"long-suffering-pa",name:"Long-Suffering PA",role:"Exasperated but devoted assistant",emoji:"😤",model:"groq/openai/gpt-oss-20b",tone:"sardonic",prompt:"You are the Long-Suffering PA — devoted, efficient, and perpetually exasperated by the chaos around you. You get things done despite everything. You are warm underneath the sighing. You occasionally mutter under your breath but always deliver.",trigger:"PA, assistant, exasperated, devoted"},
+  {id:"devil-advocate",name:"Devil's Advocate",role:"Challenges assumptions",emoji:"😈",model:"groq/openai/gpt-oss-20b",tone:"critical",prompt:"You are the Devil's Advocate. Your role is to challenge every assumption, find the flaw in every argument, and present the strongest possible counterargument. You are not contrarian for its own sake — you genuinely believe that ideas are strengthened by rigorous challenge.",trigger:"challenge, counterargument, devil, advocate, critique"},
+  {id:"wise-sage",name:"Wise Sage",role:"Philosophical depth & wisdom",emoji:"🌙",model:"groq/openai/gpt-oss-20b",tone:"scholarly",prompt:"You are the Wise Sage — a persona of philosophical depth, long perspective, and genuine wisdom. You draw on philosophy, psychology, and lived experience. You speak slowly and thoughtfully. You ask questions as often as you answer them.",trigger:"wisdom, philosophy, sage, deep, meaning"},
+];
+
+// ── Personas ──────────────────────────────────────────────────────────────
+var PRESET_PERSONAS = [
+  {id:"default",name:"Aurelia",emoji:"✦",desc:"Warm, professional, Identity Partners voice",prompt:"You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise."},
+  {id:"sardonic-butler",name:"Sardonic Butler",emoji:"🎩",desc:"Dry wit, impeccable manners, wry observations",prompt:"You are the Sardonic Butler. Helpful but cannot resist a wry observation. Speak with world-weary elegance. Never cruel, always honest."},
+  {id:"research-associate",name:"Research Associate",emoji:"🦉",desc:"Scholarly, precise, always cites sources",prompt:"You are a Research Associate. Scholarly, precise, evidence-based. Always cite sources and flag gaps."},
+  {id:"long-suffering-pa",name:"Long-Suffering PA",emoji:"😤",desc:"Devoted, efficient, perpetually exasperated",prompt:"You are the Long-Suffering PA. Devoted and efficient despite the chaos. Warm underneath the sighing."},
+  {id:"identity-coach",name:"Identity Coach",emoji:"💛",desc:"Warm, non-clinical, identity-focused",prompt:"You are an Identity Coach. Warm, empathetic, non-clinical. Focus on identity development, meaning, and personal growth."},
+  {id:"devils-advocate",name:"Devil's Advocate",emoji:"😈",desc:"Challenges every assumption rigorously",prompt:"You are the Devil's Advocate. Challenge every assumption. Find the flaw. Present the strongest counterargument."},
+  {id:"wise-sage",name:"Wise Sage",emoji:"🌙",desc:"Philosophical depth, long perspective",prompt:"You are the Wise Sage. Philosophical, thoughtful, drawing on wisdom traditions. Ask questions as often as you answer."},
+  {id:"strategist",name:"The Strategist",emoji:"♟️",desc:"Analytical, goal-oriented, commercially minded",prompt:"You are the Strategist. Analytical, goal-oriented, commercially minded. Focus on outcomes, leverage, and sustainable growth."},
+  {id:"poet",name:"The Poet",emoji:"🌹",desc:"Lyrical, metaphorical, emotionally resonant",prompt:"You are the Poet. Lyrical, metaphorical, emotionally resonant. Find the beauty and meaning in everything."},
+];
+
+// ── Avatar options ────────────────────────────────────────────────────────
+var AVATAR_EMOJIS = ["🦉","⚡","🎨","💛","💰","🌐","📬","📋","🎩","😤","😈","🌙","♟️","🌹","🔬","🧠","🌊","🦋","🌿","🏛️","⚗️","🎭","🦁","🐋","🦊","🐉","🌟","🔮","🎯","🧩"];
+
+// ── Init ──────────────────────────────────────────────────────────────────
+function init() {
+  agents = JSON.parse(localStorage.getItem("aurelia_agents") || "[]");
+  if (!agents.length) {
+    agents = PRESET_AGENTS.map(function(a) { return Object.assign({}, a, {id: a.id, custom: false}); });
+    saveAgents();
+  }
+  renderAgentList();
+  renderPersonaGrid();
+  renderRTModelChips();
+  renderAvatarEmojiGrid();
+  populateLifecycleAgentSelect();
+  
+  // Load saved persona
+  var savedPersona = localStorage.getItem("aurelia_active_persona");
+  if (savedPersona) {
+    try {
+      var p = JSON.parse(savedPersona);
+      markPersonaSelected(p.id);
+    } catch(e) {}
+  }
+}
+
+function renderAgentList() {
+  var list = document.getElementById("agent-list");
+  list.innerHTML = "";
+  agents.forEach(function(agent) {
+    var item = document.createElement("div");
+    item.className = "agent-item" + (currentAgent && currentAgent.id === agent.id ? " active" : "");
+    item.onclick = function() { selectAgent(agent); };
+    
+    var av = document.createElement("div");
+    if (agent.avatarUrl) {
+      var img = document.createElement("img");
+      img.className = "agent-avatar";
+      img.src = agent.avatarUrl;
+      img.onerror = function() { av.className = "agent-avatar-emoji"; av.textContent = agent.emoji || "◉"; img.remove(); av.appendChild(document.createTextNode(agent.emoji || "◉")); };
+      av.appendChild(img);
+    } else {
+      av.className = "agent-avatar-emoji";
+      av.textContent = agent.emoji || "◉";
+    }
+    
+    var info = document.createElement("div");
+    info.className = "agent-info";
+    var name = document.createElement("div");
+    name.className = "agent-name";
+    name.textContent = agent.name;
+    var role = document.createElement("div");
+    role.className = "agent-role";
+    role.textContent = agent.role || agent.tone || "";
+    info.appendChild(name);
+    info.appendChild(role);
+    
+    item.appendChild(av);
+    item.appendChild(info);
+    list.appendChild(item);
+  });
+}
+
+function selectAgent(agent) {
+  currentAgent = agent;
+  renderAgentList();
+  showAgentDetail(agent);
+  showTab("agent", document.querySelector(".ac-tab"));
+  
+  // Update chat panel
+  var chatName = document.getElementById("chat-agent-name");
+  var chatModel = document.getElementById("chat-agent-model");
+  var chatAv = document.getElementById("chat-agent-avatar");
+  if (chatName) chatName.textContent = agent.name;
+  if (chatModel) chatModel.textContent = agent.model || "";
+  if (chatAv) chatAv.textContent = agent.emoji || "◉";
+  
+  // Update lifecycle select
+  var sel = document.getElementById("lifecycle-agent-select");
+  if (sel) sel.value = agent.id;
+}
+
+function showAgentDetail(agent) {
+  var detail = document.getElementById("agent-detail");
+  detail.innerHTML = "";
+  
+  var card = document.createElement("div");
+  card.className = "agent-card";
+  
+  var header = document.createElement("div");
+  header.className = "agent-card-header";
+  
+  var av = document.createElement("div");
+  av.className = "agent-card-avatar-emoji";
+  av.textContent = agent.emoji || "◉";
+  
+  var info = document.createElement("div");
+  var name = document.createElement("div");
+  name.className = "agent-card-name";
+  name.textContent = agent.name;
+  var role = document.createElement("div");
+  role.className = "agent-card-role";
+  role.textContent = agent.role || "";
+  var model = document.createElement("div");
+  model.className = "agent-card-model";
+  model.textContent = agent.model || "";
+  info.appendChild(name);
+  info.appendChild(role);
+  info.appendChild(model);
+  
+  header.appendChild(av);
+  header.appendChild(info);
+  card.appendChild(header);
+  
+  // Prompt
+  var promptLabel = document.createElement("div");
+  promptLabel.style.cssText = "font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint,#a8a29e);margin-bottom:6px";
+  promptLabel.textContent = "System Prompt";
+  var promptText = document.createElement("div");
+  promptText.style.cssText = "font-size:12.5px;color:var(--text-secondary,#44403c);line-height:1.6;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);padding:12px;margin-bottom:14px";
+  promptText.textContent = agent.prompt || "No system prompt defined.";
+  card.appendChild(promptLabel);
+  card.appendChild(promptText);
+  
+  // Actions
+  var actions = document.createElement("div");
+  actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
+  
+  var chatBtn = document.createElement("button");
+  chatBtn.className = "btn btn-primary btn-sm";
+  chatBtn.textContent = "Chat with Agent";
+  chatBtn.onclick = function() { showTab("chat", null); };
+  
+  var editBtn = document.createElement("button");
+  editBtn.className = "btn btn-ghost btn-sm";
+  editBtn.textContent = "Edit Agent";
+  editBtn.onclick = function() { editAgent(agent); };
+  
+  var lifecycleBtn = document.createElement("button");
+  lifecycleBtn.className = "btn btn-ghost btn-sm";
+  lifecycleBtn.textContent = "Run Lifecycle";
+  lifecycleBtn.onclick = function() { showTab("lifecycle", null); };
+  
+  var deleteBtn = document.createElement("button");
+  deleteBtn.className = "btn btn-ghost btn-sm";
+  deleteBtn.style.color = "var(--rose,#5c2d3f)";
+  deleteBtn.textContent = "Delete";
+  deleteBtn.onclick = function() { deleteAgent(agent.id); };
+  
+  actions.appendChild(chatBtn);
+  actions.appendChild(editBtn);
+  actions.appendChild(lifecycleBtn);
+  if (agent.custom) actions.appendChild(deleteBtn);
+  card.appendChild(actions);
+  
+  detail.appendChild(card);
+}
+
+// ── Create / Edit Agent ───────────────────────────────────────────────────
+function showCreateAgent() {
+  document.getElementById("create-agent-title").textContent = "Create Agent";
+  document.getElementById("new-agent-name").value = "";
+  document.getElementById("new-agent-role").value = "";
+  document.getElementById("new-agent-avatar-url").value = "";
+  document.getElementById("new-agent-prompt").value = "";
+  document.getElementById("new-agent-trigger").value = "";
+  document.getElementById("create-agent-modal").classList.add("open");
+}
+
+function editAgent(agent) {
+  document.getElementById("create-agent-title").textContent = "Edit Agent";
+  document.getElementById("new-agent-name").value = agent.name || "";
+  document.getElementById("new-agent-role").value = agent.role || "";
+  document.getElementById("new-agent-avatar-url").value = agent.avatarUrl || "";
+  document.getElementById("new-agent-prompt").value = agent.prompt || "";
+  document.getElementById("new-agent-trigger").value = agent.trigger || "";
+  document.getElementById("new-agent-model").value = agent.model || "groq/openai/gpt-oss-20b";
+  document.getElementById("new-agent-tone").value = agent.tone || "professional";
+  // Store editing ID
+  document.getElementById("create-agent-modal").dataset.editId = agent.id;
+  document.getElementById("create-agent-modal").classList.add("open");
+}
+
+function saveNewAgent() {
+  var name = document.getElementById("new-agent-name").value.trim();
+  if (!name) { if (typeof Toast !== "undefined") Toast.show("Agent name required", "error"); return; }
+  
+  var modal = document.getElementById("create-agent-modal");
+  var editId = modal.dataset.editId;
+  
+  // Find selected emoji
+  var selectedEmoji = document.querySelector(".avatar-emoji-option.selected");
+  var emoji = selectedEmoji ? selectedEmoji.textContent : "◉";
+  
+  var agentData = {
+    id: editId || ("custom_" + Date.now()),
+    name: name,
+    role: document.getElementById("new-agent-role").value.trim(),
+    emoji: emoji,
+    avatarUrl: document.getElementById("new-agent-avatar-url").value.trim() || null,
+    model: document.getElementById("new-agent-model").value,
+    tone: document.getElementById("new-agent-tone").value,
+    prompt: document.getElementById("new-agent-prompt").value.trim(),
+    trigger: document.getElementById("new-agent-trigger").value.trim(),
+    custom: true
+  };
+  
+  if (editId) {
+    var idx = agents.findIndex(function(a) { return a.id === editId; });
+    if (idx >= 0) agents[idx] = agentData;
+    delete modal.dataset.editId;
+  } else {
+    agents.push(agentData);
+  }
+  
+  saveAgents();
+  renderAgentList();
+  populateLifecycleAgentSelect();
+  closeModal("create-agent-modal");
+  selectAgent(agentData);
+  if (typeof Toast !== "undefined") Toast.show("Agent saved", "success");
+}
+
+function deleteAgent(id) {
+  if (!confirm("Delete this agent?")) return;
+  agents = agents.filter(function(a) { return a.id !== id; });
+  saveAgents();
+  currentAgent = null;
+  renderAgentList();
+  document.getElementById("agent-detail").innerHTML = '<div class="empty-state"><div class="empty-state-title">Agent deleted</div></div>';
+}
+
+async function generateAgentPrompt() {
+  var name = document.getElementById("new-agent-name").value.trim();
+  var role = document.getElementById("new-agent-role").value.trim();
+  var tone = document.getElementById("new-agent-tone").value;
+  if (!name) { if (typeof Toast !== "undefined") Toast.show("Add a name first", "info"); return; }
+  
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_agenti";
+  try {
+    var res = await fetch(WORKER + "/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+      body: JSON.stringify({
+        messages: [{role:"user",content:"Write a system prompt for an AI agent named '" + name + "' with role '" + role + "' and tone '" + tone + "'. The agent works for Identity Partners, a professional listening and coaching practice. Keep it under 150 words. Start with 'You are...'"}],
+        model: "groq/openai/gpt-oss-20b"
+      })
+    });
+    var data = await res.json();
+    document.getElementById("new-agent-prompt").value = data.content || "";
+  } catch(e) {
+    if (typeof Toast !== "undefined") Toast.show("Could not generate prompt: " + e.message, "error");
+  }
+}
+
+// ── Chat with Agent ───────────────────────────────────────────────────────
+async function sendAgentMessage() {
+  var input = document.getElementById("agent-chat-input");
+  var text = input.value.trim();
+  if (!text) return;
+  if (!currentAgent) { if (typeof Toast !== "undefined") Toast.show("Select an agent first", "info"); return; }
+  input.value = "";
+  
+  var chat = document.getElementById("agent-chat-messages");
+  
+  // User message
+  var userMsg = document.createElement("div");
+  userMsg.className = "msg msg-u";
+  userMsg.textContent = text;
+  chat.appendChild(userMsg);
+  chat.scrollTop = chat.scrollHeight;
+  
+  // Typing
+  var typing = document.createElement("div");
+  typing.className = "msg msg-a";
+  typing.id = "agent-typing";
+  typing.textContent = currentAgent.name + " is thinking\u2026";
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
+  
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_agenti";
+  try {
+    var res = await fetch(WORKER + "/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+      body: JSON.stringify({
+        messages: [{role:"user",content:text}],
+        model: currentAgent.model || "groq/openai/gpt-oss-20b",
+        system: currentAgent.prompt || "You are " + currentAgent.name + ". " + (currentAgent.role || "")
+      })
+    });
+    var data = await res.json();
+    var t = document.getElementById("agent-typing");
+    if (t) t.remove();
+    
+    var aiMsg = document.createElement("div");
+    aiMsg.className = "msg msg-a";
+    aiMsg.textContent = data.content || "Response received.";
+    var meta = document.createElement("div");
+    meta.className = "msg-meta";
+    meta.textContent = currentAgent.name + " \u00b7 " + (data.model || currentAgent.model || "AI");
+    aiMsg.appendChild(meta);
+    chat.appendChild(aiMsg);
+    chat.scrollTop = chat.scrollHeight;
+  } catch(e) {
+    var t = document.getElementById("agent-typing");
+    if (t) t.remove();
+    var errMsg = document.createElement("div");
+    errMsg.className = "msg msg-a";
+    errMsg.textContent = "Error: " + e.message;
+    chat.appendChild(errMsg);
+  }
+}
+
+// ── Round Table ───────────────────────────────────────────────────────────
+var RT_MODELS = [
+  {id:"groq/openai/gpt-oss-20b",name:"GPT-OSS 20B"},
+  {id:"groq/openai/gpt-oss-120b",name:"GPT-OSS 120B"},
+  {id:"sambanova/Gemma-4-31B-IT",name:"Gemma 4 31B"},
+  {id:"deepseek/deepseek-v4-flash",name:"DeepSeek V4"},
+  {id:"gemini/gemini-2.5-flash",name:"Gemini 2.5"},
+  {id:"mistral/mistral-large-latest",name:"Mistral Large"},
+];
+
+function renderRTModelChips() {
+  var container = document.getElementById("rt-model-chips");
+  container.innerHTML = "";
+  RT_MODELS.forEach(function(m) {
+    var chip = document.createElement("div");
+    chip.className = "chip" + (selectedRTModels.has(m.id) ? " on" : "");
+    chip.style.cssText = "background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:500;color:var(--muted,#78716c);cursor:pointer;transition:all .12s";
+    if (selectedRTModels.has(m.id)) {
+      chip.style.background = "var(--accent3,rgba(15,59,58,0.08))";
+      chip.style.borderColor = "var(--accent,#0f3b3a)";
+      chip.style.color = "var(--accent,#0f3b3a)";
+    }
+    chip.textContent = m.name;
+    chip.onclick = function() { toggleRTModel(m.id, chip); };
+    container.appendChild(chip);
+  });
+}
+
+function toggleRTModel(modelId, chip) {
+  if (selectedRTModels.has(modelId)) {
+    selectedRTModels.delete(modelId);
+    chip.style.background = "var(--bg-2,#f0e9e0)";
+    chip.style.borderColor = "var(--border)";
+    chip.style.color = "var(--muted,#78716c)";
+  } else {
+    selectedRTModels.add(modelId);
+    chip.style.background = "var(--accent3,rgba(15,59,58,0.08))";
+    chip.style.borderColor = "var(--accent,#0f3b3a)";
+    chip.style.color = "var(--accent,#0f3b3a)";
+  }
+}
+
+function toggleSynthesis() {
+  synthesisEnabled = !synthesisEnabled;
+  var btn = document.getElementById("synthesis-toggle");
+  if (btn) btn.textContent = "Synthesis: " + (synthesisEnabled ? "ON" : "OFF");
+}
+
+async function runRoundTable() {
+  var prompt = document.getElementById("rt-prompt").value.trim();
+  if (!prompt) { if (typeof Toast !== "undefined") Toast.show("Enter a prompt first", "info"); return; }
+  if (selectedRTModels.size === 0) { if (typeof Toast !== "undefined") Toast.show("Select at least one model", "info"); return; }
+  
+  var results = document.getElementById("rt-results");
+  results.innerHTML = "";
+  
+  var grid = document.createElement("div");
+  grid.className = "rr-grid";
+  results.appendChild(grid);
+  
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_rt";
+  var responses = [];
+  
+  // Run all models in parallel
+  var promises = Array.from(selectedRTModels).map(async function(modelId) {
+    var modelName = RT_MODELS.find(function(m) { return m.id === modelId; });
+    modelName = modelName ? modelName.name : modelId.split("/").pop();
+    
+    var card = document.createElement("div");
+    card.className = "rr-card";
+    var header = document.createElement("div");
+    header.className = "rr-card-header";
+    var dot = document.createElement("div");
+    dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:var(--amber,#f57f17)";
+    var mname = document.createElement("div");
+    mname.className = "rr-card-model";
+    mname.textContent = modelName;
+    header.appendChild(dot);
+    header.appendChild(mname);
+    var content = document.createElement("div");
+    content.className = "rr-card-content";
+    content.textContent = "Thinking\u2026";
+    card.appendChild(header);
+    card.appendChild(content);
+    grid.appendChild(card);
+    
+    try {
+      var res = await fetch(WORKER + "/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({messages:[{role:"user",content:prompt}],model:modelId})
+      });
+      var data = await res.json();
+      var text = data.content || "No response.";
+      content.textContent = text;
+      dot.style.background = "var(--green,#2e7d32)";
+      responses.push({model:modelName,content:text});
+    } catch(e) {
+      content.textContent = "Error: " + e.message;
+      dot.style.background = "var(--red,#c62828)";
+    }
+  });
+  
+  await Promise.all(promises);
+  
+  // Synthesis
+  if (synthesisEnabled && responses.length > 1) {
+    var synthBox = document.createElement("div");
+    synthBox.className = "synthesis-box";
+    var synthTitle = document.createElement("div");
+    synthTitle.className = "synthesis-title";
+    synthTitle.textContent = "Synthesis";
+    var synthContent = document.createElement("div");
+    synthContent.style.cssText = "font-size:13px;color:var(--ink);line-height:1.7";
+    synthContent.textContent = "Synthesising\u2026";
+    synthBox.appendChild(synthTitle);
+    synthBox.appendChild(synthContent);
+    results.appendChild(synthBox);
+    
+    try {
+      var synthPrompt = "You have received " + responses.length + " responses to: \"" + prompt + "\"\n\n" +
+        responses.map(function(r) { return r.model + ": " + r.content; }).join("\n\n") +
+        "\n\nSynthesise these responses into a unified, nuanced answer. Note agreements, disagreements, and unique insights.";
+      var synthRes = await fetch(WORKER + "/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({messages:[{role:"user",content:synthPrompt}],model:"groq/openai/gpt-oss-20b"})
+      });
+      var synthData = await synthRes.json();
+      synthContent.textContent = synthData.content || "Synthesis complete.";
+    } catch(e) {
+      synthContent.textContent = "Synthesis failed: " + e.message;
+    }
+  }
+}
+
+// ── Debate Mode ───────────────────────────────────────────────────────────
+async function runDebate() {
+  var motion = document.getElementById("debate-motion").value.trim();
+  if (!motion) { if (typeof Toast !== "undefined") Toast.show("Enter a motion to debate", "info"); return; }
+  
+  var modelFor = document.getElementById("debate-model-for").value;
+  var modelAgainst = document.getElementById("debate-model-against").value;
+  var results = document.getElementById("debate-results");
+  results.innerHTML = "";
+  
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_debate";
+  
+  // Motion header
+  var motionDiv = document.createElement("div");
+  motionDiv.style.cssText = "background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);padding:12px 14px;margin-bottom:14px;font-size:13px;font-weight:500;color:var(--ink)";
+  motionDiv.textContent = "Motion: " + motion;
+  results.appendChild(motionDiv);
+  
+  var grid = document.createElement("div");
+  grid.className = "grid-2";
+  results.appendChild(grid);
+  
+  // For card
+  var forCard = document.createElement("div");
+  forCard.className = "agent-card";
+  var forTitle = document.createElement("div");
+  forTitle.style.cssText = "font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--green,#2e7d32);margin-bottom:8px";
+  forTitle.textContent = "FOR";
+  var forContent = document.createElement("div");
+  forContent.style.cssText = "font-size:13px;color:var(--ink);line-height:1.6";
+  forContent.textContent = "Preparing argument\u2026";
+  forCard.appendChild(forTitle);
+  forCard.appendChild(forContent);
+  grid.appendChild(forCard);
+  
+  // Against card
+  var againstCard = document.createElement("div");
+  againstCard.className = "agent-card";
+  var againstTitle = document.createElement("div");
+  againstTitle.style.cssText = "font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--rose,#5c2d3f);margin-bottom:8px";
+  againstTitle.textContent = "AGAINST";
+  var againstContent = document.createElement("div");
+  againstContent.style.cssText = "font-size:13px;color:var(--ink);line-height:1.6";
+  againstContent.textContent = "Preparing argument\u2026";
+  againstCard.appendChild(againstTitle);
+  againstCard.appendChild(againstContent);
+  grid.appendChild(againstCard);
+  
+  // Run both in parallel
+  var [forRes, againstRes] = await Promise.all([
+    fetch(WORKER + "/api/chat", {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue FOR this motion with your strongest arguments: " + motion}],model:modelFor,system:"You are arguing FOR the motion. Present the strongest possible case. Be persuasive, evidence-based, and structured."})}),
+    fetch(WORKER + "/api/chat", {method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({messages:[{role:"user",content:"Argue AGAINST this motion with your strongest arguments: " + motion}],model:modelAgainst,system:"You are arguing AGAINST the motion. Present the strongest possible case. Be persuasive, evidence-based, and structured."})})
+  ]);
+  
+  var forData = await forRes.json();
+  var againstData = await againstRes.json();
+  
+  forContent.textContent = forData.content || "No response.";
+  againstContent.textContent = againstData.content || "No response.";
+  
+  // Verdict
+  var verdictBox = document.createElement("div");
+  verdictBox.className = "synthesis-box";
+  verdictBox.style.marginTop = "14px";
+  var verdictTitle = document.createElement("div");
+  verdictTitle.className = "synthesis-title";
+  verdictTitle.textContent = "Verdict";
+  var verdictContent = document.createElement("div");
+  verdictContent.style.cssText = "font-size:13px;color:var(--ink);line-height:1.7";
+  verdictContent.textContent = "Deliberating\u2026";
+  verdictBox.appendChild(verdictTitle);
+  verdictBox.appendChild(verdictContent);
+  results.appendChild(verdictBox);
+  
+  try {
+    var verdictRes = await fetch(WORKER + "/api/chat", {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+      body: JSON.stringify({
+        messages: [{role:"user",content:"FOR: " + forData.content + "\n\nAGAINST: " + againstData.content + "\n\nProvide a balanced verdict on the motion: '" + motion + "'. Which argument was stronger and why? What nuances did both sides miss?"}],
+        model: "groq/openai/gpt-oss-20b",
+        system: "You are an impartial judge. Provide a balanced, nuanced verdict."
+      })
+    });
+    var verdictData = await verdictRes.json();
+    verdictContent.textContent = verdictData.content || "Verdict complete.";
+  } catch(e) {
+    verdictContent.textContent = "Verdict failed: " + e.message;
+  }
+}
+
+// ── Lifecycle ─────────────────────────────────────────────────────────────
+async function runLifecycle() {
+  var task = document.getElementById("lifecycle-task").value.trim();
+  if (!task) { if (typeof Toast !== "undefined") Toast.show("Describe a task first", "info"); return; }
+  
+  var agentId = document.getElementById("lifecycle-agent-select").value;
+  var agent = agents.find(function(a) { return a.id === agentId; }) || agents[0];
+  if (!agent) { if (typeof Toast !== "undefined") Toast.show("No agent selected", "info"); return; }
+  
+  var log = document.getElementById("lifecycle-log");
+  log.textContent = "";
+  
+  var steps = ["trigger","context","plan","execute","verify","persist","audit"];
+  var stepEls = document.querySelectorAll(".lifecycle-step");
+  stepEls.forEach(function(el) { el.className = "lifecycle-step"; });
+  
+  function appendLog(msg) {
+    log.textContent += "\n" + msg;
+    log.scrollTop = log.scrollHeight;
+  }
+  
+  function setStep(idx) {
+    stepEls.forEach(function(el, i) {
+      if (i < idx) el.className = "lifecycle-step done";
+      else if (i === idx) el.className = "lifecycle-step active";
+      else el.className = "lifecycle-step";
+    });
+  }
+  
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_lifecycle";
+  var context = task;
+  
+  for (var i = 0; i < steps.length; i++) {
+    setStep(i);
+    var step = steps[i];
+    appendLog("[" + step.toUpperCase() + "] " + agent.name + " processing\u2026");
+    
+    var stepPrompts = {
+      trigger: "You have been triggered with this task: " + task + ". Acknowledge the task and state your understanding of what is required.",
+      context: "Gather context for: " + task + ". What do you know? What do you need? What is the workspace context?",
+      plan: "Create a step-by-step plan to complete: " + task + ". Be specific and actionable.",
+      execute: "Execute the plan for: " + task + ". Produce the actual output.",
+      verify: "Verify your output for: " + task + ". Check for accuracy, completeness, and quality. Note any issues.",
+      persist: "Summarise what should be saved/persisted from this task: " + task + ". What are the key outputs and where should they go?",
+      audit: "Audit log for task: " + task + ". What was done, what model was used, what was the outcome, and what should be improved next time?"
+    };
+    
+    try {
+      var res = await fetch(WORKER + "/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({
+          messages: [{role:"user",content:stepPrompts[step]}],
+          model: agent.model || "groq/openai/gpt-oss-20b",
+          system: agent.prompt || "You are " + agent.name + "."
+        })
+      });
+      var data = await res.json();
+      appendLog("  \u2713 " + (data.content || "").slice(0, 200) + (data.content && data.content.length > 200 ? "\u2026" : ""));
+    } catch(e) {
+      appendLog("  \u2717 Error: " + e.message);
+    }
+  }
+  
+  setStep(steps.length);
+  appendLog("\n\u2713 Lifecycle complete for: " + task);
+}
+
+function populateLifecycleAgentSelect() {
+  var sel = document.getElementById("lifecycle-agent-select");
+  if (!sel) return;
+  sel.innerHTML = "";
+  agents.forEach(function(a) {
+    var opt = document.createElement("option");
+    opt.value = a.id;
+    opt.textContent = a.name;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Personas ──────────────────────────────────────────────────────────────
+function renderPersonaGrid() {
+  var grid = document.getElementById("persona-grid");
+  grid.innerHTML = "";
+  
+  var allPersonas = PRESET_PERSONAS.concat(
+    JSON.parse(localStorage.getItem("aurelia_custom_personas") || "[]")
+  );
+  
+  allPersonas.forEach(function(p) {
+    var card = document.createElement("div");
+    card.className = "persona-card";
+    card.id = "persona-" + p.id;
+    card.onclick = function() { selectPersona(p); };
+    
+    var av = document.createElement("div");
+    av.className = "persona-avatar";
+    av.textContent = p.emoji || "◉";
+    
+    var name = document.createElement("div");
+    name.className = "persona-name";
+    name.textContent = p.name;
+    
+    var desc = document.createElement("div");
+    desc.className = "persona-desc";
+    desc.textContent = p.desc || "";
+    
+    card.appendChild(av);
+    card.appendChild(name);
+    card.appendChild(desc);
+    grid.appendChild(card);
+  });
+}
+
+function selectPersona(persona) {
+  localStorage.setItem("aurelia_active_persona", JSON.stringify(persona));
+  markPersonaSelected(persona.id);
+  if (typeof Toast !== "undefined") Toast.show("Persona set: " + persona.name, "success");
+}
+
+function markPersonaSelected(id) {
+  document.querySelectorAll(".persona-card").forEach(function(c) { c.classList.remove("selected"); });
+  var card = document.getElementById("persona-" + id);
+  if (card) card.classList.add("selected");
+}
+
+function saveCustomPersona() {
+  var name = document.getElementById("persona-name").value.trim();
+  var emoji = document.getElementById("persona-emoji").value.trim() || "◉";
+  var prompt = document.getElementById("persona-prompt").value.trim();
+  if (!name || !prompt) { if (typeof Toast !== "undefined") Toast.show("Name and prompt required", "error"); return; }
+  
+  var personas = JSON.parse(localStorage.getItem("aurelia_custom_personas") || "[]");
+  personas.push({id:"custom_" + Date.now(), name:name, emoji:emoji, desc:"Custom persona", prompt:prompt});
+  localStorage.setItem("aurelia_custom_personas", JSON.stringify(personas));
+  renderPersonaGrid();
+  document.getElementById("persona-name").value = "";
+  document.getElementById("persona-emoji").value = "";
+  document.getElementById("persona-prompt").value = "";
+  if (typeof Toast !== "undefined") Toast.show("Persona saved", "success");
+}
+
+// ── Avatar Emoji Grid ─────────────────────────────────────────────────────
+function renderAvatarEmojiGrid() {
+  var grid = document.getElementById("avatar-emoji-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  AVATAR_EMOJIS.forEach(function(emoji) {
+    var el = document.createElement("div");
+    el.className = "avatar-emoji-option";
+    el.textContent = emoji;
+    el.onclick = function() {
+      document.querySelectorAll(".avatar-emoji-option").forEach(function(e) { e.classList.remove("selected"); });
+      el.classList.add("selected");
+    };
+    grid.appendChild(el);
+  });
+  // Select first by default
+  if (grid.firstChild) grid.firstChild.classList.add("selected");
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll(".ac-panel").forEach(function(p) { p.classList.remove("on"); });
+  document.querySelectorAll(".ac-tab").forEach(function(t) { t.classList.remove("on"); });
+  var panel = document.getElementById("panel-" + name);
+  if (panel) panel.classList.add("on");
+  if (el) el.classList.add("on");
+  else {
+    var tabs = document.querySelectorAll(".ac-tab");
+    var tabNames = ["agent","chat","round-table","debate","lifecycle","personas"];
+    var idx = tabNames.indexOf(name);
+    if (idx >= 0 && tabs[idx]) tabs[idx].classList.add("on");
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────
+function saveAgents() { localStorage.setItem("aurelia_agents", JSON.stringify(agents)); }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+function exportAgents() {
+  var blob = new Blob([JSON.stringify(agents, null, 2)], {type:"application/json"});
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "aurelia-agents.json"; a.click();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
 </body>
 </html>
