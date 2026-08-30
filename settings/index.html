@@ -139,6 +139,43 @@ DEEPSEEK_API_KEY=sk_ghi789
 <div class="settings-group-title">All 30 Themes</div>
 <div id="all-themes-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px"></div>
 </div>
+        <div class="settings-group">
+          <div class="settings-group-title">Visual Themes — change layout, typography &amp; sidebar style</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">
+            <div id="vt-default" onclick="applyVisualTheme('')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--ink);transition:all .15s">
+              <div style="height:48px;background:linear-gradient(135deg,#0f3b3a,#5c2d3f);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff">IP Brand</div>
+              <div style="padding:5px 8px;background:#f7f3e9;font-size:10px;color:#1c1917">Warm ivory, teal</div>
+            </div>
+            <div id="vt-minimal" onclick="applyVisualTheme('minimal')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#ffffff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#111">Minimal</div>
+              <div style="padding:5px 8px;background:#fafafa;font-size:10px;color:#555">Ultra-clean</div>
+            </div>
+            <div id="vt-editorial" onclick="applyVisualTheme('editorial')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#f9f7f4;border-top:3px solid #8b1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#1a1208;font-family:Georgia,serif">Editorial</div>
+              <div style="padding:5px 8px;background:#f9f7f4;font-size:10px;color:#5a4030">Newspaper serif</div>
+            </div>
+            <div id="vt-studio" onclick="applyVisualTheme('studio')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#141414;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#ff6b35">Studio</div>
+              <div style="padding:5px 8px;background:#1e1e1e;font-size:10px;color:#a0a0a0">Dark creative</div>
+            </div>
+            <div id="vt-clinical" onclick="applyVisualTheme('clinical')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a1428;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0066cc">Clinical</div>
+              <div style="padding:5px 8px;background:#f0f4f8;font-size:10px;color:#2a4a7a">Dark sidebar</div>
+            </div>
+            <div id="vt-warm" onclick="applyVisualTheme('warm')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#2c1a00;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#ffd890;font-family:Georgia,serif">Warm</div>
+              <div style="padding:5px 8px;background:#fdf6e3;font-size:10px;color:#7a5020">Amber reading</div>
+            </div>
+            <div id="vt-forest" onclick="applyVisualTheme('forest')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a2010;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#b4e6b4">Forest</div>
+              <div style="padding:5px 8px;background:#f0f5f0;font-size:10px;color:#2a6030">Deep green</div>
+            </div>
+            <div id="vt-ocean" onclick="applyVisualTheme('ocean')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a1040;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#a0b4ff">Ocean</div>
+              <div style="padding:5px 8px;background:#f0f5ff;font-size:10px;color:#2a3a80">Deep blue</div>
+            </div>
+          </div>
+        </div>
 </div>
 <!-- Models -->
 <div class="settings-section" id="section-models">
