@@ -86,13 +86,21 @@
       <div class="zoho-card">
         <div class="zoho-card-title">Setup Instructions</div>
         <div class="zoho-card-desc">To connect Zoho Social and Calendar:</div>
-        <ol style="font-size:13px;color:var(--ink);line-height:2;padding-left:20px">
-          <li>Go to <a href="https://api-console.zoho.eu" target="_blank" style="color:var(--accent,#0f3b3a)">api-console.zoho.eu</a> and create a Self Client</li>
-          <li>Set redirect URI to: <code style="background:var(--bg-3,#e8ddd4);padding:2px 6px;border-radius:4px;font-size:11px">https://aurelia.identitypartners.uk/comms/zoho.html</code></li>
-          <li>Copy your Client ID and Client Secret</li>
-          <li>Go to <a href="/settings/index.html" style="color:var(--accent,#0f3b3a)">Settings</a> and paste them in the Social Accounts section</li>
-          <li>Return here and click "Connect Zoho Social"</li>
-        </ol>
+        <ol style="font-size:13px;color:var(--ink);line-height:2;padding-left:20px;margin-top:8px">
+            <li>Go to <a href="https://api-console.zoho.eu" target="_blank" style="color:var(--accent,#0f3b3a)">api-console.zoho.eu</a></li>
+            <li>Click <strong>+ Add Client</strong> → choose <strong>Server-based Applications</strong> (NOT Self Client)</li>
+            <li>Set <strong>Authorized Redirect URIs</strong> to exactly:<br>
+              <code style="background:var(--bg-3,#e8ddd4);padding:3px 8px;border-radius:4px;font-size:11px;display:block;margin-top:4px">https://aurelia.identitypartners.uk/comms/zoho.html</code>
+            </li>
+            <li>Copy the new <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+            <li>Go to <a href="/settings/index.html" style="color:var(--accent,#0f3b3a)">Settings</a> → Key Ingester → paste:<br>
+              <code style="background:var(--bg-3,#e8ddd4);padding:3px 8px;border-radius:4px;font-size:11px;display:block;margin-top:4px">Zoho_Client_ID=1000.XXXX<br>Zoho_Client_Secret=XXXX</code>
+            </li>
+            <li>Return here and click <strong>Connect Zoho Social</strong></li>
+          </ol>
+          <div style="margin-top:10px;padding:10px 12px;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;font-size:12.5px;color:#3e2000">
+            <strong>Why Server-based Application?</strong> Self Client doesn't support redirect URIs, which are required for the OAuth flow. Server-based Application allows Aurelia to receive the auth code after you approve access.
+          </div>
         <div style="margin-top:12px;padding:10px 12px;background:var(--gold-4,#f5e9d4);border-radius:8px;font-size:12.5px;color:var(--ink)">
           <strong>Your Zoho credentials:</strong> Configure Zoho_Client_ID and Zoho_Client_Secret in Settings &#8594; Key Ingester
         </div>
