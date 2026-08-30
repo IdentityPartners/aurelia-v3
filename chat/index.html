@@ -151,12 +151,12 @@ function renderMd(text) {
 
 // ── Get current model ─────────────────────────────────────────────────────
 function getCurrentModel() {
-  // Try ModelRouter first (loaded by shared JS)
-  if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
-  // Try localStorage
+  // Try localStorage first (set by model picker)
   var saved = localStorage.getItem('aurelia_model');
   if (saved) return saved;
-  // Default
+  // Try ModelRouter (loaded by shared JS)
+  if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
+  // Default — use a capable model
   return 'groq/openai/gpt-oss-20b';
 }
 
@@ -222,8 +222,7 @@ function generateImage() {
   }
 }
 
-// ── Main send function ────────────────────────────────────────────────────
-function doSend() {
+// ── Main send function ─────────function doSend() {
   var ta = document.getElementById('chat-textarea');
   if (!ta) return;
   var t = ta.value.trim();
@@ -263,7 +262,12 @@ function doSend() {
   }
 
   var model = getCurrentModel();
-  var sys = 'You are Aurelia, the AI assistant for Identity Partners — a professional listening, coaching, and identity development practice in the UK. Be warm, professional, and precise. ALWAYS use rich markdown formatting in your responses: use **bold** for key terms, *italics* for emphasis, # headings and ## subheadings to structure longer responses, bullet points (- item) and numbered lists (1. item) for lists, | tables | for comparisons and data, > blockquotes for important quotes or principles, `code` for technical terms, --- for section dividers, and emojis where they add warmth or clarity. For complex responses, use a clear hierarchy: heading → subheading → bullets. Make responses visually scannable and beautiful. Date: ' + new Date().toISOString().split('T')[0] + '.';
+  var sys = 'You are Aurelia, the AI assistant for Identity Partners — a professional listening, coaching, and identity development practice in the UK. ' +
+      'You are warm, precise, and professional. You do NOT say "Hi there!" or use casual greetings. ' +
+      'You use rich markdown formatting: **bold** for key terms, *italics* for emphasis, # headings for structure, bullet points for lists, tables for comparisons. ' +
+      'You are knowledgeable about identity development, neurodivergent adults, sobriety support, life transitions, and professional listening. ' +
+      'Current date: ' + new Date().toLocaleDateString('en-GB') + '. ' +
+      'Active model: ' + getCurrentModel().split('/').pop() + '.'
 
   // Round Robin mode
   if (rrActive) {
@@ -271,7 +275,7 @@ function doSend() {
       return fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
-        body: JSON.stringify({messages: [{role: 'user', content: t}], model: m, system: sys})
+        body: JSON.stringify({messages: (currentThread && currentThread.messages ? currentThread.messages.map(function(m) { return {role: m.role, content: m.content}; }) : [{role: 'user', content: t}]), model: m, system: sys})
       }).then(function(r) { return r.json(); }).then(function(d) { return {model: m, content: d.content || ''}; }).catch(function(e) { return {model: m, content: 'Error: ' + e.message}; });
     });
     Promise.all(calls).then(function(results) {
@@ -318,6 +322,9 @@ function doSend() {
       var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.textContent = 'Error: ' + e.message;
       aInner.appendChild(aBub); a.appendChild(aAv); a.appendChild(aInner);
       mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
+    }
+  });
+}c.scrollTop = mc.scrollHeight;
     }
   });
 }
