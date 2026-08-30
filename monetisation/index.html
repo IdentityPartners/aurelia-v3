@@ -81,5 +81,6 @@ function saveOffers(){localStorage.setItem("aurelia_offers",JSON.stringify(offer
 function switchTab(name,btn){document.querySelectorAll("[id^='tab-content-']").forEach(t=>t.style.display="none");document.getElementById("tab-content-"+name).style.display=name==="offers"||name==="memberships"||name==="programmes"?"grid":"block";document.querySelectorAll("[id^='tab-']").forEach(b=>{if(b.tagName==="BUTTON"){b.style.background="none";b.style.color="var(--text-muted)";}});btn.style.background="var(--surface)";btn.style.color="var(--ink)";}
 document.addEventListener("DOMContentLoaded",init);
 </script>
+<script src="/shared/help.js"></script>
 </body>
 </html>
