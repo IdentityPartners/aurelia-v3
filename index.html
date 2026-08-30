@@ -572,6 +572,53 @@ var NEWS_SOURCES = {
   ],
 };
 
+function renderNewsCard(container, item) {
+  var card = document.createElement("a");
+  card.className = "news-card";
+  card.href = item.url || "#";
+  card.target = "_blank";
+  card.rel = "noopener";
+  card.style.cssText = "display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .15s;text-decoration:none;margin-bottom:10px";
+  
+  // Image
+  var imgWrap = document.createElement("div");
+  imgWrap.style.cssText = "width:100px;height:80px;flex-shrink:0;background:var(--bg-2,#f0e9e0);display:flex;align-items:center;justify-content:center;overflow:hidden";
+  if (item.image && item.image.startsWith("http")) {
+    var img = document.createElement("img");
+    img.src = item.image;
+    img.style.cssText = "width:100%;height:100%;object-fit:cover";
+    img.loading = "lazy";
+    img.onerror = function() { imgWrap.textContent = "\uD83D\uDCF0"; imgWrap.style.fontSize = "28px"; };
+    imgWrap.appendChild(img);
+  } else {
+    imgWrap.textContent = "\uD83D\uDCF0";
+    imgWrap.style.fontSize = "28px";
+    imgWrap.style.color = "var(--faint,#a8a29e)";
+  }
+  card.appendChild(imgWrap);
+  
+  var body = document.createElement("div");
+  body.style.cssText = "padding:10px 12px;flex:1;min-width:0";
+  
+  var src = document.createElement("div");
+  src.style.cssText = "font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent,#0f3b3a);margin-bottom:3px";
+  src.textContent = item.source || "";
+  
+  var title = document.createElement("div");
+  title.style.cssText = "font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical";
+  title.textContent = item.title || "";
+  
+  var meta = document.createElement("div");
+  meta.style.cssText = "font-size:10px;color:var(--faint,#a8a29e)";
+  meta.textContent = item.date || "";
+  
+  body.appendChild(src);
+  body.appendChild(title);
+  body.appendChild(meta);
+  card.appendChild(body);
+  container.appendChild(card);
+}
+
 async function loadNews() {
   var cat = document.getElementById("news-category");
   var catVal = cat ? cat.value : "general";
