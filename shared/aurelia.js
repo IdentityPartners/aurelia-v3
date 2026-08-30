@@ -88,19 +88,17 @@ const ThemeSystem = {
     const key = `${this.current.family}-${this.current.variant}`;
     const theme = this.THEMES[key] || this.THEMES['elegant-midnight'];
 
-    // Apply CSS variables directly to :root
-    const root = document.documentElement;
-    root.style.setProperty('--accent', theme.accent);
-    root.style.setProperty('--accent-2', theme.accent2);
-    root.style.setProperty('--gold', theme.accent);
-    root.style.setProperty('--gold-2', theme.accent2);
-    root.style.setProperty('--bg', theme.bg);
-    root.style.setProperty('--ivory', theme.bg);
-    root.style.setProperty('--surface', theme.bg === '#ffffff' ? '#ffffff' : theme.bg);
-    root.style.setProperty('--ink', theme.ink);
+    // Set data-theme — CSS in themes.css handles all variable overrides
+    document.documentElement.setAttribute('data-theme', key);
 
-    // Set data-theme for CSS class-based overrides
-    root.setAttribute('data-theme', key);
+    // Also apply inline for immediate effect (before CSS loads)
+    if (theme) {
+      const root = document.documentElement;
+      if (theme.accent) root.style.setProperty('--accent', theme.accent);
+      if (theme.accent2) root.style.setProperty('--accent-2', theme.accent2);
+      if (theme.bg) root.style.setProperty('--bg', theme.bg);
+      if (theme.ink) root.style.setProperty('--ink', theme.ink);
+    }
 
     localStorage.setItem('aurelia_theme', JSON.stringify(this.current));
     document.dispatchEvent(new CustomEvent('aurelia:theme-changed', { detail: { ...this.current, theme } }));
