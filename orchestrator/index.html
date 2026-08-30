@@ -83,7 +83,7 @@ function addAudit(type,action,detail){
   var log=document.getElementById("audit-log");
   var entry=document.createElement("div");
   entry.style.cssText="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px";
-  entry.innerHTML="<div style='font-size:10.5px;color:var(--text-faint)'>"+new Date().toLocaleTimeString("en-GB")+" · "+type+"</div><div style='color:var(--ink);margin-top:2px'>"+action+"</div><div style='color:var(--text-muted);font-size:11.5px'>"+detail+"</div>";
+  entry.innerHTML='<div style="font-size:10.5px;color:var(--text-faint)">'+new Date().toLocaleTimeString("en-GB")+" · "+type+"</div><div style='color:var(--ink);margin-top:2px'>"+action+"</div><div style='color:var(--text-muted);font-size:11.5px'>"+detail+"</div>";
   log.insertBefore(entry,log.firstChild);
 }
 async function runOrchestrator(){
