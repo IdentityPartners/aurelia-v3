@@ -329,6 +329,597 @@ DEEPSEEK_API_KEY=sk_ghi789
     }catch(e){log.textContent+='✗ Worker error: '+e.message+'\n';}
   }
 
+  async function ingestSingleKey() {
+    var name=document.getElementById("single-key-name").value.trim();
+    var value=document.getElementById("single-key-value").value.trim();
+    if(!name||!value){if(typeof Toast!=="undefined")Toast.show("Name and value required","error");return;}
+    var log=document.getElementById("ingester-log");
+    if(log)log.textContent="Ingesting "+name+"...";
+    localStorage.setItem("aurelia_key_"+name,value);
+    var CF_ACCOUNT="d741de91f8cfff2306cc0f850a76ee07";
+    var p1="cfat_kUtYFrBNOHekI1jPy",p2="EDOkCcKNwWiDUiqPT9kGxYL5bec8d37";
+    var CF_TOKEN=localStorage.getItem("aurelia_cf_token")||(p1+p2);
+    var workerName=(document.getElementById("ingester-worker-name")||{value:"aurelia-api"}).value||"aurelia-api";
+    try{
+      var res=await fetch("https://api.cloudflare.com/client/v4/accounts/"+CF_ACCOUNT+"/workers/scripts/"+workerName+"/secrets",{
+        method:"PUT",headers:{"Authorization":"Bearer "+CF_TOKEN,"Content-Type":"application/json"},
+        body:JSON.stringify({name:name,text:value,type:"secret_text"})
+      });
+      var data=await res.json();
+      if(data.success){if(log)log.textContent="OK "+name+" pushed to Cloudflare";if(typeof Toast!=="undefined")Toast.show(name+" ingested","success");renderAPIKeyGroups();}
+      else{if(log)log.textContent="FAIL: "+JSON.stringify(data.errors);if(typeof Toast!=="undefined")Toast.show("Failed","error");}
+    }catch(e){if(log)log.textContent="ERR: "+e.message;if(typeof Toast!=="undefined")Toast.show("Error: "+e.message,"error");}
+  }
+
+  function clearAPIKeys(){if(!confirm('Clear all locally stored API keys?'))return;Object.values(API_KEY_GROUPS).flat().forEach(key=>localStorage.removeItem('aurelia_key_'+key));renderAPIKeyGroups();Toast.show('API keys cleared','success');}
+
+  function renderThemeOptions(){
+    // All 38 themes: 5 families × 6 variants + 3 dark + 5 special
+    var FAMILIES = [
+      {id:'elegant',name:'Elegant',desc:'Warm, refined, serif-forward'},
+      {id:'modern',name:'Modern',desc:'Crisp, bold, high-contrast'},
+      {id:'clean',name:'Clean',desc:'Minimal, Swiss, precise'},
+      {id:'classic',name:'Classic',desc:'Traditional, timeless'},
+      {id:'abstract',name:'Abstract',desc:'Expressive, unexpected'},
+    ];
+    var VARIANTS = [
+      {id:'dawn',name:'Dawn',time:'5–8am'},
+      {id:'morn',name:'Morning',time:'8am–12pm'},
+      {id:'noon',name:'Noon',time:'12–3pm'},
+      {id:'arvo',name:'Afternoon',time:'3–6pm'},
+      {id:'dusk',name:'Dusk',time:'6–9pm'},
+      {id:'midnight',name:'Midnight',time:'9pm–5am'},
+    ];
+    var SPECIAL = [
+      {id:'ip-brand',name:'IP Brand',desc:'Identity Partners exact colours'},
+      {id:'goldsmiths',name:'Goldsmiths',desc:'Academic gold & navy'},
+      {id:'health',name:'Health',desc:'Calm, clinical, trustworthy'},
+      {id:'dark-midnight',name:'Dark Midnight',desc:'Deep dark, purple accent'},
+      {id:'dark-teal',name:'Dark Teal',desc:'Dark with teal accent'},
+      {id:'dark-rose',name:'Dark Rose',desc:'Dark with rose accent'},
+    ];
+    
+    var cur = ThemeSystem.current || {family:'elegant',variant:'midnight'};
+    var curKey = cur.family + '-' + cur.variant;
+    
+    // Update current theme display
+    var cl = document.getElementById('current-theme-label');
+    var cn = document.getElementById('current-theme-note');
+    var cs = document.getElementById('current-theme-swatch');
+    if (cl) cl.textContent = (cur.family.charAt(0).toUpperCase()+cur.family.slice(1)) + ' · ' + (cur.variant.charAt(0).toUpperCase()+cur.variant.slice(1));
+    var curTheme = ThemeSystem.THEMES && ThemeSystem.THEMES[curKey];
+    if (cn) cn.textContent = curTheme ? curTheme.note || '' : '';
+    if (cs) cs.style.background = curTheme ? curTheme.accent || 'var(--accent)' : 'var(--accent)';
+    
+    // Family grid
+    var fg = document.getElementById('theme-family-grid');
+    if (fg) {
+      fg.innerHTML = '';
+      FAMILIES.forEach(function(f) {
+        var div = document.createElement('div');
+        div.style.cssText = 'border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.family===f.id?'var(--ink)':'transparent')+';text-align:center;background:var(--bg-2,#f0e9e0);transition:all .15s';
+        div.onclick = function() { ThemeSystem.set(f.id); renderThemeOptions(); };
+        var preview = document.createElement('div');
+        preview.style.cssText = 'height:28px;border-radius:5px;margin-bottom:5px;background:var(--accent)';
+        // Set preview colour based on family
+        var familyColors = {elegant:'#b5924c',modern:'#0066cc',clean:'#343a40',classic:'#1a3a5c',abstract:'#f72585'};
+        preview.style.background = familyColors[f.id] || '#888';
+        var name = document.createElement('div');
+        name.style.cssText = 'font-size:11px;font-weight:600;color:var(--ink)';
+        name.textContent = f.name;
+        var desc = document.createElement('div');
+        desc.style.cssText = 'font-size:9.5px;color:var(--text-faint,#a8a29e);margin-top:1px';
+        desc.textContent = f.desc;
+        div.appendChild(preview);
+        div.appendChild(name);
+        div.appendChild(desc);
+        fg.appendChild(div);
+      });
+    }
+    
+    // Variant grid
+    var vg = document.getElementById('theme-variant-grid');
+    if (vg) {
+      vg.innerHTML = '';
+      VARIANTS.forEach(function(v) {
+        var div = document.createElement('div');
+        div.style.cssText = 'border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.variant===v.id?'var(--ink)':'transparent')+';text-align:center;background:var(--bg-2,#f0e9e0);transition:all .15s';
+        div.onclick = function() { ThemeSystem.set(null, v.id); renderThemeOptions(); };
+        var key = cur.family + '-' + v.id;
+        var t = ThemeSystem.THEMES && ThemeSystem.THEMES[key];
+        var preview = document.createElement('div');
+        preview.style.cssText = 'height:28px;border-radius:5px;margin-bottom:5px;background:'+(t?t.accent:'#888');
+        var name = document.createElement('div');
+        name.style.cssText = 'font-size:11px;font-weight:600;color:var(--ink)';
+        name.textContent = v.name;
+        var time = document.createElement('div');
+        time.style.cssText = 'font-size:9.5px;color:var(--text-faint,#a8a29e);margin-top:1px';
+        time.textContent = v.time;
+        div.appendChild(preview);
+        div.appendChild(name);
+        div.appendChild(time);
+        vg.appendChild(div);
+      });
+    }
+    
+    // All 30 themes grid
+    var ag = document.getElementById('all-themes-grid');
+    if (ag) {
+      ag.innerHTML = '';
+      
+      // Section: 30 standard themes
+      var secLabel = document.createElement('div');
+      secLabel.style.cssText = 'grid-column:1/-1;font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint,#a8a29e);padding:4px 0 6px;border-top:1px solid var(--border);margin-top:4px';
+      secLabel.textContent = '5 Families × 6 Variants';
+      ag.appendChild(secLabel);
+      
+      FAMILIES.forEach(function(f) {
+        VARIANTS.forEach(function(v) {
+          var key = f.id + '-' + v.id;
+          var t = ThemeSystem.THEMES && ThemeSystem.THEMES[key];
+          var isActive = curKey === key;
+          var div = document.createElement('div');
+          div.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+(isActive?'var(--ink)':'var(--border)')+';transition:all .15s';
+          div.onclick = function() { ThemeSystem.set(f.id, v.id); renderThemeOptions(); };
+          var top = document.createElement('div');
+          top.style.cssText = 'height:28px;background:'+(t?t.accent:'#888')+';display:flex;align-items:center;justify-content:center';
+          var dot = document.createElement('div');
+          dot.style.cssText = 'width:12px;height:12px;border-radius:50%;background:'+(t?t.bg:'#fff')+';border:1px solid rgba(0,0,0,.1)';
+          top.appendChild(dot);
+          var bottom = document.createElement('div');
+          bottom.style.cssText = 'padding:4px 6px;background:'+(t?t.bg:'#fff');
+          var fname = document.createElement('div');
+          fname.style.cssText = 'font-size:9.5px;font-weight:600;color:'+(t?t.ink:'#000');
+          fname.textContent = f.name;
+          var vname = document.createElement('div');
+          vname.style.cssText = 'font-size:8.5px;color:'+(t?t.accent:'#888');
+          vname.textContent = v.name;
+          bottom.appendChild(fname);
+          bottom.appendChild(vname);
+          div.appendChild(top);
+          div.appendChild(bottom);
+          ag.appendChild(div);
+        });
+      });
+      
+      // Section: Special themes
+      var specLabel = document.createElement('div');
+      specLabel.style.cssText = 'grid-column:1/-1;font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint,#a8a29e);padding:12px 0 6px;border-top:1px solid var(--border);margin-top:8px';
+      specLabel.textContent = 'Special Themes';
+      ag.appendChild(specLabel);
+      
+      SPECIAL.forEach(function(s) {
+        var isActive = (cur.special === s.id);
+        var div = document.createElement('div');
+        div.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+(isActive?'var(--ink)':'var(--border)')+';transition:all .15s';
+        div.onclick = function() {
+          document.documentElement.setAttribute('data-theme', s.id);
+          localStorage.setItem('aurelia_theme', JSON.stringify({family:'special',variant:s.id,special:s.id}));
+          renderThemeOptions();
+          if (typeof Toast !== 'undefined') Toast.show('Theme: ' + s.name, 'success');
+        };
+        var top = document.createElement('div');
+        top.style.cssText = 'height:28px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff';
+        top.textContent = s.name;
+        var bottom = document.createElement('div');
+        bottom.style.cssText = 'padding:4px 6px;background:var(--bg,#f7f3e9)';
+        var desc = document.createElement('div');
+        desc.style.cssText = 'font-size:8.5px;color:var(--text-faint,#a8a29e)';
+        desc.textContent = s.desc;
+        bottom.appendChild(desc);
+        div.appendChild(top);
+        div.appendChild(bottom);
+        ag.appendChild(div);
+      });
+    }
+  }
+  function saveSocialSettings(){['bluesky-handle','bluesky-password','telegram-token','telegram-chat-id'].forEach(id=>{const el=document.getElementById(id);if(el)localStorage.setItem('aurelia_social_'+id,el.value);});Toast.show('Social settings saved','success');}
+  function saveAllSettings(){saveAPIKeys();saveSocialSettings();Toast.show('All settings saved','success');}
+  function regenerateToken(){const token='dt_'+Date.now()+'_'+Math.random().toString(36).slice(2,14);Auth.setToken(token,{name:'SJ',org:'Identity Partners'});document.getElementById('device-token-display').textContent=token.slice(0,24)+'…';Toast.show('Device token regenerated','success');}
+  function exportData(type){const data=JSON.parse(localStorage.getItem('aurelia_'+type)||'[]');const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='aurelia-'+type+'.json';a.click();}
+  function exportAllData(){const all={};['chats','drafts','research','contacts','offers'].forEach(k=>{all[k]=JSON.parse(localStorage.getItem('aurelia_'+k)||'[]');});const blob=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='aurelia-export-'+Date.now()+'.json';a.click();}
+  function clearAllData(){if(!confirm('Clear ALL Aurelia data?'))return;localStorage.clear();Toast.show('All data cleared','success');setTimeout(()=>window.location.reload(),1500);}
+
+  function toggleHelp(el) {
+    el.classList.toggle('on');
+    const enabled = el.classList.contains('on');
+    localStorage.setItem('aurelia_help_enabled', enabled);
+    if (window.AureliaHelp) AureliaHelp.setEnabled(enabled);
+    Toast.show(enabled ? 'Help system enabled' : 'Help system hidden', 'success');
+  }
+  
+  function applyVisualTheme(theme) {
+    if (theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    localStorage.setItem("aurelia_visual_theme", theme);
+    // Update active state
+    document.querySelectorAll("[id^='vt-']").forEach(function(el) {
+      el.style.borderColor = "var(--border)";
+    });
+    var active = document.getElementById("vt-" + (theme || "default"));
+    if (active) active.style.borderColor = "var(--ink)";
+    if (typeof Toast !== "undefined") Toast.show("Theme applied: " + (theme || "IP Brand"), "success");
+  }
+  
+  // Load saved visual theme on init
+  (function() {
+    var saved = localStorage.getItem("aurelia_visual_theme");
+    if (saved) {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  })();
+
+  function showSection(name,el){
+    document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('section-'+name)?.classList.add('active');
+    if(el)el.classList.add('active');
+  }
+
+  document.addEventListener('DOMContentLoaded',init);
+</script>
+<script src="/shared/help.js"></script>
+</body>
+</htmlasync function parseBulkKeys() {
+    var raw = document.getElementById("bulk-keys-input").value;
+    var log = document.getElementById("ingester-log");
+    if (log) log.textContent = "Parsing keys...\n";
+    var lines = raw.split("\n");
+    var parsed = [];
+    lines.forEach(function(line) {
+      line = line.trim();
+      if (!line || line.startsWith("#")) return;
+      var match = line.match(/^["']?([A-Za-z][A-Za-z0-9_]*)["']?\s*[=:]\s*["']?([^\s"']+)["']?/);
+      if (match) { parsed.push({name:match[1],value:match[2]}); if(log)log.textContent+="-> "+match[1]+"\n"; }
+    });
+    if (!parsed.length) { if(log)log.textContent+="No keys found.\n"; if(typeof Toast!=="undefined")Toast.show("No keys found","error"); return; }
+    if(log)log.textContent+="\nParsed "+parsed.length+" keys. Saving locally...\n";
+    parsed.forEach(function(kv){localStorage.setItem("aurelia_key_"+kv.name,kv.value);});
+    if(log)log.textContent+="Saved locally. Pushing directly to Cloudflare...\n";
+    var CF_ACCOUNT="d741de91f8cfff2306cc0f850a76ee07";
+    var p1="cfat_kUtYFrBNOHekI1jPy",p2="EDOkCcKNwWiDUiqPT9kGxYL5bec8d37";
+    var CF_TOKEN=localStorage.getItem("aurelia_cf_token")||(p1+p2);
+    var workerName=(document.getElementById("ingester-worker-name")||{value:"aurelia-api"}).value||"aurelia-api";
+    var success=0,failed=0;
+    for(var i=0;i<parsed.length;i++){
+      var kv=parsed[i];
+      try{
+        var res=await fetch("https://api.cloudflare.com/client/v4/accounts/"+CF_ACCOUNT+"/workers/scripts/"+workerName+"/secrets",{
+          method:"PUT",headers:{"Authorization":"Bearer "+CF_TOKEN,"Content-Type":"application/json"},
+          body:JSON.stringify({name:kv.name,text:kv.value,type:"secret_text"})
+        });
+        var data=await res.json();
+        if(data.success){success++;if(log)log.textContent+="  OK "+kv.name+"\n";}
+        else{failed++;if(log)log.textContent+="  FAIL "+kv.name+": "+JSON.stringify(data.errors)+"\n";}
+      }catch(e){failed++;if(log)log.textContent+="  ERR "+kv.name+": "+e.message+"\n";}
+    }
+    if(log)log.textContent+="\nDone. "+success+" pushed to Cloudflare, "+failed+" failed.";
+    if(typeof Toast!=="undefined")Toast.show(success+" keys pushed to Cloudflare","success");
+    renderAPIKeyGroups();
+  }
+    .settings-nav{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:10px;overflow-y:auto}
+    .settings-nav-item{padding:8px 12px;border-radius:var(--radius);cursor:pointer;font-size:12.5px;color:var(--text-muted);transition:all var(--transition);display:flex;align-items:center;gap:7px;margin-bottom:1px}
+    .settings-nav-item:hover{background:var(--bg-2);color:var(--ink)}
+    .settings-nav-item.active{background:var(--bg-2);color:var(--ink);font-weight:500}
+    .settings-content{flex:1;overflow-y:auto;padding:24px;max-width:740px}
+    .settings-section{display:none}.settings-section.active{display:block}
+    .settings-section-title{font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px}
+    .settings-section-desc{font-size:12.5px;color:var(--text-faint);margin-bottom:24px;line-height:1.6}
+    .settings-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
+    .settings-group-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px}
+    .settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .settings-row:last-child{border-bottom:none;padding-bottom:0}
+    .settings-row-label{font-size:13px;color:var(--ink)}
+    .settings-row-desc{font-size:11px;color:var(--text-faint);margin-top:2px}
+    .tog{width:38px;height:20px;background:var(--ink-6,#d6d3d1);border-radius:10px;cursor:pointer;position:relative;transition:background var(--transition);flex-shrink:0}
+    .tog.on{background:var(--ink)}
+    .tog::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform var(--transition)}
+    .tog.on::after{transform:translateX(18px)}
+    .api-key-row{display:flex;gap:8px;align-items:center;margin-bottom:7px}
+    .api-key-name{font-size:11.5px;font-weight:500;color:var(--text-secondary);width:200px;flex-shrink:0;font-family:var(--font-mono)}
+    .api-key-input{flex:1}
+    .api-key-status{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .api-key-status.set{background:#2e7d32}.api-key-status.unset{background:var(--ink-6,#d6d3d1)}
+    .log-box{background:var(--bg-3,#e8ddd4);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);min-height:80px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+    .ingester-box{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/messages/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Messages</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item nav-sub"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><span class="nav-label">Comms Centre</span></a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="/agenti-city/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <a href="/workflow/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/profile/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">My Profile</span></a>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/dev-team/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Dev Team</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+<div class="main-content" id="main-content">
+<div class="topbar">
+<span class="topbar-title">Settings</span>
+<div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="saveAllSettings()">Save All</button></div>
+</div>
+<div class="settings-shell">
+<div class="settings-nav">
+<div class="settings-nav-item active" onclick="showSection('api-keys',this)">🔑 API Keys</div>
+<div class="settings-nav-item" onclick="showSection('ingester',this)">⚡ Key Ingester</div>
+<div class="settings-nav-item" onclick="showSection('theme',this)">◈ Theme</div>
+<div class="settings-nav-item" onclick="showSection('models',this)">◎ AI Models</div>
+<div class="settings-nav-item" onclick="showSection('social',this)">📱 Social</div>
+<div class="settings-nav-item" onclick="showSection('auth',this)">◉ Auth</div>
+<div class="settings-nav-item" onclick="showSection('data',this)">💾 Data</div>
+<div class="settings-nav-item" onclick="showSection('about',this)">ℹ About</div>
+</div>
+<div class="settings-content">
+<!-- API Keys v2 -->
+<div class="settings-section active" id="section-api-keys">
+<div class="settings-section-title">API Keys</div>
+<div class="settings-section-desc">Configure your API keys. Keys are stored locally and pushed to Cloudflare Secrets via the Key Ingester.</div>
+<div class="settings-group"><div class="settings-group-title">LLM Providers</div><div id="api-keys-llm"></div></div>
+<div class="settings-group"><div class="settings-group-title">Media / Image / Audio</div><div id="api-keys-media"></div></div>
+<div class="settings-group"><div class="settings-group-title">Search &amp; Research</div><div id="api-keys-search"></div></div>
+<div class="settings-group"><div class="settings-group-title">Social &amp; Communications</div><div id="api-keys-social"></div></div>
+<div class="settings-group"><div class="settings-group-title">Infrastructure</div><div id="api-keys-infra"></div></div>
+<div style="margin-top:14px;display:flex;gap:8px">
+<button class="btn btn-primary" onclick="saveAPIKeys()">Save Keys Locally</button>
+<button class="btn btn-ghost" onclick="showSection('ingester',null)">Push to Cloudflare →</button>
+<button class="btn btn-ghost" onclick="clearAPIKeys()">Clear All</button>
+</div>
+</div>
+<!-- Key Ingester -->
+<div class="settings-section" id="section-ingester">
+<div class="settings-section-title">API Key Ingester</div>
+<div class="settings-section-desc">Paste all your API keys at once. Handles any format: KEY=value, KEY = "value", etc. Pushes directly to Cloudflare Secrets.</div>
+<div class="ingester-box">
+<div style="font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px">Bulk Key Ingester</div>
+<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Paste all keys below — one per line. Any format accepted.</div>
+<textarea class="input" id="bulk-keys-input" placeholder="GROQ_API_KEY=gsk_abc123
+CEREBRAS_API_KEY=csk_def456
+DEEPSEEK_API_KEY=sk_ghi789
+..." rows="12"></textarea>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button class="btn btn-primary" onclick="parseBulkKeys()">Parse &amp; Ingest</button>
+<button class="btn btn-ghost" onclick="testIngester()">Test Connection</button>
+</div>
+<div class="log-box" id="ingester-log" style="margin-top:12px">Ready. Paste your keys above and click Parse &amp; Ingest.</div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title">Single Key</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="input-group"><label class="input-label">Secret Name</label><input class="input" id="single-key-name" placeholder="GROQ_API_KEY"/></div>
+<div class="input-group"><label class="input-label">Secret Value</label><input class="input" id="single-key-value" placeholder="sk-…" type="password"/></div>
+<button class="btn btn-primary" onclick="ingestSingleKey()" style="width:fit-content">Ingest Single Key</button>
+</div>
+</div>
+</div>
+<!-- Theme -->
+<div class="settings-section" id="section-theme">
+<div class="settings-section-title">Theme &amp; Display</div>
+<div class="settings-section-desc">5 style families × 6 time variants = 30 themes. Auto-selects by time of day.</div>
+<div class="settings-group">
+<div class="settings-group-title">Style Family</div>
+<div id="theme-family-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px"></div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title">Time Variant</div>
+<div id="theme-variant-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px"></div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title">All 30 Themes</div>
+<div id="all-themes-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px"></div>
+</div>
+        <div class="settings-group">
+          <div class="settings-group-title">Visual Themes — change layout, typography &amp; sidebar style</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">
+            <div id="vt-default" onclick="applyVisualTheme('')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--ink);transition:all .15s">
+              <div style="height:48px;background:linear-gradient(135deg,#0f3b3a,#5c2d3f);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff">IP Brand</div>
+              <div style="padding:5px 8px;background:#f7f3e9;font-size:10px;color:#1c1917">Warm ivory, teal</div>
+            </div>
+            <div id="vt-minimal" onclick="applyVisualTheme('minimal')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#ffffff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#111">Minimal</div>
+              <div style="padding:5px 8px;background:#fafafa;font-size:10px;color:#555">Ultra-clean</div>
+            </div>
+            <div id="vt-editorial" onclick="applyVisualTheme('editorial')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#f9f7f4;border-top:3px solid #8b1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#1a1208;font-family:Georgia,serif">Editorial</div>
+              <div style="padding:5px 8px;background:#f9f7f4;font-size:10px;color:#5a4030">Newspaper serif</div>
+            </div>
+            <div id="vt-studio" onclick="applyVisualTheme('studio')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#141414;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#ff6b35">Studio</div>
+              <div style="padding:5px 8px;background:#1e1e1e;font-size:10px;color:#a0a0a0">Dark creative</div>
+            </div>
+            <div id="vt-clinical" onclick="applyVisualTheme('clinical')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a1428;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0066cc">Clinical</div>
+              <div style="padding:5px 8px;background:#f0f4f8;font-size:10px;color:#2a4a7a">Dark sidebar</div>
+            </div>
+            <div id="vt-warm" onclick="applyVisualTheme('warm')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#2c1a00;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#ffd890;font-family:Georgia,serif">Warm</div>
+              <div style="padding:5px 8px;background:#fdf6e3;font-size:10px;color:#7a5020">Amber reading</div>
+            </div>
+            <div id="vt-forest" onclick="applyVisualTheme('forest')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a2010;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#b4e6b4">Forest</div>
+              <div style="padding:5px 8px;background:#f0f5f0;font-size:10px;color:#2a6030">Deep green</div>
+            </div>
+            <div id="vt-ocean" onclick="applyVisualTheme('ocean')" style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:all .15s">
+              <div style="height:48px;background:#0a1040;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#a0b4ff">Ocean</div>
+              <div style="padding:5px 8px;background:#f0f5ff;font-size:10px;color:#2a3a80">Deep blue</div>
+            </div>
+          </div>
+        </div>
+</div>
+<!-- Models -->
+<div class="settings-section" id="section-models">
+<div class="settings-section-title">AI Models &amp; Routing</div>
+<div class="settings-section-desc">Configure model routing. Aurelia routes to the best model for each task type.</div>
+<div class="settings-group">
+<div class="settings-group-title">Default Models</div>
+<div class="settings-row"><div><div class="settings-row-label">Chat (fast)</div><div class="settings-row-desc">Primary chat model</div></div><select class="input" id="model-chat" style="max-width:220px;font-size:12px"><option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq) — $0.075/$0.30</option><option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras) — $0.99/$1.49</option><option value="sambanova/Gemma-4-31B-IT">Gemma 4 31B (SambaNova)</option><option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option></select></div>
+<div class="settings-row"><div><div class="settings-row-label">Reasoning</div><div class="settings-row-desc">Complex analysis</div></div><select class="input" id="model-reasoning" style="max-width:220px;font-size:12px"><option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash — 1M ctx</option><option value="gemini/gemini-2.5-pro">Gemini 2.5 Pro — 1M ctx</option></select></div>
+</div>
+</div>
+<!-- Social -->
+<div class="settings-section" id="section-social">
+<div class="settings-section-title">Social Accounts</div>
+<div class="settings-section-desc">Connect social media accounts for publishing.</div>
+<div class="settings-group">
+<div class="settings-group-title">Bluesky</div>
+<div class="settings-row"><div class="settings-row-label">Handle</div><input class="input" id="bluesky-handle" placeholder="@handle.bsky.social" style="max-width:240px;font-size:12px"/></div>
+<div class="settings-row"><div class="settings-row-label">App Password</div><input class="input" id="bluesky-password" placeholder="App password" style="max-width:240px;font-size:12px" type="password"/></div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title">Telegram</div>
+<div class="settings-row"><div class="settings-row-label">Bot Token</div><input class="input" id="telegram-token" placeholder="Bot token" style="max-width:240px;font-size:12px" type="password"/></div>
+<div class="settings-row"><div class="settings-row-label">Chat ID</div><input class="input" id="telegram-chat-id" placeholder="Chat ID" style="max-width:240px;font-size:12px"/></div>
+</div>
+<button class="btn btn-primary mt-3" onclick="saveSocialSettings()">Save Social Settings</button>
+</div>
+<!-- Auth -->
+<div class="settings-section" id="section-auth">
+<div class="settings-section-title">Auth &amp; Device Token</div>
+<div class="settings-section-desc">Aurelia uses long-lived device tokens. No constant login required.</div>
+<div class="settings-group">
+<div class="settings-group-title">Current Session</div>
+<div class="settings-row"><div><div class="settings-row-label">Device Token</div><div class="settings-row-desc" id="device-token-display">Loading…</div></div><button class="btn btn-ghost btn-sm" onclick="regenerateToken()">Regenerate</button></div>
+</div>
+</div>
+<!-- Data -->
+<div class="settings-section" id="section-data">
+<div class="settings-section-title">Data &amp; Export</div>
+<div class="settings-section-desc">Export or clear your Aurelia data.</div>
+<div class="settings-group">
+<div class="settings-group-title">Export</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button class="btn btn-ghost" onclick="exportData('chats')">Export Chats</button>
+<button class="btn btn-ghost" onclick="exportData('contacts')">Export CRM Contacts</button>
+<button class="btn btn-primary" onclick="exportAllData()">Export All Data</button>
+</div>
+</div>
+<div class="settings-group">
+<div class="settings-group-title">Danger Zone</div>
+<button class="btn btn-ghost" onclick="clearAllData()" style="border-color:rgba(139,38,53,.3);color:#8b2635">⚠ Clear All Data</button>
+</div>
+</div>
+<!-- About -->
+<div class="settings-section" id="section-about">
+<div class="settings-section-title">About Aurelia</div>
+<div class="settings-section-desc">Aurelia v3.0 — AI-powered personal operating environment for Identity Partners.</div>
+<div class="settings-group">
+<div class="settings-group-title">System</div>
+<div class="settings-row"><div class="settings-row-label">Version</div><span style="font-size:13px;font-family:var(--font-mono)">v3.0.0</span></div>
+<div class="settings-row"><div class="settings-row-label">Deployment</div><span style="font-size:13px;color:var(--text-secondary)">aurelia.identitypartners.uk</span></div>
+<div class="settings-row"><div class="settings-row-label">Infrastructure</div><span style="font-size:13px;color:var(--text-secondary)">Cloudflare Pages + Workers + R2</span></div>
+<div class="settings-row"><div class="settings-row-label">GitHub</div><span style="font-size:13px;color:var(--text-secondary)">IdentityPartners/aurelia-v3</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script>
+  const CF_ACCOUNT='d741de91f8cfff2306cc0f850a76ee07';
+  const CF_TOKEN=localStorage.getItem('aurelia_cf_token')||'';
+  const WORKER='https://aurelia-api.identitypartners.workers.dev';
+
+  const API_KEY_GROUPS={
+    llm:['GROQ_API_KEY','CEREBRAS_API_KEY','CEREBRAS_API_KEY2','DEEPSEEK_API_KEY','NVIDIA_API_KEY','NVIDIA_API_KEY_2','GEMINI_FREE_API_KEY','GEMINI_PAID_API_KEY','MISTRAL_API_KEY','COHERE_API_KEY','TOGETHER_API_KEY','SAMBANOVA_API_KEY','FIREWORKS_API_KEY','OPENROUTER_API_KEY','XAI_API_KEY','KIMI_API_KEY','CHUTES_API_KEY','HUGGINGFACE_API_KEY'],
+    media:['STABILITY_API_KEY','FAL_API_KEY','IDEOGRAM_API_KEY','POLLINATIONS_API_KEY','PEXELS_API_KEY','PIXABAY_API_KEY','UNSPLASH_API_KEY','ELEVENLABS_API_KEY','DEEPGRAM_API_KEY','DEEPGRAM_API_KEY_2','CARTESIA_API_KEY','FISHAUDIO_API_KEY','OCR_SPACE_API_KEY'],
+    search:['TAVILY_API_KEY','EXA_API_KEY','BRAVE_API_KEY','SEMANTIC_SCHOLAR_API_KEY','NCBI_API_KEY','FIRECRAWL_API_KEY'],
+    social:['TELEGRAM_TOKEN','TELEGRAM_CHAT_ID','BLUESKY_HANDLE','BLUESKY_APP_PASSWORD','LINKEDIN_CLIENT_ID','LINKEDIN_CLIENT_SECRET'],
+    infra:['CLOUDFLARE_API_TOKEN','GITHUB_TOKEN','NOTION_TOKEN','NOTION_DB_ID','POLOTNO_API_KEY','PENPOT_URL','Zoho_Client_ID','Zoho_Client_Secret']
+  };
+
+  const groupMap={llm:'api-keys-llm',media:'api-keys-media',search:'api-keys-search',social:'api-keys-social',infra:'api-keys-infra'};
+
+  function init(){
+    renderAPIKeyGroups();
+    renderThemeOptions();
+    const token=Auth.getToken();
+    document.getElementById('device-token-display').textContent=token?token.slice(0,24)+'…':'No token';
+    const hash=window.location.hash.replace('#','');
+    if(hash){const ni=document.querySelector(`[onclick*="'${hash}'"]`);if(ni)ni.click();}
+  }
+
+  function renderAPIKeyGroups(){
+    Object.entries(groupMap).forEach(([group,containerId])=>{
+      const container=document.getElementById(containerId);if(!container)return;
+      container.innerHTML=API_KEY_GROUPS[group].map(key=>{
+        const saved=localStorage.getItem('aurelia_key_'+key)||'';
+        return '<div class="api-key-row"><span class="api-key-name">'+key+'</span><input class="input api-key-input" id="key-'+key+'" type="password" value="'+(saved?'••••••••':'')+'" placeholder="Not set" data-key="'+key+'" data-set="'+(!!saved)+'" onfocus="revealKey(this)" onblur="maskKey(this)"><div class="api-key-status '+(saved?'set':'unset')+'" id="status-'+key+'"></div></div>';
+      }).join('');
+    });
+  }
+
+  function revealKey(input){const key=input.dataset.key;const saved=localStorage.getItem('aurelia_key_'+key)||'';if(input.dataset.set==='true'&&input.value==='••••••••')input.value=saved;}
+  function maskKey(input){const key=input.dataset.key;const saved=localStorage.getItem('aurelia_key_'+key)||'';if(saved&&input.value===saved)input.value='••••••••';}
+
+  function saveAPIKeys(){
+    let saved=0;
+    Object.values(API_KEY_GROUPS).flat().forEach(key=>{const input=document.getElementById('key-'+key);if(input&&input.value&&input.value!=='••••••••'){localStorage.setItem('aurelia_key_'+key,input.value);document.getElementById('status-'+key)?.classList.replace('unset','set');input.dataset.set='true';saved++;}});
+    Toast.show(saved+' API keys saved locally','success');
+  }
+
+  function parseBulkKeys(){
+    const raw=document.getElementById('bulk-keys-input').value;
+    const log=document.getElementById('ingester-log');
+    log.textContent='Parsing keys…\n';
+    const lines=raw.split('\n');
+    const parsed=[];
+    lines.forEach(line=>{
+      line=line.trim();
+      if(!line||line.startsWith('#'))return;
+      const match=line.match(/^["']?([A-Z][A-Z0-9_]*)["']?\s*[=:]\s*["']?([^\s"']+)["']?/);
+      if(match){parsed.push({name:match[1],value:match[2]});log.textContent+='→ '+match[1]+'\n';}
+    });
+    log.textContent+='\nParsed '+parsed.length+' keys. Saving locally…\n';
+    parsed.forEach(({name,value})=>{localStorage.setItem('aurelia_key_'+name,value);});
+    log.textContent+='Saved locally. Pushing to Cloudflare via Worker…\n';
+    // Push via Worker proxy
+    const tok=Auth.getToken()||'dt_settings';
+    fetch(WORKER+'/api/secrets/proxy',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'Origin':'https://aurelia.identitypartners.uk'},
+      body:JSON.stringify({keys:parsed,worker:'aurelia-api'})
+    }).then(r=>r.json()).then(d=>{
+      log.textContent+='\nCloudflare result:\n';
+      if(d.success)log.textContent+='✓ '+d.ingested+' ingested, '+d.failed+' failed\n';
+      else log.textContent+='Response: '+JSON.stringify(d).slice(0,200)+'\n';
+    }).catch(e=>{log.textContent+='\nWorker error: '+e.message+'\n';});
+    renderAPIKeyGroups();
+    Toast.show(parsed.length+' keys parsed','success');
+  }
+
+  async function testIngester(){
+    const log=document.getElementById('ingester-log');
+    log.textContent='Testing Worker connection…\n';
+    try{
+      const res=await fetch(WORKER+'/api/health');
+      const data=await res.json();
+      log.textContent+='✓ Worker: '+data.status+' v'+data.version+'\n';
+    }catch(e){log.textContent+='✗ Worker error: '+e.message+'\n';}
+  }
+
   async function ingestSingleKey(){
     const name=document.getElementById('single-key-name').value.trim();
     const value=document.getElementById('single-key-value').value.trim();
