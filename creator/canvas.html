@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Creator Canvas</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .canvas-shell{display:flex;height:calc(100vh - var(--topbar-h,56px));overflow:hidden}
+    .canvas-tools{width:56px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px;flex-shrink:0}
+    .tool-btn{width:40px;height:40px;border-radius:var(--radius,8px);background:none;border:1px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .12s;color:var(--ink)}
+    .tool-btn:hover{background:var(--bg-2,#f0e9e0);border-color:var(--border)}
+    .tool-btn.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a)}
+    .canvas-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-2,#f0e9e0)}
+    .canvas-area{flex:1;position:relative;overflow:hidden}
+    #main-canvas{position:absolute;inset:0;cursor:crosshair;touch-action:none}
+    .canvas-sidebar{width:260px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:14px}
+    .sidebar-section{margin-bottom:18px}
+    .sidebar-section-title{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:10px}
+    .template-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .template-card{background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:var(--radius,8px);padding:10px;cursor:pointer;transition:all .12s;text-align:center}
+    .template-card:hover{border-color:var(--accent,#0f3b3a)}
+    .template-preview{height:60px;border-radius:4px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .template-name{font-size:11px;font-weight:500;color:var(--ink)}
+    .color-grid{display:flex;gap:6px;flex-wrap:wrap}
+    .color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .12s}
+    .color-swatch:hover,.color-swatch.on{border-color:var(--ink)}
+    .size-row{display:flex;gap:6px;align-items:center}
+    .size-label{font-size:11px;color:var(--muted,#78716c);width:40px}
+    .canvas-status{padding:6px 12px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--faint,#a8a29e);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <div class="nav-sub">
+        <a href="/creator/canvas.html" class="nav-item active"><span class="nav-label">Canvas</span></a>
+        <a href="/creator/assets.html" class="nav-item"><span class="nav-label">Assets</span></a>
+        <a href="/creator/podcasts.html" class="nav-item"><span class="nav-label">Podcasts</span></a>
+        <a href="/creator/worksheets.html" class="nav-item"><span class="nav-label">Worksheets</span></a>
+        <a href="/creator/brand.html" class="nav-item"><span class="nav-label">Brand</span></a>
+        <a href="/creator/social.html" class="nav-item"><span class="nav-label">Social Series</span></a>
+      </div>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Creator Canvas</span>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="clearCanvas()">Clear</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportPNG()">Export PNG</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSVG()">Export SVG</button>
+        <button class="btn btn-primary btn-sm" onclick="saveToAssets()">Save to Assets</button>
+      </div>
+    </div>
+
+    <div class="canvas-shell">
+      <!-- Tools -->
+      <div class="canvas-tools">
+        <button class="tool-btn on" id="tool-pen" onclick="setTool('pen')" title="Pen">&#9998;</button>
+        <button class="tool-btn" id="tool-text" onclick="setTool('text')" title="Text">T</button>
+        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')" title="Rectangle">&#9645;</button>
+        <button class="tool-btn" id="tool-circle" onclick="setTool('circle')" title="Circle">&#9711;</button>
+        <button class="tool-btn" id="tool-line" onclick="setTool('line')" title="Line">&#8212;</button>
+        <button class="tool-btn" id="tool-eraser" onclick="setTool('eraser')" title="Eraser">&#9003;</button>
+        <div style="flex:1"></div>
+        <button class="tool-btn" onclick="undo()" title="Undo">&#8617;</button>
+        <button class="tool-btn" onclick="redo()" title="Redo">&#8618;</button>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-main">
+        <div class="canvas-area" id="canvas-area">
+          <canvas id="main-canvas"></canvas>
+        </div>
+        <div class="canvas-status">
+          <span id="canvas-tool-label">Tool: Pen</span>
+          <span id="canvas-size-label">1200 x 630</span>
+          <span id="canvas-pos-label">0, 0</span>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="canvas-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Templates</div>
+          <div class="template-grid" id="template-grid"></div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Colour</div>
+          <div class="color-grid" id="color-grid"></div>
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <input type="color" id="custom-color" value="#0f3b3a" style="width:36px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer" onchange="setColor(this.value)">
+            <span style="font-size:11.5px;color:var(--muted,#78716c)">Custom colour</span>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Brush Size</div>
+          <div class="size-row">
+            <span class="size-label" id="size-label">4px</span>
+            <input type="range" id="brush-size" min="1" max="40" value="4" style="flex:1" oninput="setBrushSize(this.value)">
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Canvas Size</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="setCanvasSize(1200,630)">LinkedIn (1200x630)</button>
+            <button class="btn btn-ghost btn-sm" onclick="setCanvasSize(1080,1080)">Instagram Square</button>
+            <button class="btn btn-ghost btn-sm" onclick="setCanvasSize(1080,1920)">Story (1080x1920)</button>
+            <button class="btn btn-ghost btn-sm" onclick="setCanvasSize(800,400)">Twitter/X Banner</button>
+            <button class="btn btn-ghost btn-sm" onclick="setCanvasSize(595,842)">A4 Portrait</button>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Add Image</div>
+          <label class="btn btn-ghost btn-sm w-full" style="cursor:pointer;text-align:center">
+            Upload Image
+            <input type="file" accept="image/*" style="display:none" onchange="addImage(this)">
+          </label>
+          <div style="margin-top:6px">
+            <input class="input" id="image-url-input" placeholder="Or paste image URL..." style="font-size:12px">
+            <button class="btn btn-ghost btn-sm w-full" style="margin-top:4px" onclick="addImageFromUrl()">Add from URL</button>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Add Text</div>
+          <input class="input" id="text-input" placeholder="Text to add..." style="font-size:12px;margin-bottom:6px">
+          <select class="input" id="font-size-select" style="font-size:12px;margin-bottom:6px">
+            <option value="16">16px</option>
+            <option value="24">24px</option>
+            <option value="32" selected>32px</option>
+            <option value="48">48px</option>
+            <option value="64">64px</option>
+            <option value="96">96px</option>
+          </select>
+          <button class="btn btn-ghost btn-sm w-full" onclick="addText()">Add Text</button>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">IP Brand</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <button class="btn btn-ghost btn-sm" onclick="applyIPTemplate('parchment')">IP Parchment</button>
+            <button class="btn btn-ghost btn-sm" onclick="applyIPTemplate('teal')">IP Teal</button>
+            <button class="btn btn-ghost btn-sm" onclick="applyIPTemplate('rose')">IP Rose</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+<script>
+  var canvas, ctx;
+  var tool = "pen";
+  var color = "#0f3b3a";
+  var brushSize = 4;
+  var drawing = false;
+  var lastX = 0, lastY = 0;
+  var history = [];
+  var redoStack = [];
+  var textX = 100, textY = 100;
+
+  var COLORS = ["#0f3b3a","#5c2d3f","#1c1917","#b5924c","#2e7d32","#1565c0","#c62828","#6a1b9a","#ffffff","#f5f5f5","#e0e0e0","#9e9e9e","#616161","#212121"];
+
+  var TEMPLATES = [
+    {name:"Quote Card",bg:"#0f3b3a",text:"white",icon:"&#10077;"},
+    {name:"LinkedIn Post",bg:"#f7f3e9",text:"#1c1917",icon:"&#128221;"},
+    {name:"Carousel Slide",bg:"#5c2d3f",text:"white",icon:"&#128202;"},
+    {name:"Blank",bg:"#ffffff",text:"#1c1917",icon:"&#9633;"},
+    {name:"IP Parchment",bg:"#f7f3e9",text:"#0f3b3a",icon:"&#127963;"},
+    {name:"IP Teal",bg:"#0f3b3a",text:"#f7f3e9",icon:"&#127963;"},
+  ];
+
+  function init() {
+    canvas = document.getElementById("main-canvas");
+    ctx = canvas.getContext("2d");
+    setCanvasSize(1200, 630);
+    renderColorGrid();
+    renderTemplateGrid();
+    setupEvents();
+  }
+
+  function setCanvasSize(w, h) {
+    var area = document.getElementById("canvas-area");
+    var scale = Math.min((area.clientWidth - 20) / w, (area.clientHeight - 20) / h, 1);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = (w * scale) + "px";
+    canvas.style.height = (h * scale) + "px";
+    canvas.style.left = ((area.clientWidth - w * scale) / 2) + "px";
+    canvas.style.top = ((area.clientHeight - h * scale) / 2) + "px";
+    canvas.dataset.scale = scale;
+    document.getElementById("canvas-size-label").textContent = w + " x " + h;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, w, h);
+    saveHistory();
+  }
+
+  function setupEvents() {
+    canvas.addEventListener("mousedown", startDraw);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", endDraw);
+    canvas.addEventListener("mouseleave", endDraw);
+    canvas.addEventListener("mousemove", function(e) {
+      var r = canvas.getBoundingClientRect();
+      var scale = parseFloat(canvas.dataset.scale) || 1;
+      var x = Math.round((e.clientX - r.left) / scale);
+      var y = Math.round((e.clientY - r.top) / scale);
+      document.getElementById("canvas-pos-label").textContent = x + ", " + y;
+    });
+  }
+
+  function getPos(e) {
+    var r = canvas.getBoundingClientRect();
+    var scale = parseFloat(canvas.dataset.scale) || 1;
+    return {
+      x: (e.clientX - r.left) / scale,
+      y: (e.clientY - r.top) / scale
+    };
+  }
+
+  function startDraw(e) {
+    drawing = true;
+    var pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    if (tool === "text") {
+      textX = pos.x; textY = pos.y;
+      var text = document.getElementById("text-input").value;
+      if (text) {
+        var fontSize = document.getElementById("font-size-select").value;
+        ctx.font = fontSize + "px Georgia, serif";
+        ctx.fillStyle = color;
+        ctx.fillText(text, textX, textY);
+        saveHistory();
+      }
+      drawing = false;
+      return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    var pos = getPos(e);
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    if (tool === "eraser") {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.strokeStyle = "rgba(0,0,0,1)";
+    } else {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.strokeStyle = color;
+    }
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    lastX = pos.x; lastY = pos.y;
+  }
+
+  function endDraw() {
+    if (drawing) { drawing = false; ctx.globalCompositeOperation = "source-over"; saveHistory(); }
+  }
+
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll(".tool-btn").forEach(function(b) { b.classList.remove("on"); });
+    var btn = document.getElementById("tool-" + t);
+    if (btn) btn.classList.add("on");
+    document.getElementById("canvas-tool-label").textContent = "Tool: " + t.charAt(0).toUpperCase() + t.slice(1);
+    canvas.style.cursor = t === "eraser" ? "cell" : t === "text" ? "text" : "crosshair";
+  }
+
+  function setColor(c) {
+    color = c;
+    document.querySelectorAll(".color-swatch").forEach(function(s) { s.classList.remove("on"); });
+    var swatch = document.querySelector("[data-color='" + c + "']");
+    if (swatch) swatch.classList.add("on");
+  }
+
+  function setBrushSize(s) {
+    brushSize = parseInt(s);
+    document.getElementById("size-label").textContent = s + "px";
+  }
+
+  function saveHistory() {
+    history.push(canvas.toDataURL());
+    if (history.length > 50) history.shift();
+    redoStack = [];
+  }
+
+  function undo() {
+    if (history.length < 2) return;
+    redoStack.push(history.pop());
+    var img = new Image();
+    img.onload = function() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); };
+    img.src = history[history.length - 1];
+  }
+
+  function redo() {
+    if (!redoStack.length) return;
+    var state = redoStack.pop();
+    history.push(state);
+    var img = new Image();
+    img.onload = function() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); };
+    img.src = state;
+  }
+
+  function clearCanvas() {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+  }
+
+  function exportPNG() {
+    var a = document.createElement("a");
+    a.download = "aurelia-canvas.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  }
+
+  function exportSVG() {
+    if (typeof Toast !== "undefined") Toast.show("SVG export: use Export PNG for now", "info");
+  }
+
+  function saveToAssets() {
+    var assets = JSON.parse(localStorage.getItem("aurelia_creator_assets") || "[]");
+    assets.push({id:"canvas_"+Date.now(), type:"canvas", title:"Canvas "+new Date().toLocaleDateString("en-GB"), dataUrl:canvas.toDataURL("image/png"), ts:Date.now()});
+    localStorage.setItem("aurelia_creator_assets", JSON.stringify(assets));
+    if (typeof Toast !== "undefined") Toast.show("Saved to Assets", "success");
+  }
+
+  function addImage(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var scale = Math.min(canvas.width / img.width, canvas.height / img.height, 1);
+        ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
+        saveHistory();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addImageFromUrl() {
+    var url = document.getElementById("image-url-input").value.trim();
+    if (!url) return;
+    var img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = function() {
+      var scale = Math.min(canvas.width / img.width, canvas.height / img.height, 1);
+      ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
+      saveHistory();
+    };
+    img.onerror = function() { if (typeof Toast !== "undefined") Toast.show("Could not load image", "error"); };
+    img.src = url;
+  }
+
+  function addText() {
+    var text = document.getElementById("text-input").value.trim();
+    if (!text) return;
+    var fontSize = document.getElementById("font-size-select").value;
+    ctx.font = fontSize + "px Georgia, serif";
+    ctx.fillStyle = color;
+    ctx.fillText(text, canvas.width / 2 - ctx.measureText(text).width / 2, canvas.height / 2);
+    saveHistory();
+  }
+
+  function applyIPTemplate(type) {
+    var templates = {
+      parchment: {bg:"#f7f3e9", text:"#0f3b3a", accent:"#5c2d3f"},
+      teal: {bg:"#0f3b3a", text:"#f7f3e9", accent:"#b5924c"},
+      rose: {bg:"#5c2d3f", text:"#f7f3e9", accent:"#0f3b3a"},
+    };
+    var t = templates[type] || templates.parchment;
+    ctx.fillStyle = t.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = t.accent;
+    ctx.fillRect(0, 0, 8, canvas.height);
+    ctx.fillStyle = t.text;
+    ctx.font = "bold 48px Georgia, serif";
+    ctx.fillText("Identity Partners", 40, 80);
+    ctx.font = "24px Georgia, serif";
+    ctx.fillText("Understand your past ✦ Appreciate the present ✦ Define your future", 40, 130);
+    saveHistory();
+  }
+
+  function renderColorGrid() {
+    var grid = document.getElementById("color-grid");
+    COLORS.forEach(function(c) {
+      var swatch = document.createElement("div");
+      swatch.className = "color-swatch" + (c === color ? " on" : "");
+      swatch.style.background = c;
+      swatch.style.border = c === "#ffffff" ? "1px solid var(--border)" : "2px solid transparent";
+      swatch.dataset.color = c;
+      swatch.onclick = function() { setColor(c); };
+      swatch.title = c;
+      grid.appendChild(swatch);
+    });
+  }
+
+  function renderTemplateGrid() {
+    var grid = document.getElementById("template-grid");
+    TEMPLATES.forEach(function(t) {
+      var card = document.createElement("div");
+      card.className = "template-card";
+      card.onclick = function() { applyTemplate(t); };
+      var preview = document.createElement("div");
+      preview.className = "template-preview";
+      preview.style.background = t.bg;
+      preview.style.color = t.text;
+      preview.innerHTML = t.icon;
+      var name = document.createElement("div");
+      name.className = "template-name";
+      name.textContent = t.name;
+      card.appendChild(preview);
+      card.appendChild(name);
+      grid.appendChild(card);
+    });
+  }
+
+  function applyTemplate(t) {
+    ctx.fillStyle = t.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    saveHistory();
+    color = t.text;
+    document.getElementById("custom-color").value = t.text;
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
