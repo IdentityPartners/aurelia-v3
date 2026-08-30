@@ -1011,13 +1011,41 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
   }
 
   function renderThreadList() {
-    const list = document.getElementById('thread-list');
-    if (!threads.length) { list.innerHTML = '<div class="empty-state" style="padding:20px 12px"><div class="empty-state-desc">No threads yet</div></div>'; return; }
-    list.innerHTML = [...threads].reverse().map(t => `
-      <div class="thread-item ${currentThread&&currentThread.id===t.id?'active':''}" data-id="${t.id}" onclick="loadThread('${t.id}')">
-        <div class="thread-item-title">${escHtml(t.title)}</div>
-        <div class="thread-item-meta"><span>${t.messages.length} msgs</span><span>${timeAgo(t.ts)}</span></div>
-      </div>`).join('');
+    var list = document.getElementById('thread-list');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!threads.length) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'padding:20px 12px;text-align:center;color:var(--text-faint,#a8a29e);font-size:13px';
+      empty.textContent = 'No threads yet';
+      list.appendChild(empty);
+      return;
+    }
+    var sorted = [...threads].reverse();
+    sorted.forEach(function(t) {
+      var item = document.createElement('div');
+      item.className = 'thread-item' + (currentThread && currentThread.id === t.id ? ' active' : '');
+      item.onclick = function() { loadThread(t.id); };
+      
+      var title = document.createElement('div');
+      title.className = 'thread-item-title';
+      title.textContent = t.title || 'New Conversation';
+      
+      var meta = document.createElement('div');
+      meta.className = 'thread-item-meta';
+      
+      var msgs = document.createElement('span');
+      msgs.textContent = (t.messages ? t.messages.length : 0) + ' msgs';
+      
+      var time = document.createElement('span');
+      time.textContent = timeAgo(t.ts);
+      
+      meta.appendChild(msgs);
+      meta.appendChild(time);
+      item.appendChild(title);
+      item.appendChild(meta);
+      list.appendChild(item);
+    });
   }
 
   function renderMessages() {
