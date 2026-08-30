@@ -237,14 +237,14 @@ function doSend() {
   var em = document.getElementById('chat-empty');
   if (em) em.style.display = 'none';
 
-  // User message
+  // User message with avatar
   if (mc) {
-    var u = document.createElement('div');
-    u.className = 'message user fade-in';
-    var uAv = document.createElement('div'); uAv.className = 'message-avatar'; uAv.textContent = 'SJ';
-    var uInner = document.createElement('div');
-    var uBub = document.createElement('div'); uBub.className = 'message-bubble'; uBub.textContent = t;
-    uInner.appendChild(uBub); u.appendChild(uAv); u.appendChild(uInner);
+    var u = (window._makeMsgWithAvatar) ? window._makeMsgWithAvatar(t, true, null) : (function(){
+      var el=document.createElement('div');el.className='message user fade-in';
+      var av=document.createElement('div');av.className='message-avatar';av.textContent='SJ';
+      var inner=document.createElement('div');var bub=document.createElement('div');bub.className='message-bubble';bub.textContent=t;
+      inner.appendChild(bub);el.appendChild(av);el.appendChild(inner);return el;
+    })();
     mc.appendChild(u); mc.scrollTop = mc.scrollHeight;
   }
 
@@ -297,12 +297,14 @@ function doSend() {
   }).then(function(r) { return r.json(); }).then(function(d) {
     var el = document.getElementById(tid); if (el) el.remove();
     if (mc) {
-      var a = document.createElement('div'); a.className = 'message fade-in';
-      var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
-      var aInner = document.createElement('div');
-      var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.innerHTML = renderMd(d.content || 'Response received.');
-      var aMeta = document.createElement('div'); aMeta.className = 'message-meta'; aMeta.textContent = (d.model || model).split('/').pop();
-      aInner.appendChild(aBub); aInner.appendChild(aMeta); a.appendChild(aAv); a.appendChild(aInner);
+      var modelUsed = d.model || model;
+      var a = (window._makeMsgWithAvatar) ? window._makeMsgWithAvatar(d.content || 'Response received.', false, modelUsed) : (function(){
+        var el2=document.createElement('div');el2.className='message fade-in';
+        var av=document.createElement('div');av.className='message-avatar';av.textContent='A';
+        var inner=document.createElement('div');var bub=document.createElement('div');bub.className='message-bubble';bub.innerHTML=renderMd(d.content||'Response received.');
+        var meta=document.createElement('div');meta.className='message-meta';meta.textContent=modelUsed.split('/').pop();
+        inner.appendChild(bub);inner.appendChild(meta);el2.appendChild(av);el2.appendChild(inner);return el2;
+      })();
       mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
     }
   }).catch(function(e) {
@@ -335,6 +337,246 @@ document.addEventListener('keydown', function(e) {
   }
 });
 </script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// AURELIA AVATAR SYSTEM
+// Users · Model Families · Modes · Personas
+// ═══════════════════════════════════════════════════════════════════════════
+
+const AVATARS = {
+
+  // ── USER AVATARS ──────────────────────────────────────────────────────────
+  users: {
+    'SJ':      { emoji: null, initials: 'SJ', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif', title: 'SJ — Identity Partners' },
+    'Olivia':  { emoji: '🌸', initials: 'OL', bg: '#fce4ec', color: '#880e4f', font: 'serif', title: 'Olivia' },
+    'Nicholas':{ emoji: '🎯', initials: 'NJ', bg: '#e8f5e9', color: '#1b5e20', font: 'serif', title: 'Nicholas' },
+  },
+
+  // ── MODEL FAMILY AVATARS ──────────────────────────────────────────────────
+  // Each model family has a character, colour, and personality
+  models: {
+    // Gemma — warm, curious woman (Google's gem)
+    'gemma':     { emoji: '💎', label: 'Gemma', bg: '#e8f4f4', color: '#0f3b3a', title: 'Gemma · Google DeepMind' },
+    // Kimi — elegant, long-context specialist (moonshot = moon goddess)
+    'kimi':      { emoji: '🌙', label: 'Kimi', bg: '#e8eaf6', color: '#283593', title: 'Kimi · Moonshot AI' },
+    // DeepSeek — whale (their actual logo is a whale)
+    'deepseek':  { emoji: '🐋', label: 'DeepSeek', bg: '#e3f2fd', color: '#0d47a1', title: 'DeepSeek · Whale' },
+    // Mistral — court jester (mistral = wild wind, French flair)
+    'mistral':   { emoji: '🃏', label: 'Mistral', bg: '#fff8e1', color: '#e65100', title: 'Mistral · Le Vent' },
+    // Groq — lightning bolt (LPU speed)
+    'groq':      { emoji: '⚡', label: 'Groq', bg: '#fff3e0', color: '#bf360c', title: 'Groq · LPU Speed' },
+    // Cerebras — brain chip (wafer-scale chip)
+    'cerebras':  { emoji: '🧠', label: 'Cerebras', bg: '#fce4ec', color: '#880e4f', title: 'Cerebras · Wafer-Scale' },
+    // GPT-OSS — open book (open source)
+    'gpt-oss':   { emoji: '📖', label: 'GPT-OSS', bg: '#f3e5f5', color: '#4a148c', title: 'GPT-OSS · Open Source' },
+    // Gemini — twin stars (Gemini constellation)
+    'gemini':    { emoji: '♊', label: 'Gemini', bg: '#e8f5e9', color: '#1b5e20', title: 'Gemini · Google' },
+    // Claude — thoughtful owl (Anthropic's careful reasoning)
+    'claude':    { emoji: '🦉', label: 'Claude', bg: '#fff8e1', color: '#5d4037', title: 'Claude · Anthropic' },
+    // Grok — telescope (xAI, looking at the universe)
+    'grok':      { emoji: '🔭', label: 'Grok', bg: '#e8eaf6', color: '#1a237e', title: 'Grok · xAI' },
+    // Nemotron — robot (NVIDIA's AI)
+    'nemotron':  { emoji: '🤖', label: 'Nemotron', bg: '#e0f2f1', color: '#004d40', title: 'Nemotron · NVIDIA' },
+    // Mixtral — jester with MoE (mixture of experts = many voices)
+    'mixtral':   { emoji: '🎭', label: 'Mixtral', bg: '#fce4ec', color: '#880e4f', title: 'Mixtral · MoE' },
+    // Qwen — dragon (Alibaba, Chinese dragon)
+    'qwen':      { emoji: '🐉', label: 'Qwen', bg: '#fff3e0', color: '#e65100', title: 'Qwen · Alibaba' },
+    // Llama — llama (Meta's actual mascot)
+    'llama':     { emoji: '🦙', label: 'Llama', bg: '#f3e5f5', color: '#6a1b9a', title: 'Llama · Meta' },
+    // Puter — cloud (user-pays cloud)
+    'puter':     { emoji: '☁️', label: 'Puter', bg: '#e3f2fd', color: '#0277bd', title: 'Puter · User-Pays' },
+    // Pollinations — flower (generative, blooming)
+    'pollinations': { emoji: '🌸', label: 'Pollinations', bg: '#fce4ec', color: '#c62828', title: 'Pollinations · Free' },
+    // Default AI
+    'ai':        { emoji: '✦', label: 'Aurelia', bg: '#0f3b3a', color: '#f7f3e9', title: 'Aurelia AI' },
+  },
+
+  // ── MODE AVATARS ──────────────────────────────────────────────────────────
+  modes: {
+    'chat':       { emoji: '💬', label: 'Chat', bg: '#e8f4f4', color: '#0f3b3a' },
+    'research':   { emoji: '🔍', label: 'Research', bg: '#e3f2fd', color: '#0d47a1' },
+    'reasoning':  { emoji: '🧩', label: 'Reasoning', bg: '#f3e5f5', color: '#4a148c' },
+    'creative':   { emoji: '✨', label: 'Creative', bg: '#fff8e1', color: '#e65100' },
+    'drafting':   { emoji: '✍️', label: 'Drafting', bg: '#e8f5e9', color: '#1b5e20' },
+    'critical':   { emoji: '⚖️', label: 'Critical', bg: '#fce4ec', color: '#880e4f' },
+    'thoughtful': { emoji: '🤔', label: 'Thoughtful', bg: '#e8eaf6', color: '#283593' },
+    'synthesis':  { emoji: '🔮', label: 'Synthesis', bg: '#f3e5f5', color: '#6a1b9a' },
+  },
+
+  // ── PERSONA AVATARS ───────────────────────────────────────────────────────
+  personas: {
+    'butler':     { emoji: '🎩', label: 'Sardonic Butler', bg: '#1c1917', color: '#f7f3e9', title: 'Reginald — Sardonic Butler' },
+    'researcher': { emoji: '🔬', label: 'Research Associate', bg: '#e3f2fd', color: '#0d47a1', title: 'Dr. Chen — Research Associate' },
+    'pa':         { emoji: '📋', label: 'Long-Suffering PA', bg: '#fff8e1', color: '#5d4037', title: 'Margaret — Long-Suffering PA' },
+    'coach':      { emoji: '🌱', label: 'Identity Coach', bg: '#e8f5e9', color: '#1b5e20', title: 'Aurelia — Identity Coach' },
+    'critic':     { emoji: '🎭', label: 'Devil's Advocate', bg: '#fce4ec', color: '#880e4f', title: 'Mephistopheles — Devil's Advocate' },
+    'sage':       { emoji: '🦉', label: 'Wise Sage', bg: '#fff8e1', color: '#5d4037', title: 'The Sage — Ancient Wisdom' },
+    'strategist': { emoji: '♟️', label: 'Strategist', bg: '#e8eaf6', color: '#283593', title: 'The Strategist — Long Game' },
+    'poet':       { emoji: '🌹', label: 'Poet', bg: '#fce4ec', color: '#880e4f', title: 'The Poet — Beautiful Words' },
+  },
+};
+
+// Current active persona (null = use model avatar)
+let activePersona = null;
+let activeMode = 'chat';
+
+// ── Get avatar for a model ID ─────────────────────────────────────────────
+function getModelAvatar(modelId) {
+  if (!modelId) return AVATARS.models.ai;
+  const m = modelId.toLowerCase();
+  // Check model families in order
+  if (m.includes('gemma')) return AVATARS.models.gemma;
+  if (m.includes('kimi') || m.includes('moonshot')) return AVATARS.models.kimi;
+  if (m.includes('deepseek')) return AVATARS.models.deepseek;
+  if (m.includes('mistral') || m.includes('magistral') || m.includes('ministral')) return AVATARS.models.mistral;
+  if (m.includes('mixtral')) return AVATARS.models.mixtral;
+  if (m.includes('groq') && !m.includes('gpt-oss')) return AVATARS.models.groq;
+  if (m.includes('cerebras')) return AVATARS.models.cerebras;
+  if (m.includes('gpt-oss') || m.includes('gpt_oss')) return AVATARS.models['gpt-oss'];
+  if (m.includes('gemini')) return AVATARS.models.gemini;
+  if (m.includes('claude')) return AVATARS.models.claude;
+  if (m.includes('grok')) return AVATARS.models.grok;
+  if (m.includes('nemotron')) return AVATARS.models.nemotron;
+  if (m.includes('qwen')) return AVATARS.models.qwen;
+  if (m.includes('llama')) return AVATARS.models.llama;
+  if (m.includes('puter')) return AVATARS.models.puter;
+  if (m.includes('pollinations')) return AVATARS.models.pollinations;
+  return AVATARS.models.ai;
+}
+
+// ── Get user avatar ───────────────────────────────────────────────────────
+function getUserAvatar(name) {
+  return AVATARS.users[name] || AVATARS.users['SJ'];
+}
+
+// ── Render avatar HTML ────────────────────────────────────────────────────
+function renderAvatar(av, size) {
+  size = size || 32;
+  const fontSize = size <= 28 ? '13px' : size <= 36 ? '16px' : '20px';
+  const style = `width:${size}px;height:${size}px;border-radius:50%;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;font-size:${fontSize};flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)`;
+  const title = av.title || av.label || '';
+  if (av.emoji) {
+    return `<div style="${style}" title="${title}">${av.emoji}</div>`;
+  } else {
+    // Initials
+    const fontStyle = av.font === 'serif' ? `font-family:var(--font-serif);font-weight:500;letter-spacing:0.02em` : `font-weight:600;letter-spacing:0.05em`;
+    return `<div style="${style};${fontStyle}" title="${title}">${av.initials}</div>`;
+  }
+}
+
+// ── Persona selector ──────────────────────────────────────────────────────
+function openPersonaSheet() {
+  const existing = document.getElementById('persona-sheet');
+  if (existing) { existing.remove(); return; }
+  const sheet = document.createElement('div');
+  sheet.id = 'persona-sheet';
+  sheet.style.cssText = 'position:fixed;bottom:80px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;z-index:200;box-shadow:var(--shadow-lg);min-width:220px;max-height:400px;overflow-y:auto';
+  sheet.innerHTML = `
+    <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Persona</div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${!activePersona?'var(--bg-2)':''};" onclick="setPersona(null)">
+        ${renderAvatar(AVATARS.models.ai, 28)}
+        <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">Default (Model Avatar)</div></div>
+      </div>
+      ${Object.entries(AVATARS.personas).map(([id, p]) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${activePersona===id?'var(--bg-2)':''};" onclick="setPersona('${id}')">
+          ${renderAvatar(p, 28)}
+          <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">${p.label}</div><div style="font-size:10.5px;color:var(--text-faint)">${p.title}</div></div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 8px">Mode</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px">
+      ${Object.entries(AVATARS.modes).map(([id, m]) => `
+        <div style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--radius-pill);cursor:pointer;border:1px solid ${activeMode===id?'var(--accent)':'var(--border)'};background:${activeMode===id?'var(--accent3)':'var(--bg-2)'};" onclick="setMode('${id}')">
+          <span style="font-size:13px">${m.emoji}</span>
+          <span style="font-size:11px;color:${activeMode===id?'var(--accent)':'var(--text-muted)'}">${m.label}</span>
+        </div>`).join('')}
+    </div>`;
+  document.body.appendChild(sheet);
+  document.addEventListener('click', function closeSheet(e) {
+    if (!sheet.contains(e.target) && !e.target.closest('[onclick*="openPersonaSheet"]')) {
+      sheet.remove();
+      document.removeEventListener('click', closeSheet);
+    }
+  }, { once: false });
+}
+
+function setPersona(id) {
+  activePersona = id;
+  updateAvatarDisplay();
+  const sheet = document.getElementById('persona-sheet');
+  if (sheet) sheet.remove();
+  if (id) Toast.show('Persona: ' + AVATARS.personas[id].label, 'success');
+  else Toast.show('Default model avatar', 'info');
+}
+
+function setMode(id) {
+  activeMode = id;
+  updateAvatarDisplay();
+  Toast.show('Mode: ' + AVATARS.modes[id].label, 'success');
+}
+
+function updateAvatarDisplay() {
+  // Update the AI avatar in the topbar/context pane if visible
+  const modelLabel = document.getElementById('chat-thread-meta');
+  if (modelLabel) {
+    const av = activePersona ? AVATARS.personas[activePersona] : AVATARS.modes[activeMode];
+    // Update any visible AI avatars
+  }
+}
+
+// ── Override makeMsg to use avatars ───────────────────────────────────────
+function makeMsgWithAvatar(text, isUser, modelName) {
+  const wrap = document.createElement('div');
+  wrap.className = 'message fade-in' + (isUser ? ' user' : '');
+
+  // Choose avatar
+  let av;
+  if (isUser) {
+    av = getUserAvatar('SJ');
+  } else if (activePersona) {
+    av = AVATARS.personas[activePersona];
+  } else {
+    av = getModelAvatar(modelName);
+  }
+
+  const avEl = document.createElement('div');
+  avEl.innerHTML = renderAvatar(av, 32);
+  const avNode = avEl.firstChild;
+
+  const inner = document.createElement('div');
+  const bubble = document.createElement('div');
+  bubble.className = 'message-bubble';
+
+  if (isUser) {
+    bubble.textContent = text;
+  } else {
+    bubble.innerHTML = renderMd(text);
+  }
+
+  inner.appendChild(bubble);
+
+  if (!isUser && modelName) {
+    const meta = document.createElement('div');
+    meta.className = 'message-meta';
+    const modelAv = getModelAvatar(modelName);
+    meta.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px">${modelAv.emoji || '✦'} ${modelName.split('/').pop()}</span>`;
+    if (activePersona) {
+      const p = AVATARS.personas[activePersona];
+      meta.innerHTML += ` <span style="opacity:0.6">· ${p.emoji} ${p.label}</span>`;
+    }
+    inner.appendChild(meta);
+  }
+
+  wrap.appendChild(avNode);
+  wrap.appendChild(inner);
+  return wrap;
+}
+
+// Override the global makeMsg used by doSend
+window._makeMsgWithAvatar = makeMsgWithAvatar;
+</script>
+
 <div class="app-shell">
 <nav class="sidebar" id="sidebar">
 <div class="sidebar-logo" onclick="window.location.href='/index.html'" style="cursor:pointer" title="Home"><div class="logo-mark" style="background:var(--ip-deep-teal,#0f3b3a);overflow:hidden;padding:0"><img alt="IP" onerror="this.style.display='none';this.parentElement.textContent='IP'" src="/brand/logo-square.png?expires=1790541897&amp;signature=7eb1b441615cd32f87e8c83aeda8f83be0324c6c4e69229865de324895fcd53d&amp;kid=prod-250922" style="width:100%;height:100%;object-fit:cover"/></div><span class="logo-text">Aurelia</span></div>
@@ -420,6 +662,7 @@ document.addEventListener('keydown', function(e) {
 <button class="btn btn-ghost btn-sm" id="agent-creator-btn" onclick="toggleAgent('creator')">◈ Creator</button>
 <button class="btn btn-ghost btn-sm" onclick="generateImage()" title="Generate image with AI">🎨 Image</button>
 <button class="btn btn-ghost btn-sm" id="rr-toggle-btn" onclick="toggleRR()" title="Round Robin — query multiple models">⟳ Round Robin</button>
+<button class="btn btn-ghost btn-sm" onclick="openPersonaSheet()" title="Avatar · Persona · Mode" id="persona-btn">🎭 Persona</button>
 <label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Attach file, image, or document">📎 <input type="file" id="file-input" accept="image/*,.pdf,.txt,.md,.csv,.docx,.xlsx" style="display:none" onchange="handleFileAttach(this)"></label>
 <span id="file-attach-preview" style="display:none;font-size:11px;color:var(--text-faint);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:2px 8px;align-items:center;gap:4px">
   <span id="file-attach-name"></span>
