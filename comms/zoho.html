@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Zoho Integration</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .zoho-body{padding:24px;max-width:800px}
+    .zoho-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:20px;margin-bottom:14px}
+    .zoho-card-title{font-family:var(--font-serif,Georgia);font-size:18px;font-weight:400;color:var(--ink);margin-bottom:4px}
+    .zoho-card-desc{font-size:12.5px;color:var(--faint,#a8a29e);margin-bottom:14px;line-height:1.6}
+    .status-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .status-row:last-child{border-bottom:none}
+    .status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .dot-green{background:#2e7d32}.dot-amber{background:#f57f17}.dot-red{background:#c62828}
+    .status-label{font-size:13px;font-weight:500;color:var(--ink);flex:1}
+    .status-value{font-size:12px;color:var(--faint,#a8a29e)}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><span class="nav-label">Comms Centre</span></a>
+      <a href="/comms/zoho.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Zoho</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Zoho Integration</span>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="connectZoho()">Connect Zoho</button>
+      </div>
+    </div>
+    <div class="zoho-body">
+      
+      <div class="zoho-card">
+        <div class="zoho-card-title">Zoho Social</div>
+        <div class="zoho-card-desc">Connect Zoho Social to schedule and publish posts directly from Aurelia's Social Queue. Supports LinkedIn, Facebook, Twitter/X, Instagram, and Google My Business.</div>
+        <div id="zoho-social-status">
+          <div class="status-row">
+            <div class="status-dot dot-amber"></div>
+            <div class="status-label">Connection Status</div>
+            <div class="status-value" id="social-status-val">Not connected</div>
+          </div>
+          <div class="status-row">
+            <div class="status-dot dot-amber"></div>
+            <div class="status-label">Zoho Client ID</div>
+            <div class="status-value" id="social-client-id">Not configured</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="connectZohoSocial()">Connect Zoho Social</button>
+          <button class="btn btn-ghost" onclick="window.open('https://api-console.zoho.eu','_blank')">Zoho API Console &#8599;</button>
+          <button class="btn btn-ghost" onclick="testZohoSocial()">Test Connection</button>
+        </div>
+        <div id="zoho-social-log" style="margin-top:10px;display:none;background:var(--bg-3,#e8ddd4);border-radius:8px;padding:10px;font-size:12px;font-family:monospace;color:var(--muted,#78716c)"></div>
+      </div>
+
+      <div class="zoho-card">
+        <div class="zoho-card-title">Zoho Calendar</div>
+        <div class="zoho-card-desc">Connect Zoho Calendar to see your upcoming events on the Home page and schedule sessions from the CRM.</div>
+        <div id="zoho-cal-status">
+          <div class="status-row">
+            <div class="status-dot dot-amber"></div>
+            <div class="status-label">Connection Status</div>
+            <div class="status-value" id="cal-status-val">Not connected</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="connectZohoCalendar()">Connect Zoho Calendar</button>
+          <button class="btn btn-ghost" onclick="testZohoCalendar()">Test Connection</button>
+        </div>
+      </div>
+
+      <div class="zoho-card">
+        <div class="zoho-card-title">Setup Instructions</div>
+        <div class="zoho-card-desc">To connect Zoho Social and Calendar:</div>
+        <ol style="font-size:13px;color:var(--ink);line-height:2;padding-left:20px">
+          <li>Go to <a href="https://api-console.zoho.eu" target="_blank" style="color:var(--accent,#0f3b3a)">api-console.zoho.eu</a> and create a Self Client</li>
+          <li>Set redirect URI to: <code style="background:var(--bg-3,#e8ddd4);padding:2px 6px;border-radius:4px;font-size:11px">https://aurelia.identitypartners.uk/comms/zoho.html</code></li>
+          <li>Copy your Client ID and Client Secret</li>
+          <li>Go to <a href="/settings/index.html" style="color:var(--accent,#0f3b3a)">Settings</a> and paste them in the Social Accounts section</li>
+          <li>Return here and click "Connect Zoho Social"</li>
+        </ol>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--gold-4,#f5e9d4);border-radius:8px;font-size:12.5px;color:var(--ink)">
+          <strong>Your Zoho credentials:</strong> Configure Zoho_Client_ID and Zoho_Client_Secret in Settings &#8594; Key Ingester
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+<script>
+  function init() {
+    var clientId = localStorage.getItem("aurelia_social_zoho-client-id") || localStorage.getItem("aurelia_key_Zoho_Client_ID") || "";
+    var el = document.getElementById("social-client-id");
+    if (el) el.textContent = clientId ? clientId.slice(0,8)+"..." : "Not configured";
+    if (clientId) {
+      var dot = document.querySelector("#zoho-social-status .status-dot");
+      if (dot) { dot.className = "status-dot dot-green"; }
+      var sv = document.getElementById("social-status-val");
+      if (sv) sv.textContent = "Client ID configured";
+    }
+    // Check for OAuth callback
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get("code");
+    if (code) {
+      handleOAuthCallback(code);
+    }
+  }
+  
+  function connectZohoSocial() {
+    var clientId = localStorage.getItem("aurelia_key_Zoho_Client_ID") || localStorage.getItem("aurelia_social_zoho-client-id") || "";
+    if (!clientId) {
+      if (typeof Toast !== "undefined") Toast.show("Configure Zoho_Client_ID in Settings first", "error");
+      return;
+    }
+    var scope = "ZohoSocial.profiles.READ,ZohoSocial.publish.CREATE,ZohoSocial.schedule.CREATE";
+    var redirectUri = encodeURIComponent("https://aurelia.identitypartners.uk/comms/zoho.html");
+    var authUrl = "https://accounts.zoho.eu/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
+    window.location.href = authUrl;
+  }
+  
+  function connectZohoCalendar() {
+    var clientId = localStorage.getItem("aurelia_key_Zoho_Client_ID") || "";
+    if (!clientId) {
+      if (typeof Toast !== "undefined") Toast.show("Configure Zoho_Client_ID in Settings first", "error");
+      return;
+    }
+    var scope = "ZohoCalendar.event.READ,ZohoCalendar.event.CREATE";
+    var redirectUri = encodeURIComponent("https://aurelia.identitypartners.uk/comms/zoho.html");
+    var authUrl = "https://accounts.zoho.eu/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
+    window.location.href = authUrl;
+  }
+  
+  async function handleOAuthCallback(code) {
+    var log = document.getElementById("zoho-social-log");
+    if (log) { log.style.display = "block"; log.textContent = "Exchanging auth code for token..."; }
+    var tok = localStorage.getItem("aurelia_device_token") || "dt_zoho";
+    try {
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/zoho/token", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({code: code, redirect_uri: "https://aurelia.identitypartners.uk/comms/zoho.html"})
+      });
+      var data = await res.json();
+      if (data.access_token) {
+        localStorage.setItem("aurelia_zoho_token", data.access_token);
+        if (data.refresh_token) localStorage.setItem("aurelia_zoho_refresh", data.refresh_token);
+        if (log) log.textContent = "Connected successfully!";
+        if (typeof Toast !== "undefined") Toast.show("Zoho connected!", "success");
+        var sv = document.getElementById("social-status-val");
+        if (sv) sv.textContent = "Connected";
+        var dot = document.querySelector("#zoho-social-status .status-dot");
+        if (dot) dot.className = "status-dot dot-green";
+      } else {
+        if (log) log.textContent = "Error: " + JSON.stringify(data);
+      }
+    } catch(e) {
+      if (log) log.textContent = "Error: " + e.message;
+    }
+    // Clean URL
+    window.history.replaceState({}, "", "/comms/zoho.html");
+  }
+  
+  async function testZohoSocial() {
+    var tok = localStorage.getItem("aurelia_zoho_token");
+    if (!tok) { if (typeof Toast !== "undefined") Toast.show("Not connected yet", "info"); return; }
+    var log = document.getElementById("zoho-social-log");
+    if (log) { log.style.display = "block"; log.textContent = "Testing connection..."; }
+    try {
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/zoho/social/profiles", {
+        headers: {"Authorization":"Bearer "+localStorage.getItem("aurelia_device_token"),"Origin":"https://aurelia.identitypartners.uk"}
+      });
+      var data = await res.json();
+      if (log) log.textContent = JSON.stringify(data, null, 2).slice(0, 500);
+    } catch(e) {
+      if (log) log.textContent = "Error: " + e.message;
+    }
+  }
+  
+  function testZohoCalendar() {
+    if (typeof Toast !== "undefined") Toast.show("Connect Zoho Calendar first", "info");
+  }
+  
+  function connectZoho() { connectZohoSocial(); }
+  
+  document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
