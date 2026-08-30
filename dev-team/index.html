@@ -287,23 +287,51 @@
   }
 
   async function pmSend() {
-    const input = document.getElementById('pm-input');
-    const msg = input.value.trim();
+    var input = document.getElementById("pm-input");
+    var msg = input ? input.value.trim() : "";
     if (!msg) return;
-    input.value = '';
-    addMsg('pm-chat', msg, 'user');
+    input.value = "";
+    addMsg("pm-chat", msg, "user");
+    
+    // Save to conversation history
+    var history = JSON.parse(localStorage.getItem("aurelia_pm_history") || "[]");
+    history.push({role:"user", content:msg});
+    if (history.length > 20) history = history.slice(-20);
+    localStorage.setItem("aurelia_pm_history", JSON.stringify(history));
+    
+    var SYSTEM = "You are the Programme Manager for Aurelia v3.0, an AI-powered OS for Identity Partners (aurelia.identitypartners.uk). " +
+      "You coordinate 5 specialist agents: Full Audit, Chat Diagnostics, API Champion, Troubleshooter, Enhancement. " +
+      "You have full Cloudflare API access (account: d741de91f8cfff2306cc0f850a76ee07). " +
+      "The platform is deployed on Cloudflare Pages (aurelia-dmd.pages.dev) with a Worker at aurelia-api.identitypartners.workers.dev. " +
+      "GitHub repo: IdentityPartners/aurelia-v3. " +
+      "The platform has 140 secrets configured including TAVILY_API_KEY, BRAVE_API_KEY, EXA_API_KEY, GROQ_API_KEY, CEREBRAS_API_KEY, GEMINI_API_KEY. " +
+      "Key issues to be aware of: (1) Research search works via Worker /api/research endpoint. " +
+      "(2) Platform Manager shows 168 platforms. " +
+      "(3) Chat uses doSend() function. " +
+      "(4) Visual themes are in /shared/themes.css. " +
+      "Be concise, factual, and action-oriented. Never invent statistics or claim things work without verifying. " +
+      "Current date: " + new Date().toLocaleDateString("en-GB") + ".";
+    
+    // Build messages with history
+    var messages = history.map(function(h) { return {role:h.role, content:h.content}; });
+    
     try {
-      const res = await wFetch('/api/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: msg }],
-          model: 'groq/openai/gpt-oss-20b',
-          system: 'You are the Programme Manager for Aurelia v3.0, an AI-powered OS for Identity Partners (aurelia.identitypartners.uk). You coordinate 5 specialist agents. You have full Cloudflare API access. Be concise, professional, and action-oriented. Never ask the user to do anything technical — you handle everything yourself. Current date: ' + new Date().toLocaleDateString('en-GB') + '.'
-        })
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer dt_devteam","Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({messages:messages, model:"groq/openai/gpt-oss-20b", system:SYSTEM})
       });
-      addMsg('pm-chat', res.content || 'Done.', 'agent', 'Programme Manager · Groq GPT-OSS 20B');
+      var data = await res.json();
+      var reply = data.content || "I could not get a response from the AI. Check that GROQ_API_KEY is configured.";
+      addMsg("pm-chat", reply, "agent", "Programme Manager");
+      
+      // Save AI reply to history
+      history.push({role:"assistant", content:reply});
+      if (history.length > 20) history = history.slice(-20);
+      localStorage.setItem("aurelia_pm_history", JSON.stringify(history));
+      
     } catch(e) {
-      addMsg('pm-chat', 'I\'m ready to help. The Worker is being checked — if chat isn\'t responding, run "Fix Chat" from the quick commands.', 'agent', 'Programme Manager (checking connection)');
+      addMsg("pm-chat", "Connection error: " + e.message + ". The Worker may be unavailable.", "agent", "Programme Manager (offline)");
     }
   }
 
