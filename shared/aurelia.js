@@ -533,6 +533,13 @@ const ModelRouter = {
     { id:'pollinations/mistral-large', name:'Mistral Large (Pollinations)', provider:'pollinations', type:'creative', speed:'fast', ctx:262144, input:0, output:0, moe:true, notes:'Mistral Large MoE via Pollinations' },
     { id:'pollinations/grok', name:'Grok (Pollinations)', provider:'pollinations', type:'chat', speed:'fast', ctx:131072, input:0, output:0, moe:false, notes:'Grok via Pollinations' },
     { id:'pollinations/nemotron', name:'Nemotron (Pollinations)', provider:'pollinations', type:'reasoning', speed:'medium', ctx:512000, input:0, output:0, moe:false, notes:'NVIDIA Nemotron via Pollinations' },
+  
+    // ── LOCAL OLLAMA (user's Surface Pro 9) ──────────────────────────────
+    { id:'ollama/gemma4:12b', name:'Gemma 4 12B (Local)', provider:'ollama', type:'chat', speed:'fast', ctx:131072, input:0, output:0, moe:false, recommended:false, notes:'Local — Surface Pro 9' },
+    { id:'ollama/phi4:latest', name:'Phi 4 (Local)', provider:'ollama', type:'reasoning', speed:'fast', ctx:16384, input:0, output:0, moe:false, recommended:false, notes:'Local — Surface Pro 9' },
+    { id:'ollama/qwen2.5:7b', name:'Qwen 2.5 7B (Local)', provider:'ollama', type:'chat', speed:'ultra', ctx:32768, input:0, output:0, moe:false, recommended:false, notes:'Local — Surface Pro 9' },
+    { id:'ollama/deepseek-r1:7b', name:'DeepSeek R1 7B (Local)', provider:'ollama', type:'reasoning', speed:'fast', ctx:32768, input:0, output:0, moe:false, recommended:false, notes:'Local — Surface Pro 9' },
+    { id:'ollama/gemma4:e4b', name:'Gemma 4 E4B (Local)', provider:'ollama', type:'chat', speed:'ultra', ctx:131072, input:0, output:0, moe:false, recommended:false, notes:'Local — Surface Pro 9' },
   ],
 
   current: null,
