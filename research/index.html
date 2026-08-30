@@ -242,7 +242,7 @@ function selectAllSources() {
     Toast && Toast.show('All sources selected', 'success');
   }
   function toggleSrc(el) {var s=el.dataset.s;if(srcs.has(s)){srcs.delete(s);el.classList.remove("on");}else{srcs.add(s);el.classList.add("on");}}
-async async function runResearch(){
+async function runResearch(){
   var q=document.getElementById("research-query").value.trim();
   if(!q)return;
   var list=document.getElementById("results-list");
