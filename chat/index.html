@@ -1280,41 +1280,48 @@ Troubleshooting:
   let chatQwertyVisible = false;
   function toggleChatQWERTY() {
     chatQwertyVisible = !chatQwertyVisible;
-    const btn = document.getElementById('chat-qwerty-btn');
-    if (btn) btn.classList.toggle('active', chatQwertyVisible);
-    // Create or show/hide QWERTY panel
-    let qwerty = document.getElementById('chat-qwerty-panel');
+    var btn = document.getElementById("chat-qwerty-btn");
+    if (btn) btn.classList.toggle("active", chatQwertyVisible);
+    var qwerty = document.getElementById("chat-qwerty-panel");
     if (!qwerty) {
-      qwerty = document.createElement('div');
-      qwerty.id = 'chat-qwerty-panel';
-      qwerty.style.cssText = 'padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden;max-height:160px';
-      const rows = [['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m','⌫'],['Space','Return']];
-      rows.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.style.cssText = 'display:flex;gap:2px;justify-content:center;margin-bottom:2px';
-        row.forEach(k => {
-          const btn = document.createElement('button');
-          btn.textContent = k === 'Space' ? '⎵' : k === 'Return' ? '↵' : k;
-          btn.style.cssText = `width:${k==='Space'?'80px':k==='Return'?'60px':k==='⌫'?'40px':'28px'};height:28px;border-radius:3px;border:1px solid var(--border);background:${k==='Space'||k==='Return'||k==='⌫'?'var(--bg-3)':'var(--surface)'};font-size:${k.length>1?'9':'12'}px;cursor:pointer;color:var(--ink);transition:background 0.1s`;
-          btn.onclick = () => {
-            const ta = document.getElementById('chat-textarea');
+      qwerty = document.createElement("div");
+      qwerty.id = "chat-qwerty-panel";
+      qwerty.style.cssText = "padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden";
+      var rows = [
+        ["q","w","e","r","t","y","u","i","o","p"],
+        ["a","s","d","f","g","h","j","k","l"],
+        ["z","x","c","v","b","n","m","\u232b"],
+        ["Space","Return"]
+      ];
+      rows.forEach(function(row) {
+        var rowDiv = document.createElement("div");
+        rowDiv.style.cssText = "display:flex;gap:2px;justify-content:center;margin-bottom:3px";
+        row.forEach(function(k) {
+          var kbtn = document.createElement("button");
+          kbtn.textContent = k === "Space" ? "\u23b5" : k === "Return" ? "\u21b5" : k;
+          var w = k === "Space" ? "80px" : k === "Return" ? "60px" : k === "\u232b" ? "40px" : "28px";
+          var bg = (k === "Space" || k === "Return" || k === "\u232b") ? "var(--bg-3,#e8ddd4)" : "var(--surface)";
+          var fs = k.length > 1 ? "9" : "12";
+          kbtn.style.cssText = "width:"+w+";height:30px;border-radius:4px;border:1px solid var(--border);background:"+bg+";font-size:"+fs+"px;cursor:pointer;color:var(--ink);font-family:var(--font,Inter);transition:background 0.1s";
+          kbtn.onclick = function() {
+            var ta = document.getElementById("chat-textarea");
             if (!ta) return;
-            if (k === '⌫') ta.value = ta.value.slice(0,-1);
-            else if (k === 'Space') ta.value += ' ';
-            else if (k === 'Return') { sendMessage(); return; }
-            else ta.value += k;
-            autoResize(ta);
-            document.getElementById('char-count').textContent = ta.value.length;
+            if (k === "\u232b") { ta.value = ta.value.slice(0,-1); }
+            else if (k === "Space") { ta.value += " "; }
+            else if (k === "Return") { doSend(); return; }
+            else { ta.value += k; }
+            if (typeof autoResize === "function") autoResize(ta);
+            var cc = document.getElementById("char-count");
+            if (cc) cc.textContent = ta.value.length;
           };
-          rowDiv.appendChild(btn);
+          rowDiv.appendChild(kbtn);
         });
         qwerty.appendChild(rowDiv);
       });
-      // Insert before input area
-      const inputArea = document.querySelector('.chat-input-area');
+      var inputArea = document.querySelector(".chat-input-area");
       if (inputArea) inputArea.parentNode.insertBefore(qwerty, inputArea);
     }
-    qwerty.style.display = chatQwertyVisible ? 'flex' : 'none';
+    qwerty.style.display = chatQwertyVisible ? "block" : "none";
   }
 
   // Check if API keys are configured
