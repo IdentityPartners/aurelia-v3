@@ -452,7 +452,7 @@ function renderScheduledRuns() {
     var item = document.createElement("div");
     item.style.cssText = "padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px";
     var info = document.createElement("div");
-    info.innerHTML = "<div style=\"font-weight:500;color:var(--ink)\">" + s.query.slice(0,30) + (s.query.length>30?"...":"") + "</div><div style=\"font-size:10.5px;color:var(--faint,#a8a29e)\">" + s.freq + " at " + s.time + "</div>";
+    info.innerHTML = "<div style='font-weight:500;color:var(--ink)'>" + s.query.slice(0,30) + (s.query.length>30?"...":"") + "</div><div style='font-size:10.5px;color:var(--faint,#a8a29e)'>" + s.freq + " at " + s.time + "</div>";
     var del = document.createElement("button");
     del.className = "btn btn-ghost btn-sm";
     del.textContent = "✕";
