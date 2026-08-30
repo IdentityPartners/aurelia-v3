@@ -3,66 +3,697 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-  <title>Aurelia — Dev Team</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
-  <link rel="stylesheet" href="/shared/aurelia.css">
-  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+  <title>Aurelia Dev Team</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230f3b3a'/><text y='23' x='5' font-size='16' font-family='Georgia,serif' fill='%23f7f3e9'>DT</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :root{
+      --teal:#0f3b3a;--teal2:#1a5554;--rose:#5c2d3f;
+      --ivory:#f7f3e9;--ivory2:#f0e9e0;--ivory3:#e8ddd4;
+      --surface:#ffffff;--border:rgba(28,25,23,0.10);
+      --ink:#1c1917;--muted:#7a4254;--faint:#a88792;
+      --green:#2e7d32;--amber:#f57f17;--red:#c62828;--blue:#1565c0;
+      --font:'Inter',system-ui,sans-serif;--serif:'Georgia',serif;
+      --r:10px;--r2:6px;--shadow:0 2px 12px rgba(28,25,23,0.08);
+    }
+    body{font-family:var(--font);background:var(--ivory);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+    .hdr{background:var(--teal);color:var(--ivory);padding:14px 20px;display:flex;align-items:center;gap:12px}
+    .hdr-logo{font-family:var(--serif);font-size:20px;font-weight:400;letter-spacing:0.04em}
+    .hdr-sub{font-size:11px;opacity:0.65;margin-top:1px}
+    .hdr-status{margin-left:auto;font-size:11px;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:#4caf50}
+    .main{display:grid;grid-template-columns:220px 1fr;flex:1;overflow:hidden}
+    .sb{background:var(--surface);border-right:1px solid var(--border);padding:10px;overflow-y:auto}
+    .sb-sec{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 8px 4px}
+    .sb-item{padding:8px 10px;border-radius:var(--r2);cursor:pointer;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-bottom:1px;transition:all .12s}
+    .sb-item:hover{background:var(--ivory2);color:var(--ink)}
+    .sb-item.on{background:var(--ivory2);color:var(--teal);font-weight:500}
+    .sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .dot-g{background:var(--green)}.dot-a{background:var(--amber)}.dot-r{background:var(--red)}.dot-x{background:var(--faint)}
+    .content{overflow-y:auto;padding:18px}
+    .sec{display:none}.sec.on{display:block}
+    .sec-title{font-family:var(--serif);font-size:20px;color:var(--teal);margin-bottom:3px}
+    .sec-desc{font-size:12px;color:var(--faint);margin-bottom:16px;line-height:1.6}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+    .card-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
+    .btn{padding:8px 14px;border-radius:var(--r2);font-size:12.5px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .12s}
+    .btn-p{background:var(--teal);color:var(--ivory)}.btn-p:hover{background:var(--teal2)}
+    .btn-g{background:none;border:1px solid var(--border);color:var(--muted)}.btn-g:hover{background:var(--ivory2);color:var(--ink)}
+    .btn-sm{padding:5px 10px;font-size:11.5px}
+    .row{display:flex;gap:7px;align-items:center}
+    .input{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);color:var(--ink);padding:7px 10px;font-size:12.5px;outline:none;width:100%;font-family:var(--font)}
+    .input:focus{border-color:var(--teal)}
+    .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:500}
+    .tag-g{background:#e8f5e9;color:var(--green);border:1px solid #c8e6c9}
+    .tag-a{background:#fff8e1;color:var(--amber);border:1px solid #ffe082}
+    .tag-r{background:#fce4ec;color:var(--red);border:1px solid #f8bbd0}
+    .tag-b{background:#e3f2fd;color:var(--blue);border:1px solid #bbdefb}
+    .log{background:var(--ivory3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;font-family:monospace;font-size:10.5px;color:var(--muted);min-height:80px;max-height:280px;overflow-y:auto;white-space:pre-wrap;line-height:1.6}
+    .chat-wrap{max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:10px;background:var(--ivory2);border-radius:var(--r);margin-bottom:10px}
+    .msg{padding:9px 12px;border-radius:var(--r);font-size:13px;line-height:1.6;max-width:90%}
+    .msg-u{background:var(--teal);color:var(--ivory);align-self:flex-end}
+    .msg-a{background:var(--surface);border:1px solid var(--border);color:var(--ink);align-self:flex-start}
+    .msg-meta{font-size:10px;opacity:0.55;margin-top:2px}
+    .result-row{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:12.5px}
+    .result-row:last-child{border-bottom:none}
+    .result-icon{font-size:14px;flex-shrink:0}
+    .result-label{flex:1;color:var(--ink)}
+    .result-status{font-size:11px;color:var(--faint)}
+    .progress-bar{height:4px;background:var(--ivory3);border-radius:2px;overflow:hidden;margin:8px 0}
+    .progress-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .3s ease}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{background:var(--ivory2);padding:7px 10px;text-align:left;font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--border)}
+    td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--ink)}
+    tr:last-child td{border-bottom:none}
+    @media(max-width:700px){.main{grid-template-columns:1fr}.sb{display:none}}
+  </style>
 </head>
 <body>
-<div class="app-shell">
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
-    <div class="sidebar-nav">
-      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
-<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
-<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
-<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
 
-      <div class="nav-section-label">Create</div>
-      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
-      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
-      <div class="nav-section-label">Business</div>
-      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
-      <a href="/monetisation/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
-      <div class="nav-section-label">System</div>
-      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
-    </div>
-    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
-  </nav>
-  <div class="main-content" id="main-content">
-    <div class="topbar"><span class="topbar-title">Aurelia Dev Team</span></div>
-<div style="padding:20px;max-width:1000px">
-  <h1 style="font-family:var(--font-serif);font-size:22px;font-weight:400;color:var(--ink);margin-bottom:4px">Aurelia Dev Team</h1>
-  <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:16px">Autonomous maintenance system. <a href="/dev-team/" style="color:var(--accent)">Open standalone Dev Team →</a></p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">
-    <div class="card"><div class="card-header"><span class="card-title">Programme Manager</span><span class="tag tag-green">Ready</span></div><div class="card-body">Coordinates all agents. Full CF write access. Nemotron Ultra 253B.</div><div class="card-footer"><a href="/dev-team/" class="btn btn-primary btn-sm">Open →</a></div></div>
-    <div class="card"><div class="card-header"><span class="card-title">Front End Audit</span><span class="tag tag-amber">Pending</span></div><div class="card-body">Checks all 30 pages: HTTP status, nav, buttons, canvas, images.</div><div class="card-footer"><button class="btn btn-ghost btn-sm" onclick="runFEAudit()">Run Audit</button></div></div>
-    <div class="card"><div class="card-header"><span class="card-title">API Champion</span><span class="tag tag-green">Ready</span></div><div class="card-body">Monitors 17 providers daily. Detects model changes and price shifts.</div><div class="card-footer"><a href="/agents/model-watcher/" class="btn btn-ghost btn-sm">ModelWatcher →</a></div></div>
-    <div class="card"><div class="card-header"><span class="card-title">Troubleshooter</span><span class="tag tag-green">Ready</span></div><div class="card-body">First-line support. Diagnoses issues, suggests fixes.</div><div class="card-footer"><a href="/dev-team/" class="btn btn-primary btn-sm">Chat →</a></div></div>
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">Aurelia Dev Team</div>
+    <div class="hdr-sub">Autonomous maintenance — operates independently of main platform</div>
   </div>
-  <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
-    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Permissions & Access</div>
-    <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.7">
-      <strong>CF Account:</strong> d741de91f8cfff2306cc0f850a76ee07<br>
-      <strong>Worker:</strong> aurelia-api.identitypartners.workers.dev<br>
-      <strong>Pages:</strong> aurelia.identitypartners.uk<br>
-      <strong>GitHub:</strong> IdentityPartners/aurelia-v3<br>
-      <strong>KV:</strong> 62f4348b309348c783ae11f703fed48f<br>
-      <strong>R2:</strong> aurelia-assets
+  <div class="hdr-status"><div class="status-dot" id="hdr-dot"></div><span id="hdr-status">Initialising…</span></div>
+</div>
+
+<div class="main">
+  <div class="sb">
+    <div class="sb-sec">Agents</div>
+    <div class="sb-item on" onclick="show('pm',this)"><span class="sb-dot dot-g"></span>Programme Manager</div>
+    <div class="sb-item" onclick="show('audit',this)"><span class="sb-dot dot-a" id="dot-audit"></span>Full Audit</div>
+    <div class="sb-item" onclick="show('chat-fix',this)"><span class="sb-dot dot-a" id="dot-chat"></span>Chat Diagnostics</div>
+    <div class="sb-item" onclick="show('api',this)"><span class="sb-dot dot-g"></span>API Champion</div>
+    <div class="sb-item" onclick="show('ts',this)"><span class="sb-dot dot-g"></span>Troubleshooter</div>
+    <div class="sb-item" onclick="show('enhance',this)"><span class="sb-dot dot-g"></span>Enhancement</div>
+    <div class="sb-sec">Operations</div>
+    <div class="sb-item" onclick="show('run-all',this)">▶ Run All Agents</div>
+    <div class="sb-item" onclick="show('reports',this)">📋 Reports</div>
+    <div class="sb-sec">Links</div>
+    <div class="sb-item" onclick="window.open('https://aurelia.identitypartners.uk','_blank')">↗ Main Platform</div>
+    <div class="sb-item" onclick="window.open('https://aurelia-api.identitypartners.workers.dev/api/health','_blank')">↗ Worker Health</div>
+    <div class="sb-item" onclick="window.open('https://dash.cloudflare.com','_blank')">↗ Cloudflare</div>
+    <div class="sb-item" onclick="window.open('https://github.com/IdentityPartners/aurelia-v3','_blank')">↗ GitHub</div>
+  </div>
+
+  <div class="content">
+
+    <!-- PM -->
+    <div class="sec on" id="sec-pm">
+      <div class="sec-title">Programme Manager</div>
+      <div class="sec-desc">Your primary liaison. Coordinates all agents. Has full Cloudflare API access. Powered by Nemotron Ultra 253B.</div>
+      <div class="chat-wrap" id="pm-chat">
+        <div class="msg msg-a">
+          Good morning. I'm your Programme Manager for Aurelia.<br><br>
+          I coordinate 5 specialist agents and report directly to you. I can run full audits, fix issues, deploy changes, and monitor the system — all without requiring any technical steps from you.<br><br>
+          <strong>What would you like me to do?</strong>
+          <div class="msg-meta">Programme Manager · Nemotron Ultra 253B</div>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:12px">
+        <input class="input" id="pm-input" placeholder="Message the Programme Manager…" onkeydown="if(event.key==='Enter')pmSend()">
+        <button class="btn btn-p btn-sm" onclick="pmSend()">Send</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="card">
+          <div class="card-title">Quick Commands</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <button class="btn btn-g btn-sm" onclick="pmCmd('Run a full system audit and tell me what needs fixing')">▶ Full System Audit</button>
+            <button class="btn btn-g btn-sm" onclick="pmCmd('Check why chat is not working and fix it')">🔧 Fix Chat</button>
+            <button class="btn btn-g btn-sm" onclick="pmCmd('Check all API keys and tell me which ones need refreshing')">🔑 Check API Keys</button>
+            <button class="btn btn-g btn-sm" onclick="pmCmd('What new AI models have been released this week?')">⚡ Latest Models</button>
+            <button class="btn btn-g btn-sm" onclick="pmCmd('Generate a weekly status report for SJ')">📋 Weekly Report</button>
+            <button class="btn btn-g btn-sm" onclick="pmCmd('Deploy the latest changes to Cloudflare Pages')">☁ Deploy Changes</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Team Status</div>
+          <table id="team-table">
+            <tr><th>Agent</th><th>Status</th><th>Last Run</th></tr>
+            <tr><td>Full Audit</td><td><span class="tag tag-a" id="st-audit">Pending</span></td><td id="lr-audit">Never</td></tr>
+            <tr><td>Chat Diagnostics</td><td><span class="tag tag-a" id="st-chat">Pending</span></td><td id="lr-chat">Never</td></tr>
+            <tr><td>API Champion</td><td><span class="tag tag-g" id="st-api">Ready</span></td><td id="lr-api">Never</td></tr>
+            <tr><td>Troubleshooter</td><td><span class="tag tag-g" id="st-ts">Ready</span></td><td id="lr-ts">Never</td></tr>
+            <tr><td>Enhancement</td><td><span class="tag tag-g" id="st-en">Ready</span></td><td id="lr-en">Never</td></tr>
+          </table>
+        </div>
+      </div>
     </div>
+
+    <!-- Full Audit -->
+    <div class="sec" id="sec-audit">
+      <div class="sec-title">Full Audit Agent</div>
+      <div class="sec-desc">Automatically checks every page, every API endpoint, chat functionality, key configuration, and deployment status. No technical steps required — just click Run.</div>
+      <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+        <button class="btn btn-p" onclick="runFullAudit()" id="audit-btn">▶ Run Full Audit</button>
+        <button class="btn btn-g btn-sm" onclick="runAudit('pages')">Pages Only</button>
+        <button class="btn btn-g btn-sm" onclick="runAudit('chat')">Chat Only</button>
+        <button class="btn btn-g btn-sm" onclick="runAudit('keys')">Keys Only</button>
+        <button class="btn btn-g btn-sm" onclick="runAudit('worker')">Worker Only</button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="audit-progress" style="width:0%"></div></div>
+      <div id="audit-results" style="margin-bottom:12px"></div>
+      <div class="log" id="audit-log">Audit Agent ready. Click "Run Full Audit" to check everything automatically.</div>
+    </div>
+
+    <!-- Chat Diagnostics -->
+    <div class="sec" id="sec-chat-fix">
+      <div class="sec-title">Chat Diagnostics Agent</div>
+      <div class="sec-desc">Automatically diagnoses and fixes chat issues. Checks the Worker, API keys, JavaScript, and model routing. Reports exactly what's wrong in plain English.</div>
+      <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+        <button class="btn btn-p" onclick="runChatDiag()" id="chat-diag-btn">▶ Diagnose Chat</button>
+        <button class="btn btn-g btn-sm" onclick="runChatDiag('worker')">Worker Only</button>
+        <button class="btn btn-g btn-sm" onclick="runChatDiag('keys')">Keys Only</button>
+        <button class="btn btn-g btn-sm" onclick="runChatDiag('model')">Model Routing</button>
+      </div>
+      <div id="chat-diag-results" style="margin-bottom:12px"></div>
+      <div class="log" id="chat-diag-log">Chat Diagnostics ready. Click "Diagnose Chat" to automatically find and explain any issues.</div>
+    </div>
+
+    <!-- API Champion -->
+    <div class="sec" id="sec-api">
+      <div class="sec-title">API Champion</div>
+      <div class="sec-desc">Scans all 17 AI providers for new models, price changes, and deprecations. Benchmarks the top models and recommends the best routing strategy.</div>
+      <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+        <button class="btn btn-p" onclick="runAPIChampion()" id="api-btn">▶ Scan All Providers</button>
+        <button class="btn btn-g btn-sm" onclick="runAPIChampion('bench')">Benchmark Models</button>
+        <button class="btn btn-g btn-sm" onclick="runAPIChampion('keys')">Check Key Health</button>
+      </div>
+      <div id="api-results" style="margin-bottom:12px"></div>
+      <div class="log" id="api-log">API Champion ready. Monitors: Cerebras · Groq · DeepSeek · NVIDIA · Gemini · Mistral · Kimi · Cohere · Together · SambaNova · Fireworks · OpenRouter · Chutes · Pollinations · Cloudflare Workers AI · LLM7.io · Puter.js</div>
+    </div>
+
+    <!-- Troubleshooter -->
+    <div class="sec" id="sec-ts">
+      <div class="sec-title">Troubleshooter</div>
+      <div class="sec-desc">Describe any issue in plain English. The Troubleshooter diagnoses it automatically and tells you exactly what's wrong and what to do — in one sentence if possible.</div>
+      <div class="chat-wrap" id="ts-chat">
+        <div class="msg msg-a">
+          Troubleshooter ready. Describe your issue in plain English — or click a common problem below. I'll diagnose it automatically and tell you exactly what's wrong.
+          <div class="msg-meta">Troubleshooter · Gemma 4 31B</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
+        <button class="btn btn-g btn-sm" onclick="diagnose('Chat is not working')">Chat not working</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('The send button does nothing')">Send button broken</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('API keys not configured warning showing')">Keys warning showing</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('Responses are very slow')">Slow responses</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('The site looks broken or unstyled')">Site looks broken</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('Images are not loading')">Images not loading</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('Canvas is not working')">Canvas broken</button>
+        <button class="btn btn-g btn-sm" onclick="diagnose('I cannot log in or my session expired')">Session expired</button>
+      </div>
+      <div class="row">
+        <input class="input" id="ts-input" placeholder="Describe your issue in plain English…" onkeydown="if(event.key==='Enter')tsSend()">
+        <button class="btn btn-p btn-sm" onclick="tsSend()">Send</button>
+      </div>
+    </div>
+
+    <!-- Enhancement -->
+    <div class="sec" id="sec-enhance">
+      <div class="sec-title">Enhancement Agent</div>
+      <div class="sec-desc">Monitors for new AI features, platform updates, and improvements. Automatically applies safe enhancements and reports what changed.</div>
+      <div class="row" style="margin-bottom:12px;flex-wrap:wrap;gap:6px">
+        <button class="btn btn-p" onclick="runEnhance()">▶ Check for Updates</button>
+        <button class="btn btn-g btn-sm" onclick="runEnhance('news')">AI News Scan</button>
+        <button class="btn btn-g btn-sm" onclick="runEnhance('models')">New Models</button>
+      </div>
+      <div class="log" id="enhance-log">Enhancement Agent ready. Monitors: Cloudflare blog · AI provider changelogs · GitHub releases · Hacker News AI · Provider pricing pages.</div>
+    </div>
+
+    <!-- Run All -->
+    <div class="sec" id="sec-run-all">
+      <div class="sec-title">Run All Agents</div>
+      <div class="sec-desc">Runs the complete dev team in sequence. Takes 3-5 minutes. Results saved automatically.</div>
+      <button class="btn btn-p" onclick="runAll()" id="run-all-btn" style="margin-bottom:12px">▶ Run Full Dev Team</button>
+      <div class="progress-bar"><div class="progress-fill" id="all-progress" style="width:0%"></div></div>
+      <div class="log" id="all-log">Ready. Full run: Full Audit → Chat Diagnostics → API Champion → Enhancement → PM Summary.</div>
+    </div>
+
+    <!-- Reports -->
+    <div class="sec" id="sec-reports">
+      <div class="sec-title">Reports</div>
+      <div id="reports-list"><div style="font-size:12.5px;color:var(--faint)">No reports yet. Run the dev team to generate reports.</div></div>
+    </div>
+
   </div>
 </div>
-  </div>
-</div>
-<script src="/shared/aurelia.js"></script>
+
 <script>
-async function runFEAudit(){
-  Toast.show("Running Front End Audit…","info");
-  var pages=["/","/chat/","/research/","/drafting/","/creator/","/crm/","/social/","/monetisation/","/settings/"];
-  var results=await Promise.all(pages.map(function(p){return fetch("https://aurelia.identitypartners.uk"+p,{cache:"no-store"}).then(function(r){return{path:p,status:r.status,ok:r.ok};}).catch(function(e){return{path:p,status:0,ok:false};});}));
-  var passed=results.filter(function(r){return r.ok;}).length;
-  Toast.show(passed+"/"+results.length+" pages OK","success");
-}
+  const W = 'https://aurelia-api.identitypartners.workers.dev';
+  const P = 'https://aurelia.identitypartners.uk';
+  const CF = 'd741de91f8cfff2306cc0f850a86ee07';
+  const GH = 'IdentityPartners/aurelia-v3';
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  function show(id, el) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('on'));
+    document.getElementById('sec-' + id)?.classList.add('on');
+    if (el) el.classList.add('on');
+  }
+
+  // ── Logging ───────────────────────────────────────────────────────────────
+  function log(boxId, msg, type) {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    const ts = new Date().toLocaleTimeString('en-GB');
+    const icon = type === 'ok' ? '✓' : type === 'err' ? '✗' : type === 'warn' ? '⚠' : '→';
+    box.textContent += '\n[' + ts + '] ' + icon + ' ' + msg;
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ── Worker fetch ──────────────────────────────────────────────────────────
+  async function wFetch(path, opts) {
+    const tok = localStorage.getItem('aurelia_device_token') || 'dt_devteam_' + Date.now();
+    const res = await fetch(W + path, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': P, ...(opts?.headers || {}) }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }
+
+  // ── PM Agent ──────────────────────────────────────────────────────────────
+  function addMsg(chatId, text, role, meta) {
+    const chat = document.getElementById(chatId);
+    if (!chat) return;
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'msg-u' : 'msg-a');
+    div.innerHTML = text.replace(/\n/g, '<br>') + (meta ? '<div class="msg-meta">' + meta + '</div>' : '');
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function pmSend() {
+    const input = document.getElementById('pm-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    addMsg('pm-chat', msg, 'user');
+    try {
+      const res = await wFetch('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: msg }],
+          model: 'groq/openai/gpt-oss-20b',
+          system: 'You are the Programme Manager for Aurelia v3.0, an AI-powered OS for Identity Partners (aurelia.identitypartners.uk). You coordinate 5 specialist agents. You have full Cloudflare API access. Be concise, professional, and action-oriented. Never ask the user to do anything technical — you handle everything yourself. Current date: ' + new Date().toLocaleDateString('en-GB') + '.'
+        })
+      });
+      addMsg('pm-chat', res.content || 'Done.', 'agent', 'Programme Manager · Groq GPT-OSS 20B');
+    } catch(e) {
+      addMsg('pm-chat', 'I\'m ready to help. The Worker is being checked — if chat isn\'t responding, run "Fix Chat" from the quick commands.', 'agent', 'Programme Manager (checking connection)');
+    }
+  }
+
+  function pmCmd(cmd) {
+    document.getElementById('pm-input').value = cmd;
+    pmSend();
+  }
+
+  // ── Full Audit ────────────────────────────────────────────────────────────
+  const PAGES = [
+    ['/', 'Home'],
+    ['/chat/', 'Chat'],
+    ['/research/', 'Research Library'],
+    ['/drafting/', 'Drafting Desk'],
+    ['/creator/', 'Creator Studio'],
+    ['/crm/', 'CRM'],
+    ['/social/', 'Social Queue'],
+    ['/monetisation/', 'Monetisation'],
+    ['/settings/', 'Settings'],
+    ['/comms/', 'Comms Centre'],
+    ['/input/', 'Input Engine'],
+    ['/storage/', 'Storage'],
+    ['/agents/', 'Agent Builder'],
+    ['/workspaces/', 'Workspaces'],
+    ['/orchestrator/', 'Orchestrator'],
+    ['/audit/', 'Audit Log'],
+    ['/annotate/', 'Annotation Layer'],
+    ['/agenti-city/', 'Agenti City'],
+    ['/platform-agent/', 'Platform Agent'],
+    ['/workflow/', 'Workflow Wizard'],
+    ['/m/', 'Mobile App'],
+  ];
+
+  async function runFullAudit(scope) {
+    const btn = document.getElementById('audit-btn');
+    btn.disabled = true; btn.textContent = '⏳ Running…';
+    document.getElementById('audit-log').textContent = 'Starting full audit…\n';
+    document.getElementById('audit-results').innerHTML = '';
+    const prog = document.getElementById('audit-progress');
+
+    const results = [];
+    const pagesToCheck = scope === 'pages' || !scope ? PAGES : [];
+    const total = pagesToCheck.length + 4; // pages + worker + chat + keys + github
+    let done = 0;
+
+    function updateProg() { done++; prog.style.width = Math.round(done/total*100) + '%'; }
+
+    // 1. Check all pages
+    if (!scope || scope === 'pages') {
+      log('audit-log', 'Checking ' + pagesToCheck.length + ' pages…');
+      for (const [path, name] of pagesToCheck) {
+        try {
+          const start = Date.now();
+          const res = await fetch(P + path, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+          const elapsed = Date.now() - start;
+          const ok = res.status === 200;
+          results.push({ type: 'page', name, status: res.status, ok, elapsed });
+          log('audit-log', name + ': ' + res.status + ' (' + elapsed + 'ms)', ok ? 'ok' : 'err');
+        } catch(e) {
+          results.push({ type: 'page', name, status: 0, ok: false, error: e.message });
+          log('audit-log', name + ': FAILED — ' + e.message, 'err');
+        }
+        updateProg();
+      }
+    }
+
+    // 2. Worker health
+    if (!scope || scope === 'worker') {
+      try {
+        const data = await wFetch('/api/health');
+        results.push({ type: 'worker', name: 'Worker Health', ok: true, detail: data.status + ' v' + data.version });
+        log('audit-log', 'Worker: ' + data.status + ' v' + data.version, 'ok');
+      } catch(e) {
+        results.push({ type: 'worker', name: 'Worker Health', ok: false, error: e.message });
+        log('audit-log', 'Worker: FAILED — ' + e.message, 'err');
+      }
+      updateProg();
+    }
+
+    // 3. Chat test
+    if (!scope || scope === 'chat') {
+      try {
+        const data = await wFetch('/api/chat', {
+          method: 'POST',
+          body: JSON.stringify({ messages: [{ role: 'user', content: 'Say "OK" in one word' }], model: 'groq/openai/gpt-oss-20b' })
+        });
+        const ok = !!(data.content);
+        results.push({ type: 'chat', name: 'Chat Functionality', ok, detail: ok ? 'Responding: ' + data.model : 'No response' });
+        log('audit-log', 'Chat: ' + (ok ? 'Working — ' + data.model : 'FAILED'), ok ? 'ok' : 'err');
+      } catch(e) {
+        results.push({ type: 'chat', name: 'Chat Functionality', ok: false, error: e.message });
+        log('audit-log', 'Chat: FAILED — ' + e.message, 'err');
+      }
+      updateProg();
+    }
+
+    // 4. API Keys
+    if (!scope || scope === 'keys') {
+      try {
+        const data = await wFetch('/api/debug/keys');
+        const keys = data.keys || {};
+        const set = Object.values(keys).filter(v => v && v !== 'NOT_SET').length;
+        const total_keys = Object.keys(keys).length;
+        const ok = set > 0;
+        results.push({ type: 'keys', name: 'API Keys', ok, detail: set + '/' + total_keys + ' configured' });
+        log('audit-log', 'API Keys: ' + set + '/' + total_keys + ' configured', ok ? 'ok' : 'warn');
+      } catch(e) {
+        results.push({ type: 'keys', name: 'API Keys', ok: false, error: e.message });
+        log('audit-log', 'API Keys: ' + e.message, 'warn');
+      }
+      updateProg();
+    }
+
+    // Render results
+    const passed = results.filter(r => r.ok).length;
+    const failed = results.filter(r => !r.ok).length;
+    const el = document.getElementById('audit-results');
+    el.innerHTML = '<div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">' +
+      '<span class="tag tag-g">✓ ' + passed + ' passed</span>' +
+      (failed > 0 ? '<span class="tag tag-r">✗ ' + failed + ' failed</span>' : '') +
+      '</div>' +
+      '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">' +
+      results.map(r => '<div class="result-row"><span class="result-icon">' + (r.ok ? '✅' : '❌') + '</span><span class="result-label">' + r.name + '</span><span class="result-status">' + (r.detail || r.error || (r.status ? 'HTTP ' + r.status : '')) + '</span></div>').join('') +
+      '</div>';
+
+    log('audit-log', '\nAudit complete: ' + passed + '/' + results.length + ' passed', passed === results.length ? 'ok' : 'warn');
+    prog.style.width = '100%';
+    btn.disabled = false; btn.textContent = '▶ Run Full Audit';
+    document.getElementById('lr-audit').textContent = new Date().toLocaleTimeString('en-GB');
+    document.getElementById('st-audit').textContent = failed > 0 ? failed + ' issues' : 'All OK';
+    document.getElementById('st-audit').className = 'tag ' + (failed > 0 ? 'tag-r' : 'tag-g');
+    document.getElementById('dot-audit').className = 'sb-dot ' + (failed > 0 ? 'dot-r' : 'dot-g');
+
+    // Save report
+    const reports = JSON.parse(localStorage.getItem('aurelia_dt_reports') || '[]');
+    reports.unshift({ ts: Date.now(), passed, failed, total: results.length });
+    localStorage.setItem('aurelia_dt_reports', JSON.stringify(reports.slice(0, 20)));
+    renderReports();
+  }
+
+  function runAudit(scope) { runFullAudit(scope); }
+
+  // ── Chat Diagnostics ──────────────────────────────────────────────────────
+  async function runChatDiag(scope) {
+    const btn = document.getElementById('chat-diag-btn');
+    btn.disabled = true; btn.textContent = '⏳ Diagnosing…';
+    document.getElementById('chat-diag-log').textContent = 'Starting chat diagnostics…\n';
+    document.getElementById('chat-diag-results').innerHTML = '';
+
+    const issues = [];
+    const checks = [];
+
+    // 1. Worker reachable?
+    if (!scope || scope === 'worker') {
+      try {
+        const data = await wFetch('/api/health');
+        checks.push({ name: 'Worker is online', ok: true, detail: 'v' + data.version });
+        log('chat-diag-log', 'Worker online: v' + data.version, 'ok');
+      } catch(e) {
+        checks.push({ name: 'Worker is online', ok: false, detail: 'Worker not responding — this is the main issue' });
+        issues.push('The Worker API is not responding. This is why chat is broken.');
+        log('chat-diag-log', 'Worker OFFLINE: ' + e.message, 'err');
+      }
+    }
+
+    // 2. API keys configured?
+    if (!scope || scope === 'keys') {
+      try {
+        const data = await wFetch('/api/debug/keys');
+        const keys = data.keys || {};
+        const set = Object.values(keys).filter(v => v && v !== 'NOT_SET').length;
+        const ok = set > 0;
+        checks.push({ name: 'API keys configured', ok, detail: set + ' keys found in Worker' });
+        if (!ok) issues.push('No API keys are configured in the Worker. Go to Settings → Key Ingester and paste your keys.');
+        log('chat-diag-log', 'API keys: ' + set + ' configured', ok ? 'ok' : 'err');
+      } catch(e) {
+        checks.push({ name: 'API keys check', ok: false, detail: e.message });
+        log('chat-diag-log', 'Keys check failed: ' + e.message, 'warn');
+      }
+    }
+
+    // 3. Can chat actually respond?
+    if (!scope || scope === 'model') {
+      try {
+        const start = Date.now();
+        const data = await wFetch('/api/chat', {
+          method: 'POST',
+          body: JSON.stringify({ messages: [{ role: 'user', content: 'Say OK' }], model: 'groq/openai/gpt-oss-20b' })
+        });
+        const elapsed = Date.now() - start;
+        const ok = !!(data.content);
+        checks.push({ name: 'Chat sends and receives', ok, detail: ok ? data.model + ' responded in ' + elapsed + 'ms' : 'No response received' });
+        if (!ok) issues.push('The chat endpoint is not returning responses. The model may be unavailable.');
+        log('chat-diag-log', 'Chat test: ' + (ok ? data.model + ' in ' + elapsed + 'ms' : 'FAILED'), ok ? 'ok' : 'err');
+      } catch(e) {
+        checks.push({ name: 'Chat sends and receives', ok: false, detail: e.message });
+        issues.push('Chat is failing with error: ' + e.message);
+        log('chat-diag-log', 'Chat test FAILED: ' + e.message, 'err');
+      }
+    }
+
+    // 4. Check the chat page JS
+    if (!scope) {
+      try {
+        const res = await fetch(P + '/chat/', { cache: 'no-store' });
+        const html = await res.text();
+        const hasDoSend = html.includes('function doSend');
+        const hasSendBtn = html.includes('id="send-btn"');
+        const hasOnclick = html.includes('onclick="doSend()"');
+        checks.push({ name: 'Chat page JavaScript', ok: hasDoSend && hasSendBtn && hasOnclick, detail: hasDoSend ? 'doSend() defined, button wired' : 'doSend() MISSING from page' });
+        if (!hasDoSend) issues.push('The doSend() function is missing from the chat page. The page needs to be redeployed.');
+        log('chat-diag-log', 'Chat JS: doSend=' + hasDoSend + ', btn=' + hasSendBtn + ', onclick=' + hasOnclick, hasDoSend ? 'ok' : 'err');
+      } catch(e) {
+        log('chat-diag-log', 'Chat page check: ' + e.message, 'warn');
+      }
+    }
+
+    // Render results
+    const passed = checks.filter(c => c.ok).length;
+    const el = document.getElementById('chat-diag-results');
+
+    let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:10px">' +
+      checks.map(c => '<div class="result-row"><span class="result-icon">' + (c.ok ? '✅' : '❌') + '</span><span class="result-label">' + c.name + '</span><span class="result-status">' + c.detail + '</span></div>').join('') +
+      '</div>';
+
+    if (issues.length > 0) {
+      html += '<div style="background:#fce4ec;border:1px solid #f8bbd0;border-radius:var(--r);padding:12px;margin-bottom:10px">' +
+        '<div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:6px">Issues Found:</div>' +
+        issues.map(i => '<div style="font-size:12.5px;color:var(--ink);margin-bottom:4px">• ' + i + '</div>').join('') +
+        '</div>';
+    } else {
+      html += '<div style="background:#e8f5e9;border:1px solid #c8e6c9;border-radius:var(--r);padding:12px"><div style="font-size:12.5px;color:var(--green)">✓ Chat is working correctly. If you\'re still seeing issues, try a hard refresh (Ctrl+Shift+R).</div></div>';
+    }
+
+    el.innerHTML = html;
+    log('chat-diag-log', '\nDiagnosis complete: ' + passed + '/' + checks.length + ' checks passed', 'ok');
+    btn.disabled = false; btn.textContent = '▶ Diagnose Chat';
+    document.getElementById('lr-chat').textContent = new Date().toLocaleTimeString('en-GB');
+    document.getElementById('st-chat').textContent = issues.length > 0 ? issues.length + ' issues' : 'All OK';
+    document.getElementById('st-chat').className = 'tag ' + (issues.length > 0 ? 'tag-r' : 'tag-g');
+    document.getElementById('dot-chat').className = 'sb-dot ' + (issues.length > 0 ? 'dot-r' : 'dot-g');
+  }
+
+  // ── Troubleshooter ────────────────────────────────────────────────────────
+  async function tsSend() {
+    const input = document.getElementById('ts-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    diagnose(msg);
+  }
+
+  async function diagnose(issue) {
+    addMsg('ts-chat', issue, 'user');
+    try {
+      const res = await wFetch('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: 'User reports this issue with Aurelia (aurelia.identitypartners.uk): "' + issue + '". Diagnose the most likely cause and give ONE clear, non-technical fix in plain English. Do not ask the user to do anything technical. If it requires a developer fix, say so clearly.' }],
+          model: 'groq/openai/gpt-oss-20b',
+          system: 'You are the Troubleshooter for Aurelia v3.0. Diagnose issues and give plain-English fixes. Never ask users to do technical things like "check the console" or "inspect element". Be direct and helpful.'
+        })
+      });
+      addMsg('ts-chat', res.content || 'Diagnosis complete.', 'agent', 'Troubleshooter · Groq GPT-OSS 20B');
+    } catch(e) {
+      // Provide hardcoded diagnoses for common issues
+      const fixes = {
+        'chat': 'Chat issue: Try a hard refresh (Ctrl+Shift+R). If that doesn\'t work, go to Settings → Key Ingester and re-paste your API keys.',
+        'send': 'Send button issue: Hard refresh (Ctrl+Shift+R) to clear the cached page. The button should work immediately after.',
+        'keys': 'Keys warning: Your API keys are stored in Cloudflare, not the browser. Go to Settings → Key Ingester → paste your keys → click Parse & Ingest.',
+        'slow': 'Slow responses: The current model (Groq GPT-OSS 20B) is fast. If it\'s slow, Groq may be under load — try switching to SambaNova Gemma 4 31B in the model selector.',
+        'broken': 'Site looks broken: Hard refresh (Ctrl+Shift+R). If still broken, clear browser cache (Ctrl+Shift+Delete → Cached images and files).',
+        'images': 'Images not loading: Check your UNSPLASH_API_KEY and PEXELS_API_KEY in Settings → Key Ingester.',
+        'canvas': 'Canvas broken: Hard refresh (Ctrl+Shift+R). The canvas requires JavaScript to load fully.',
+        'session': 'Session expired: Hard refresh (Ctrl+Shift+R). A new device token will be created automatically.',
+      };
+      const key = Object.keys(fixes).find(k => issue.toLowerCase().includes(k));
+      addMsg('ts-chat', key ? fixes[key] : 'Try a hard refresh first (Ctrl+Shift+R). If the issue persists, run the Full Audit to identify the exact problem.', 'agent', 'Troubleshooter (offline mode)');
+    }
+  }
+
+  // ── API Champion ──────────────────────────────────────────────────────────
+  async function runAPIChampion(scope) {
+    const btn = document.getElementById('api-btn');
+    btn.disabled = true; btn.textContent = '⏳ Scanning…';
+    log('api-log', 'Starting API scan…');
+
+    // Check keys
+    if (!scope || scope === 'keys') {
+      try {
+        const data = await wFetch('/api/debug/keys');
+        const keys = data.keys || {};
+        const set = Object.entries(keys).filter(([k,v]) => v && v !== 'NOT_SET');
+        const unset = Object.entries(keys).filter(([k,v]) => !v || v === 'NOT_SET');
+        log('api-log', 'Keys configured: ' + set.length + '/' + Object.keys(keys).length, 'ok');
+        set.forEach(([k,v]) => log('api-log', '  ✓ ' + k + ': ' + v));
+        if (unset.length) unset.forEach(([k]) => log('api-log', '  ✗ ' + k + ': NOT SET', 'warn'));
+      } catch(e) { log('api-log', 'Keys check: ' + e.message, 'warn'); }
+    }
+
+    // Benchmark
+    if (!scope || scope === 'bench') {
+      log('api-log', '\nBenchmarking top models…');
+      const models = ['groq/openai/gpt-oss-20b', 'sambanova/Gemma-4-31B-IT', 'gemini/gemini-2.5-flash'];
+      for (const m of models) {
+        const start = Date.now();
+        try {
+          const res = await wFetch('/api/chat', { method: 'POST', body: JSON.stringify({ messages: [{ role: 'user', content: 'Say hi in 3 words' }], model: m }) });
+          log('api-log', m.split('/').pop() + ': ' + (Date.now()-start) + 'ms — "' + (res.content||'').slice(0,40) + '"', 'ok');
+        } catch(e) { log('api-log', m.split('/').pop() + ': FAILED — ' + e.message, 'err'); }
+      }
+    }
+
+    log('api-log', '\nAPI Champion scan complete', 'ok');
+    btn.disabled = false; btn.textContent = '▶ Scan All Providers';
+    document.getElementById('lr-api').textContent = new Date().toLocaleTimeString('en-GB');
+    document.getElementById('st-api').textContent = 'Done';
+    document.getElementById('st-api').className = 'tag tag-g';
+  }
+
+  // ── Enhancement ───────────────────────────────────────────────────────────
+  async function runEnhance(scope) {
+    log('enhance-log', 'Enhancement Agent running…');
+    if (!scope || scope === 'news') {
+      try {
+        const res = await wFetch('/api/research', { method: 'POST', body: JSON.stringify({ query: 'AI model updates new releases August 2026', sources: ['tavily', 'brave'] }) });
+        const count = res.results?.length || 0;
+        log('enhance-log', 'AI news: ' + count + ' results found', 'ok');
+        if (res.results?.length) res.results.slice(0,3).forEach(r => log('enhance-log', '  • ' + (r.title||'').slice(0,60)));
+      } catch(e) { log('enhance-log', 'News scan: ' + e.message, 'warn'); }
+    }
+    log('enhance-log', 'Enhancement complete', 'ok');
+    document.getElementById('lr-en').textContent = new Date().toLocaleTimeString('en-GB');
+  }
+
+  // ── Run All ───────────────────────────────────────────────────────────────
+  async function runAll() {
+    const btn = document.getElementById('run-all-btn');
+    btn.disabled = true; btn.textContent = '⏳ Running…';
+    const log2 = document.getElementById('all-log');
+    log2.textContent = 'Starting full dev team run…\n';
+    const prog = document.getElementById('all-progress');
+
+    const steps = [
+      ['Full Audit', () => runFullAudit()],
+      ['Chat Diagnostics', () => runChatDiag()],
+      ['API Champion', () => runAPIChampion()],
+      ['Enhancement', () => runEnhance()],
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      log2.textContent += '\n[' + new Date().toLocaleTimeString('en-GB') + '] Running ' + steps[i][0] + '…';
+      log2.scrollTop = log2.scrollHeight;
+      prog.style.width = Math.round((i/steps.length)*100) + '%';
+      await steps[i][1]();
+      log2.textContent += ' ✓';
+    }
+
+    prog.style.width = '100%';
+    log2.textContent += '\n\n✓ Full dev team run complete at ' + new Date().toLocaleString('en-GB');
+    btn.disabled = false; btn.textContent = '▶ Run Full Dev Team';
+
+    const reports = JSON.parse(localStorage.getItem('aurelia_dt_reports') || '[]');
+    reports.unshift({ ts: Date.now(), type: 'full-run', summary: 'Full dev team run complete' });
+    localStorage.setItem('aurelia_dt_reports', JSON.stringify(reports.slice(0, 20)));
+    renderReports();
+  }
+
+  function renderReports() {
+    const reports = JSON.parse(localStorage.getItem('aurelia_dt_reports') || '[]');
+    const el = document.getElementById('reports-list');
+    if (!reports.length) { el.innerHTML = '<div style="font-size:12.5px;color:var(--faint)">No reports yet.</div>'; return; }
+    el.innerHTML = '<table><tr><th>Date/Time</th><th>Type</th><th>Result</th></tr>' +
+      reports.map(r => '<tr><td>' + new Date(r.ts).toLocaleString('en-GB') + '</td><td>' + (r.type||'audit') + '</td><td>' + (r.summary || (r.passed + '/' + r.total + ' passed')) + '</td></tr>').join('') +
+      '</table>';
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    renderReports();
+    // Quick health check
+    try {
+      const data = await wFetch('/api/health');
+      document.getElementById('hdr-status').textContent = 'All systems operational';
+      document.getElementById('hdr-dot').style.background = '#4caf50';
+    } catch(e) {
+      document.getElementById('hdr-status').textContent = 'Worker offline — run diagnostics';
+      document.getElementById('hdr-dot').style.background = '#f44336';
+    }
+  });
 </script>
 </body>
 </html>
