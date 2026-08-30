@@ -769,7 +769,7 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
 </div>
 <div id="model-selector-container"></div>
 <button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px">⊕ Round Robin</button>
-<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px">⌨ QWERTY</button>
+<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px">✎ Handwrite</button>
 <button class="btn btn-ghost btn-sm" onclick="clearChat()" title="Clear">⌫</button>
 <button class="btn btn-ghost btn-sm" onclick="saveToWorkspace()" title="Save">⊞</button>
 <button class="btn btn-ghost btn-sm" onclick="toggleContextPane()" style="font-size:11px" title="Toggle context panel">▷</button>
@@ -1287,49 +1287,233 @@ Troubleshooting:
   // Floating QWERTY for Chat
   let chatQwertyVisible = false;
   function toggleChatQWERTY() {
-    chatQwertyVisible = !chatQwertyVisible;
+    // Toggle handwriting canvas (not QWERTY keyboard)
     var btn = document.getElementById("chat-qwerty-btn");
-    if (btn) btn.classList.toggle("active", chatQwertyVisible);
-    var qwerty = document.getElementById("chat-qwerty-panel");
-    if (!qwerty) {
-      qwerty = document.createElement("div");
-      qwerty.id = "chat-qwerty-panel";
-      qwerty.style.cssText = "padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;overflow:hidden";
-      var rows = [
-        ["q","w","e","r","t","y","u","i","o","p"],
-        ["a","s","d","f","g","h","j","k","l"],
-        ["z","x","c","v","b","n","m","\u232b"],
-        ["Space","Return"]
-      ];
-      rows.forEach(function(row) {
-        var rowDiv = document.createElement("div");
-        rowDiv.style.cssText = "display:flex;gap:2px;justify-content:center;margin-bottom:3px";
-        row.forEach(function(k) {
-          var kbtn = document.createElement("button");
-          kbtn.textContent = k === "Space" ? "\u23b5" : k === "Return" ? "\u21b5" : k;
-          var w = k === "Space" ? "80px" : k === "Return" ? "60px" : k === "\u232b" ? "40px" : "28px";
-          var bg = (k === "Space" || k === "Return" || k === "\u232b") ? "var(--bg-3,#e8ddd4)" : "var(--surface)";
-          var fs = k.length > 1 ? "9" : "12";
-          kbtn.style.cssText = "width:"+w+";height:30px;border-radius:4px;border:1px solid var(--border);background:"+bg+";font-size:"+fs+"px;cursor:pointer;color:var(--ink);font-family:var(--font,Inter);transition:background 0.1s";
-          kbtn.onclick = function() {
-            var ta = document.getElementById("chat-textarea");
-            if (!ta) return;
-            if (k === "\u232b") { ta.value = ta.value.slice(0,-1); }
-            else if (k === "Space") { ta.value += " "; }
-            else if (k === "Return") { doSend(); return; }
-            else { ta.value += k; }
-            if (typeof autoResize === "function") autoResize(ta);
-            var cc = document.getElementById("char-count");
-            if (cc) cc.textContent = ta.value.length;
-          };
-          rowDiv.appendChild(kbtn);
-        });
-        qwerty.appendChild(rowDiv);
-      });
+    var panel = document.getElementById("chat-handwriting-panel");
+    
+    if (!panel) {
+      // Create handwriting panel
+      panel = document.createElement("div");
+      panel.id = "chat-handwriting-panel";
+      panel.style.cssText = "background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;padding:10px 14px;display:flex;flex-direction:column;gap:8px";
+      
+      // Toolbar
+      var toolbar = document.createElement("div");
+      toolbar.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap";
+      
+      var toolLabel = document.createElement("span");
+      toolLabel.style.cssText = "font-size:11px;font-weight:600;color:var(--faint,#a8a29e);letter-spacing:.06em;text-transform:uppercase";
+      toolLabel.textContent = "Handwriting";
+      
+      var clearBtn = document.createElement("button");
+      clearBtn.className = "btn btn-ghost btn-sm";
+      clearBtn.textContent = "Clear";
+      clearBtn.onclick = function() {
+        var ctx2 = hwCanvas.getContext("2d");
+        ctx2.clearRect(0, 0, hwCanvas.width, hwCanvas.height);
+        drawLines(ctx2, hwCanvas);
+      };
+      
+      var recogniseBtn = document.createElement("button");
+      recogniseBtn.className = "btn btn-primary btn-sm";
+      recogniseBtn.textContent = "Recognise & Send";
+      recogniseBtn.onclick = function() { recogniseHandwriting(); };
+      
+      var insertBtn = document.createElement("button");
+      insertBtn.className = "btn btn-ghost btn-sm";
+      insertBtn.textContent = "Insert as text";
+      insertBtn.onclick = function() { recogniseHandwriting(false); };
+      
+      var penSizeLabel = document.createElement("span");
+      penSizeLabel.style.cssText = "font-size:11px;color:var(--muted,#78716c)";
+      penSizeLabel.textContent = "Pen:";
+      
+      var penSize = document.createElement("input");
+      penSize.type = "range";
+      penSize.min = "1";
+      penSize.max = "8";
+      penSize.value = "2";
+      penSize.style.cssText = "width:80px";
+      penSize.oninput = function() { hwPenSize = parseInt(penSize.value); };
+      
+      toolbar.appendChild(toolLabel);
+      toolbar.appendChild(clearBtn);
+      toolbar.appendChild(recogniseBtn);
+      toolbar.appendChild(insertBtn);
+      toolbar.appendChild(penSizeLabel);
+      toolbar.appendChild(penSize);
+      panel.appendChild(toolbar);
+      
+      // Canvas
+      var hwCanvas = document.createElement("canvas");
+      hwCanvas.id = "hw-canvas";
+      hwCanvas.style.cssText = "width:100%;height:200px;border:1px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;touch-action:none";
+      hwCanvas.width = 800;
+      hwCanvas.height = 200;
+      panel.appendChild(hwCanvas);
+      
+      // Draw lines on canvas
+      function drawLines(ctx2, canvas) {
+        ctx2.strokeStyle = "rgba(200,190,180,0.4)";
+        ctx2.lineWidth = 0.5;
+        var lineSpacing = 32;
+        for (var y = lineSpacing; y < canvas.height; y += lineSpacing) {
+          ctx2.beginPath();
+          ctx2.moveTo(0, y);
+          ctx2.lineTo(canvas.width, y);
+          ctx2.stroke();
+        }
+        // Margin line
+        ctx2.strokeStyle = "rgba(200,150,150,0.3)";
+        ctx2.lineWidth = 1;
+        ctx2.beginPath();
+        ctx2.moveTo(60, 0);
+        ctx2.lineTo(60, canvas.height);
+        ctx2.stroke();
+      }
+      
+      var ctx2 = hwCanvas.getContext("2d");
+      drawLines(ctx2, hwCanvas);
+      
+      // Drawing events
+      var hwDrawing = false;
+      var hwPenSize = 2;
+      var hwLastX = 0, hwLastY = 0;
+      
+      function getHWPos(e) {
+        var rect = hwCanvas.getBoundingClientRect();
+        var scaleX = hwCanvas.width / rect.width;
+        var scaleY = hwCanvas.height / rect.height;
+        var touch = e.touches ? e.touches[0] : e;
+        return {
+          x: (touch.clientX - rect.left) * scaleX,
+          y: (touch.clientY - rect.top) * scaleY,
+          pressure: e.pressure || 0.5
+        };
+      }
+      
+      function hwStart(e) {
+        e.preventDefault();
+        hwDrawing = true;
+        var pos = getHWPos(e);
+        hwLastX = pos.x; hwLastY = pos.y;
+        ctx2.beginPath();
+        ctx2.moveTo(hwLastX, hwLastY);
+      }
+      
+      function hwDraw(e) {
+        e.preventDefault();
+        if (!hwDrawing) return;
+        var pos = getHWPos(e);
+        ctx2.globalCompositeOperation = "source-over";
+        ctx2.strokeStyle = "#1c1917";
+        ctx2.lineWidth = hwPenSize * (0.5 + pos.pressure);
+        ctx2.lineCap = "round";
+        ctx2.lineJoin = "round";
+        var midX = (hwLastX + pos.x) / 2;
+        var midY = (hwLastY + pos.y) / 2;
+        ctx2.quadraticCurveTo(hwLastX, hwLastY, midX, midY);
+        ctx2.stroke();
+        ctx2.beginPath();
+        ctx2.moveTo(midX, midY);
+        hwLastX = pos.x; hwLastY = pos.y;
+      }
+      
+      function hwEnd(e) {
+        hwDrawing = false;
+        ctx2.globalCompositeOperation = "source-over";
+      }
+      
+      hwCanvas.addEventListener("pointerdown", hwStart, {passive:false});
+      hwCanvas.addEventListener("pointermove", hwDraw, {passive:false});
+      hwCanvas.addEventListener("pointerup", hwEnd);
+      hwCanvas.addEventListener("pointerleave", hwEnd);
+      hwCanvas.addEventListener("touchstart", hwStart, {passive:false});
+      hwCanvas.addEventListener("touchmove", hwDraw, {passive:false});
+      hwCanvas.addEventListener("touchend", hwEnd);
+      
+      // Recognise handwriting via OCR Space API
+      async function recogniseHandwriting(sendAfter) {
+        if (sendAfter === undefined) sendAfter = true;
+        var dataUrl = hwCanvas.toDataURL("image/png");
+        var tok = localStorage.getItem("aurelia_device_token") || "dt_hw";
+        
+        // Try OCR Space API
+        var ocrKey = localStorage.getItem("aurelia_key_OCR_SPACE_API_KEY") || "";
+        if (ocrKey) {
+          try {
+            var formData = new FormData();
+            formData.append("base64Image", dataUrl);
+            formData.append("language", "eng");
+            formData.append("isOverlayRequired", "false");
+            var res = await fetch("https://api.ocr.space/parse/image", {
+              method: "POST",
+              headers: {"apikey": ocrKey},
+              body: formData
+            });
+            var data = await res.json();
+            var text = data.ParsedResults && data.ParsedResults[0] ? data.ParsedResults[0].ParsedText : "";
+            if (text.trim()) {
+              var ta = document.getElementById("chat-textarea");
+              if (ta) {
+                ta.value = (ta.value ? ta.value + " " : "") + text.trim();
+                if (typeof autoResize === "function") autoResize(ta);
+              }
+              if (sendAfter) doSend();
+              return;
+            }
+          } catch(e) {}
+        }
+        
+        // Fallback: send image to AI for transcription
+        try {
+          var res2 = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
+            method: "POST",
+            headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+            body: JSON.stringify({
+              messages: [{role:"user",content:"Transcribe the handwritten text in this image exactly as written. Return only the transcribed text, nothing else. Image: " + dataUrl.slice(0,100) + "..."}],
+              model: "gemini/gemini-2.5-flash",
+              system: "You are a handwriting transcription assistant. Transcribe exactly what is written."
+            })
+          });
+          var data2 = await res2.json();
+          var text2 = data2.content || "";
+          if (text2.trim()) {
+            var ta2 = document.getElementById("chat-textarea");
+            if (ta2) {
+              ta2.value = (ta2.value ? ta2.value + " " : "") + text2.trim();
+              if (typeof autoResize === "function") autoResize(ta2);
+            }
+            if (sendAfter) doSend();
+          } else {
+            if (typeof Toast !== "undefined") Toast.show("Could not recognise handwriting. Configure OCR_SPACE_API_KEY in Settings.", "info");
+          }
+        } catch(e) {
+          if (typeof Toast !== "undefined") Toast.show("Handwriting recognition failed: " + e.message, "error");
+        }
+      }
+      
+      panel.recogniseHandwriting = recogniseHandwriting;
+      
       var inputArea = document.querySelector(".chat-input-area");
-      if (inputArea) inputArea.parentNode.insertBefore(qwerty, inputArea);
+      if (inputArea) inputArea.parentNode.insertBefore(panel, inputArea);
     }
-    qwerty.style.display = chatQwertyVisible ? "block" : "none";
+    
+    var isVisible = panel.style.display !== "none";
+    panel.style.display = isVisible ? "none" : "flex";
+    panel.style.flexDirection = "column";
+    if (btn) btn.classList.toggle("active", !isVisible);
+    
+    // Resize canvas to fit
+    if (!isVisible) {
+      var hwC = document.getElementById("hw-canvas");
+      if (hwC) {
+        var area = hwC.parentElement;
+        if (area) {
+          hwC.style.width = "100%";
+        }
+      }
+    }
   }
 
   // Check if API keys are configured
