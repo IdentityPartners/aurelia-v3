@@ -299,15 +299,165 @@ DEEPSEEK_API_KEY=sk_ghi789
   function clearAPIKeys(){if(!confirm('Clear all locally stored API keys?'))return;Object.values(API_KEY_GROUPS).flat().forEach(key=>localStorage.removeItem('aurelia_key_'+key));renderAPIKeyGroups();Toast.show('API keys cleared','success');}
 
   function renderThemeOptions(){
-    const families=[{id:'elegant',name:'Elegant',color:'#b5924c'},{id:'modern',name:'Modern',color:'#2980b9'},{id:'clean',name:'Clean',color:'#0066cc'},{id:'classic',name:'Classic',color:'#1a3a5c'},{id:'abstract',name:'Abstract',color:'#f72585'}];
-    const variants=[{id:'dawn',name:'Dawn'},{id:'morn',name:'Morning'},{id:'noon',name:'Noon'},{id:'arvo',name:'Afternoon'},{id:'dusk',name:'Dusk'},{id:'midnight',name:'Midnight'}];
-    const cur=ThemeSystem.current||{family:'elegant',variant:'midnight'};
-    const fg=document.getElementById('theme-family-grid');
-    if(fg)fg.innerHTML=families.map(f=>'<div style="border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.family===f.id?'var(--ink)':'transparent')+';text-align:center" onclick="ThemeSystem.set(\''+f.id+'\');renderThemeOptions()"><div style="height:32px;border-radius:6px;background:'+f.color+';margin-bottom:5px"></div><div style="font-size:11px">'+f.name+'</div></div>').join('');
-    const vg=document.getElementById('theme-variant-grid');
-    if(vg)vg.innerHTML=variants.map(v=>'<div style="border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.variant===v.id?'var(--ink)':'transparent')+';text-align:center" onclick="ThemeSystem.set(null,\''+v.id+'\');renderThemeOptions()"><div style="font-size:11px">'+v.name+'</div></div>').join('');
+    // All 38 themes: 5 families × 6 variants + 3 dark + 5 special
+    var FAMILIES = [
+      {id:'elegant',name:'Elegant',desc:'Warm, refined, serif-forward'},
+      {id:'modern',name:'Modern',desc:'Crisp, bold, high-contrast'},
+      {id:'clean',name:'Clean',desc:'Minimal, Swiss, precise'},
+      {id:'classic',name:'Classic',desc:'Traditional, timeless'},
+      {id:'abstract',name:'Abstract',desc:'Expressive, unexpected'},
+    ];
+    var VARIANTS = [
+      {id:'dawn',name:'Dawn',time:'5–8am'},
+      {id:'morn',name:'Morning',time:'8am–12pm'},
+      {id:'noon',name:'Noon',time:'12–3pm'},
+      {id:'arvo',name:'Afternoon',time:'3–6pm'},
+      {id:'dusk',name:'Dusk',time:'6–9pm'},
+      {id:'midnight',name:'Midnight',time:'9pm–5am'},
+    ];
+    var SPECIAL = [
+      {id:'ip-brand',name:'IP Brand',desc:'Identity Partners exact colours'},
+      {id:'goldsmiths',name:'Goldsmiths',desc:'Academic gold & navy'},
+      {id:'health',name:'Health',desc:'Calm, clinical, trustworthy'},
+      {id:'dark-midnight',name:'Dark Midnight',desc:'Deep dark, purple accent'},
+      {id:'dark-teal',name:'Dark Teal',desc:'Dark with teal accent'},
+      {id:'dark-rose',name:'Dark Rose',desc:'Dark with rose accent'},
+    ];
+    
+    var cur = ThemeSystem.current || {family:'elegant',variant:'midnight'};
+    var curKey = cur.family + '-' + cur.variant;
+    
+    // Update current theme display
+    var cl = document.getElementById('current-theme-label');
+    var cn = document.getElementById('current-theme-note');
+    var cs = document.getElementById('current-theme-swatch');
+    if (cl) cl.textContent = (cur.family.charAt(0).toUpperCase()+cur.family.slice(1)) + ' · ' + (cur.variant.charAt(0).toUpperCase()+cur.variant.slice(1));
+    var curTheme = ThemeSystem.THEMES && ThemeSystem.THEMES[curKey];
+    if (cn) cn.textContent = curTheme ? curTheme.note || '' : '';
+    if (cs) cs.style.background = curTheme ? curTheme.accent || 'var(--accent)' : 'var(--accent)';
+    
+    // Family grid
+    var fg = document.getElementById('theme-family-grid');
+    if (fg) {
+      fg.innerHTML = '';
+      FAMILIES.forEach(function(f) {
+        var div = document.createElement('div');
+        div.style.cssText = 'border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.family===f.id?'var(--ink)':'transparent')+';text-align:center;background:var(--bg-2,#f0e9e0);transition:all .15s';
+        div.onclick = function() { ThemeSystem.set(f.id); renderThemeOptions(); };
+        var preview = document.createElement('div');
+        preview.style.cssText = 'height:28px;border-radius:5px;margin-bottom:5px;background:var(--accent)';
+        // Set preview colour based on family
+        var familyColors = {elegant:'#b5924c',modern:'#0066cc',clean:'#343a40',classic:'#1a3a5c',abstract:'#f72585'};
+        preview.style.background = familyColors[f.id] || '#888';
+        var name = document.createElement('div');
+        name.style.cssText = 'font-size:11px;font-weight:600;color:var(--ink)';
+        name.textContent = f.name;
+        var desc = document.createElement('div');
+        desc.style.cssText = 'font-size:9.5px;color:var(--text-faint,#a8a29e);margin-top:1px';
+        desc.textContent = f.desc;
+        div.appendChild(preview);
+        div.appendChild(name);
+        div.appendChild(desc);
+        fg.appendChild(div);
+      });
+    }
+    
+    // Variant grid
+    var vg = document.getElementById('theme-variant-grid');
+    if (vg) {
+      vg.innerHTML = '';
+      VARIANTS.forEach(function(v) {
+        var div = document.createElement('div');
+        div.style.cssText = 'border-radius:8px;padding:10px;cursor:pointer;border:2px solid '+(cur.variant===v.id?'var(--ink)':'transparent')+';text-align:center;background:var(--bg-2,#f0e9e0);transition:all .15s';
+        div.onclick = function() { ThemeSystem.set(null, v.id); renderThemeOptions(); };
+        var key = cur.family + '-' + v.id;
+        var t = ThemeSystem.THEMES && ThemeSystem.THEMES[key];
+        var preview = document.createElement('div');
+        preview.style.cssText = 'height:28px;border-radius:5px;margin-bottom:5px;background:'+(t?t.accent:'#888');
+        var name = document.createElement('div');
+        name.style.cssText = 'font-size:11px;font-weight:600;color:var(--ink)';
+        name.textContent = v.name;
+        var time = document.createElement('div');
+        time.style.cssText = 'font-size:9.5px;color:var(--text-faint,#a8a29e);margin-top:1px';
+        time.textContent = v.time;
+        div.appendChild(preview);
+        div.appendChild(name);
+        div.appendChild(time);
+        vg.appendChild(div);
+      });
+    }
+    
+    // All 30 themes grid
+    var ag = document.getElementById('all-themes-grid');
+    if (ag) {
+      ag.innerHTML = '';
+      
+      // Section: 30 standard themes
+      var secLabel = document.createElement('div');
+      secLabel.style.cssText = 'grid-column:1/-1;font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint,#a8a29e);padding:4px 0 6px;border-top:1px solid var(--border);margin-top:4px';
+      secLabel.textContent = '5 Families × 6 Variants';
+      ag.appendChild(secLabel);
+      
+      FAMILIES.forEach(function(f) {
+        VARIANTS.forEach(function(v) {
+          var key = f.id + '-' + v.id;
+          var t = ThemeSystem.THEMES && ThemeSystem.THEMES[key];
+          var isActive = curKey === key;
+          var div = document.createElement('div');
+          div.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+(isActive?'var(--ink)':'var(--border)')+';transition:all .15s';
+          div.onclick = function() { ThemeSystem.set(f.id, v.id); renderThemeOptions(); };
+          var top = document.createElement('div');
+          top.style.cssText = 'height:28px;background:'+(t?t.accent:'#888')+';display:flex;align-items:center;justify-content:center';
+          var dot = document.createElement('div');
+          dot.style.cssText = 'width:12px;height:12px;border-radius:50%;background:'+(t?t.bg:'#fff')+';border:1px solid rgba(0,0,0,.1)';
+          top.appendChild(dot);
+          var bottom = document.createElement('div');
+          bottom.style.cssText = 'padding:4px 6px;background:'+(t?t.bg:'#fff');
+          var fname = document.createElement('div');
+          fname.style.cssText = 'font-size:9.5px;font-weight:600;color:'+(t?t.ink:'#000');
+          fname.textContent = f.name;
+          var vname = document.createElement('div');
+          vname.style.cssText = 'font-size:8.5px;color:'+(t?t.accent:'#888');
+          vname.textContent = v.name;
+          bottom.appendChild(fname);
+          bottom.appendChild(vname);
+          div.appendChild(top);
+          div.appendChild(bottom);
+          ag.appendChild(div);
+        });
+      });
+      
+      // Section: Special themes
+      var specLabel = document.createElement('div');
+      specLabel.style.cssText = 'grid-column:1/-1;font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint,#a8a29e);padding:12px 0 6px;border-top:1px solid var(--border);margin-top:8px';
+      specLabel.textContent = 'Special Themes';
+      ag.appendChild(specLabel);
+      
+      SPECIAL.forEach(function(s) {
+        var isActive = (cur.special === s.id);
+        var div = document.createElement('div');
+        div.style.cssText = 'cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid '+(isActive?'var(--ink)':'var(--border)')+';transition:all .15s';
+        div.onclick = function() {
+          document.documentElement.setAttribute('data-theme', s.id);
+          localStorage.setItem('aurelia_theme', JSON.stringify({family:'special',variant:s.id,special:s.id}));
+          renderThemeOptions();
+          if (typeof Toast !== 'undefined') Toast.show('Theme: ' + s.name, 'success');
+        };
+        var top = document.createElement('div');
+        top.style.cssText = 'height:28px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff';
+        top.textContent = s.name;
+        var bottom = document.createElement('div');
+        bottom.style.cssText = 'padding:4px 6px;background:var(--bg,#f7f3e9)';
+        var desc = document.createElement('div');
+        desc.style.cssText = 'font-size:8.5px;color:var(--text-faint,#a8a29e)';
+        desc.textContent = s.desc;
+        bottom.appendChild(desc);
+        div.appendChild(top);
+        div.appendChild(bottom);
+        ag.appendChild(div);
+      });
+    }
   }
-
   function saveSocialSettings(){['bluesky-handle','bluesky-password','telegram-token','telegram-chat-id'].forEach(id=>{const el=document.getElementById(id);if(el)localStorage.setItem('aurelia_social_'+id,el.value);});Toast.show('Social settings saved','success');}
   function saveAllSettings(){saveAPIKeys();saveSocialSettings();Toast.show('All settings saved','success');}
   function regenerateToken(){const token='dt_'+Date.now()+'_'+Math.random().toString(36).slice(2,14);Auth.setToken(token,{name:'SJ',org:'Identity Partners'});document.getElementById('device-token-display').textContent=token.slice(0,24)+'…';Toast.show('Device token regenerated','success');}
