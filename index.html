@@ -1,561 +1,968 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="no-store, no-cache, must-revalidate" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<title>Aurelia — Home</title>
-<link href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='4' fill='%230f3b3a'/&gt;&lt;text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23faf8f5'&gt;A&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
-<link href="/shared/aurelia.css" rel="stylesheet"/>
-<style>
-    .home-hero {
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Home</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    /* ── Hero ── */
+    .hero {
       position: relative;
-      padding: 40px 32px 28px;
-      overflow: hidden;
       min-height: 220px;
+      background: linear-gradient(135deg, #0f3b3a 0%, #1a5554 50%, #5c2d3f 100%);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
+      padding: 24px 24px 20px;
+      flex-shrink: 0;
     }
-    .home-hero-bg {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0.25;
       transition: opacity 1s ease;
     }
-    .home-hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(247,243,233,0.1) 0%, rgba(247,243,233,0.85) 60%, rgba(247,243,233,0.98) 100%);
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(15,59,58,0.3) 0%, rgba(15,59,58,0.7) 100%);
     }
-    .home-hero-content { position: relative; z-index: 2; }
-    .home-greeting {
-      font-family: var(--font-serif);
-      font-size: 28px;
-      font-weight: 400;
-      color: var(--ink);
-      margin-bottom: 3px;
-      letter-spacing: 0.01em;
+    .hero-content { position: relative; z-index: 2; }
+    .hero-greeting {
+      font-family: var(--font-serif, Georgia);
+      font-size: 28px; font-weight: 400;
+      color: #fff;
+      letter-spacing: 0.02em;
+      margin-bottom: 2px;
     }
-    .home-date {
-      font-size: 12px;
-      color: var(--text-faint);
-      margin-bottom: 22px;
-      letter-spacing: 0.04em;
+    .hero-date { font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 16px; }
+    .hero-search {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 24px;
+      padding: 10px 16px;
+      max-width: 600px;
+      transition: all 0.2s;
     }
-    .new-chat-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--bg-2);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-xl);
-      padding: 11px 16px;
-      cursor: text;
-      transition: all var(--transition);
-      max-width: 680px;
-      box-shadow: var(--shadow-sm);
+    .hero-search:focus-within {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.4);
     }
-    .new-chat-bar:hover, .new-chat-bar:focus-within {
-      border-color: var(--ink-4);
-      background: var(--surface);
-      box-shadow: var(--shadow);
+    .hero-search input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #fff; font-size: 14px; font-family: var(--font, Inter);
     }
-    .new-chat-bar input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      color: var(--text-primary);
-      font-size: 13.5px;
-      font-family: var(--font-sans);
-    }
-    .new-chat-bar input::placeholder { color: var(--text-faint); }
-    .quick-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-    .quick-action {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      font-size: 11.5px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all var(--transition);
-      text-decoration: none;
-    }
-    .quick-action:hover {
-      border-color: var(--ink-5);
-      color: var(--ink);
-      background: var(--bg-2);
-    }
-    .stats-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .stat-item {
-      padding: 14px 20px;
-      border-right: 1px solid var(--border);
-      text-align: center;
-    }
-    .stat-item:last-child { border-right: none; }
-    .stat-value {
-      font-family: var(--font-serif);
-      font-size: 24px;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1;
-    }
-    .stat-label { font-size: 10px; color: var(--text-faint); margin-top: 3px; letter-spacing: 0.08em; text-transform: uppercase; }
-    .feed-container { flex: 1; overflow-y: auto; }
-    .feed-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      cursor: pointer;
-      transition: all var(--transition);
-      text-decoration: none;
-      display: block;
-    }
-    .feed-card:hover {
-      border-color: var(--ink-6);
-      box-shadow: var(--shadow);
-      transform: translateY(-1px);
-    }
-    .feed-card-icon {
-      width: 32px; height: 32px;
-      border-radius: var(--radius);
+    .hero-search input::placeholder { color: rgba(255,255,255,0.55); }
+    .hero-search-btn {
+      background: rgba(255,255,255,0.2); border: none;
+      border-radius: 50%; width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      margin-bottom: 10px;
-      background: var(--bg-2);
-      border: 1px solid var(--border);
+      cursor: pointer; color: #fff; font-size: 14px;
+      transition: background 0.15s;
     }
-    .feed-card-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .feed-card-preview { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .feed-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 11px; color: var(--text-faint); }
+    .hero-search-btn:hover { background: rgba(255,255,255,0.35); }
+    .hero-quick {
+      display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .hero-quick a {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 11.5px; color: rgba(255,255,255,0.85);
+      text-decoration: none; transition: all 0.15s;
+    }
+    .hero-quick a:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* ── Clock strip ── */
+    .clock-strip {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+    }
+    .clock-strip::-webkit-scrollbar { display: none; }
+    .clock-item {
+      padding: 8px 18px; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      min-width: 88px; flex-shrink: 0;
+    }
+    .clock-city { font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint, #a8a29e); }
+    .clock-time { font-size: 15px; font-weight: 500; color: var(--ink); font-family: var(--font-mono, monospace); font-variant-numeric: tabular-nums; }
+    .clock-date { font-size: 9px; color: var(--faint, #a8a29e); }
+
+    /* ── Main grid ── */
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+    .home-main { overflow-y: auto; padding: 16px 20px; }
+    .home-sidebar { border-left: 1px solid var(--border); overflow-y: auto; background: var(--surface); }
+
+    /* ── Section headers ── */
+    .sec-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px; margin-top: 18px;
+    }
+    .sec-hdr:first-child { margin-top: 0; }
+    .sec-title {
+      font-size: 10px; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--faint, #a8a29e);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sec-title::before { content: ''; width: 2px; height: 10px; background: var(--accent, #0f3b3a); border-radius: 1px; }
+    .sec-link { font-size: 11px; color: var(--accent, #0f3b3a); text-decoration: none; }
+    .sec-link:hover { text-decoration: underline; }
+
+    /* ── News cards ── */
+    .news-grid { display: flex; flex-direction: column; gap: 10px; }
+    .news-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      display: flex; gap: 0; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .news-card:hover { border-color: var(--ink-6, #d6d3d1); box-shadow: 0 2px 12px rgba(28,25,23,0.08); }
+    .news-img {
+      width: 100px; height: 80px; object-fit: cover; flex-shrink: 0;
+      background: var(--bg-3, #e8ddd4);
+    }
+    .news-img-placeholder {
+      width: 100px; height: 80px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--bg-2, #f0e9e0), var(--bg-3, #e8ddd4));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--faint, #a8a29e);
+    }
+    .news-body { padding: 10px 12px; flex: 1; min-width: 0; }
+    .news-source { font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent, #0f3b3a); margin-bottom: 3px; }
+    .news-title { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.4; margin-bottom: 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .news-desc { font-size: 11.5px; color: var(--muted, #78716c); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .news-meta { font-size: 10px; color: var(--faint, #a8a29e); margin-top: 4px; }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .stat-item { padding: 12px 16px; border-right: 1px solid var(--border); text-align: center; }
+    .stat-item:last-child { border-right: none; }
+    .stat-val { font-family: var(--font-serif, Georgia); font-size: 22px; font-weight: 400; color: var(--ink); line-height: 1; }
+    .stat-lbl { font-size: 9.5px; color: var(--faint, #a8a29e); margin-top: 2px; letter-spacing: .06em; text-transform: uppercase; }
+
+    /* ── Sidebar panels ── */
+    .sb-panel { border-bottom: 1px solid var(--border); padding: 14px 16px; }
+    .sb-panel-title { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--faint, #a8a29e); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .sb-panel-link { font-size: 10px; color: var(--accent, #0f3b3a); text-decoration: none; }
+
+    /* ── Inbox items ── */
+    .inbox-item { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .inbox-item:last-child { border-bottom: none; }
+    .inbox-av { width: 28px; height: 28px; border-radius: 50%; background: var(--accent, #0f3b3a); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .inbox-body { flex: 1; min-width: 0; }
+    .inbox-from { font-size: 12px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .inbox-subject { font-size: 11px; color: var(--muted, #78716c); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .inbox-time { font-size: 10px; color: var(--faint, #a8a29e); flex-shrink: 0; }
+
+    /* ── Calendar ── */
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-day-hdr { font-size: 9px; font-weight: 600; text-align: center; color: var(--faint, #a8a29e); padding: 2px 0; }
+    .cal-day { font-size: 11px; text-align: center; padding: 4px 2px; border-radius: 4px; cursor: pointer; color: var(--ink); transition: background 0.12s; }
+    .cal-day:hover { background: var(--bg-2, #f0e9e0); }
+    .cal-day.today { background: var(--accent, #0f3b3a); color: #fff; font-weight: 600; }
+    .cal-day.other-month { color: var(--faint, #a8a29e); }
+    .cal-day.has-event { position: relative; }
+    .cal-day.has-event::after { content: ''; position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent, #0f3b3a); }
+
+    /* ── Social feed ── */
+    .social-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .social-item:last-child { border-bottom: none; }
+    .social-platform { font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--faint, #a8a29e); margin-bottom: 2px; }
+    .social-text { font-size: 12px; color: var(--ink); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .social-meta { font-size: 10px; color: var(--faint, #a8a29e); margin-top: 3px; }
+
+    /* ── Media player ── */
+    .media-player { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .media-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+    .media-tab { padding: 3px 10px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid var(--border); color: var(--muted, #78716c); background: none; font-family: var(--font, Inter); transition: all 0.12s; }
+    .media-tab.on { background: var(--accent, #0f3b3a); color: #fff; border-color: var(--accent, #0f3b3a); }
+    .media-embed { border-radius: 8px; overflow: hidden; }
+    .media-quick { display: flex; flex-direction: column; gap: 5px; }
+    .media-quick-btn { background: var(--bg-2, #f0e9e0); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 11.5px; color: var(--ink); cursor: pointer; text-align: left; font-family: var(--font, Inter); transition: all 0.12s; display: flex; align-items: center; gap: 6px; }
+    .media-quick-btn:hover { background: var(--bg-3, #e8ddd4); }
+
+    /* ── Atmosphere ── */
+    .atm-strip {
+      background: var(--bg-2, #f0e9e0); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px; padding: 7px 16px;
+      flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .atm-strip::-webkit-scrollbar { display: none; }
+    .atm-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11.5px; color: var(--muted, #78716c); cursor: pointer; white-space: nowrap; transition: all 0.12s; font-family: var(--font, Inter); }
+    .atm-btn:hover { border-color: var(--ink-5, #a8a29e); color: var(--ink); }
+    .atm-btn.on { background: var(--accent3, rgba(15,59,58,0.08)); border-color: var(--accent, #0f3b3a); color: var(--accent, #0f3b3a); }
+
+    /* ── Feed cards ── */
+    .feed-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px; cursor: pointer; transition: all 0.15s; text-decoration: none; display: block; margin-bottom: 8px; }
+    .feed-card:hover { border-color: var(--ink-6, #d6d3d1); box-shadow: 0 2px 8px rgba(28,25,23,0.06); }
+    .feed-card-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed-card-sub { font-size: 11.5px; color: var(--muted, #78716c); }
+    .feed-card-meta { font-size: 10.5px; color: var(--faint, #a8a29e); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+
+    @media (max-width: 900px) {
+      .home-grid { grid-template-columns: 1fr; }
+      .home-sidebar { display: none; }
+    }
   </style>
 </head>
 <body>
 <div class="app-shell">
-<!-- Sidebar -->
-<nav class="sidebar" id="sidebar">
-<div class="sidebar-logo" style="cursor:pointer" onclick="window.location.href='/index.html'" title="Home">
-<div class="logo-mark" style="background:var(--ip-deep-teal);overflow:hidden;padding:0">
-<img src="/brand/logo-square.png" alt="IP" style="width:100%;height:100%;object-fit:cover">
-</div>
-<span class="logo-text" style="color:var(--ip-deep-rose)">Identity Partners</span>
-</div>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
     <div class="sidebar-nav">
-      <a href="/index.html" class="nav-item" data-page="home"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
-      <a href="/chat/index.html" class="nav-item" data-page="chat"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
-      <a href="/research/index.html" class="nav-item" data-page="research"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
-      <a href="/drafting/index.html" class="nav-item" data-page="drafting"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+      <a href="/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
       <div class="nav-section-label">Create</div>
-      <a href="/creator/index.html" class="nav-item" data-page="creator"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
-      <a href="/creator/canvas.html" class="nav-item nav-sub" data-page="canvas"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span class="nav-label">Canvas</span></a>
-      <a href="/social/index.html" class="nav-item" data-page="social"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
       <div class="nav-section-label">Business</div>
-      <a href="/crm/index.html" class="nav-item" data-page="crm"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span class="nav-label">CRM</span></a>
-      <a href="/monetisation/index.html" class="nav-item" data-page="monetisation"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
-      <a href="/monetisation/platforms.html" class="nav-item nav-sub" data-page="platforms"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
-      <a href="/comms/index.html" class="nav-item" data-page="comms"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Comms Centre</span></a>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item nav-sub"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Comms Centre</span></a>
       <div class="nav-section-label">Intelligence</div>
-      <a href="/workflow/index.html" class="nav-item" data-page="workflow"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
-      <a href="/agenti-city/index.html" class="nav-item" data-page="agenti-city"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span class="nav-label">Agenti City</span></a>
-      <a href="/orchestrator/index.html" class="nav-item" data-page="orchestrator"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
-      <a href="/agents/index.html" class="nav-item" data-page="agents"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agent Builder</span></a>
-      <a href="/platform-agent/index.html" class="nav-item" data-page="platform-agent"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg><span class="nav-label">Platform Agent</span></a>
+      <a href="/agenti-city/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <a href="/workflow/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
       <div class="nav-section-label">System</div>
-      <a href="/workspaces/index.html" class="nav-item" data-page="workspaces"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="nav-label">Workspaces</span></a>
-      <a href="/input/index.html" class="nav-item" data-page="input"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg><span class="nav-label">Input Engine</span></a>
-      <a href="/annotate/index.html" class="nav-item" data-page="annotate"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span class="nav-label">Annotations</span></a>
-      <a href="/storage/index.html" class="nav-item" data-page="storage"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg><span class="nav-label">Storage</span></a>
-      <a href="/audit/index.html" class="nav-item" data-page="audit"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="nav-label">Audit Log</span></a>
-      <a href="/settings/index.html" class="nav-item" data-page="settings"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/profile/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">My Profile</span></a>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/dev-team/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Dev Team</span></a>
     </div>
     <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
-</nav>
-<!-- Main -->
-<div class="main-content" id="main-content">
-<!-- World Clocks -->
-<div class="clock-strip" id="world-clocks"></div>
-<!-- Atmosphere -->
-<div class="atmosphere-strip">
-<div id="pomodoro-container"></div>
-<div class="atm-tile" data-audio="white-noise" onclick="AudioAmbience.toggle('white-noise')">○ White Noise</div>
-<div class="atm-tile" data-audio="nature" onclick="AudioAmbience.toggle('nature')">◎ Nature</div>
-<div class="atm-tile" data-audio="lofi" onclick="AudioAmbience.toggle('lofi')">♩ Lo-Fi</div>
-<div class="atm-tile" id="atm-music-btn" onclick="toggleMusicPanel()">♫ Music</div>
-<div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-<div id="model-selector-container"></div>
-<button class="btn btn-ghost btn-sm" onclick="ThemeSystem.cycle()" title="Cycle theme">◈ Theme</button>
-<a class="btn btn-ghost btn-sm" href="/input/index.html" title="Input Engine">✍</a>
-</div>
-</div>
-<!-- Atmosphere / Music Panel (§2.10) -->
-<div id="music-panel" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)">Atmosphere — Music</span>
-    <button onclick="toggleMusicPanel()" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:14px">✕</button>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-    <!-- Spotify -->
-    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="width:28px;height:28px;border-radius:50%;background:#1DB954;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">♫</div>
-        <span style="font-size:13px;font-weight:500;color:var(--ink)">Spotify</span>
-      </div>
-      <input class="input" id="spotify-url" placeholder="Paste Spotify URL…" style="font-size:12px;margin-bottom:8px">
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DX4sWSpwq3LiO')">Peaceful Piano</button>
-        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DWZeKCadgRdKQ')">Deep Focus</button>
-        <button class="btn btn-ghost btn-sm" onclick="embedSpotifyQuick('37i9dQZF1DX3Ogo9pFvBkY')">Ambient Chill</button>
-      </div>
-      <button class="btn btn-primary btn-sm w-full" onclick="embedSpotify()">Embed</button>
-      <div id="spotify-embed-container" style="margin-top:8px"></div>
-    </div>
-    <!-- YouTube -->
-    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="width:28px;height:28px;border-radius:50%;background:#FF0000;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">▶</div>
-        <span style="font-size:13px;font-weight:500;color:var(--ink)">YouTube</span>
-      </div>
-      <input class="input" id="youtube-url" placeholder="Paste YouTube URL…" style="font-size:12px;margin-bottom:8px">
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('jfKfPfyJRdk')">Lo-Fi Hip Hop</button>
-        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('5qap5aO4i9A')">Chillhop</button>
-        <button class="btn btn-ghost btn-sm" onclick="embedYouTubeQuick('DWcJFNfaw9c')">Study Music</button>
-      </div>
-      <button class="btn btn-primary btn-sm w-full" onclick="embedYouTube()">Embed</button>
-      <div id="youtube-embed-container" style="margin-top:8px"></div>
-    </div>
-    <!-- White noise / ambient -->
-    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--ip-deep-teal,#0f3b3a);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff">○</div>
-        <span style="font-size:13px;font-weight:500;color:var(--ink)">Ambient</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="atm-tile w-full" data-audio="white-noise" onclick="AudioAmbience.toggle('white-noise')" style="justify-content:flex-start">○ White Noise</button>
-        <button class="atm-tile w-full" data-audio="nature" onclick="AudioAmbience.toggle('nature')" style="justify-content:flex-start">◎ Nature Sounds</button>
-        <button class="atm-tile w-full" data-audio="lofi" onclick="AudioAmbience.toggle('lofi')" style="justify-content:flex-start">♩ Lo-Fi Beats</button>
-        <button class="atm-tile w-full" onclick="AudioAmbience.stop()" style="justify-content:flex-start;color:var(--crimson)">✕ Stop All</button>
+  </nav>
+
+  <div class="main-content" id="main-content" style="display:flex;flex-direction:column;overflow:hidden">
+
+    <!-- Hero with background image -->
+    <div class="hero" id="hero">
+      <div class="hero-bg" id="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-greeting">Good <span id="greeting">day</span>, SJ</div>
+        <div class="hero-date" id="hero-date"></div>
+        <div class="hero-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <input id="hero-input" placeholder="New chat, research, draft, or task..." autocomplete="off">
+          <button class="hero-search-btn" onclick="startChat()">&#10148;</button>
+        </div>
+        <div class="hero-quick">
+          <a href="/drafting/index.html">✦ Draft</a>
+          <a href="/research/index.html">◎ Research</a>
+          <a href="/creator/index.html">◈ Create</a>
+          <a href="/crm/index.html">◉ CRM</a>
+          <a href="/monetisation/platforms.html">⊞ Platforms</a>
+          <a href="/agenti-city/index.html">⚡ Agents</a>
+          <a href="/profile/index.html">👤 My Profile</a>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<!-- Hero -->
-<div class="home-hero">
-<div class="home-greeting">Good <span id="greeting-time">day</span>, <span id="greeting-name">SJ</span></div>
-<div class="home-date" id="today-date"></div>
-<div class="new-chat-bar" onclick="document.getElementById('new-chat-input').focus()">
-<svg fill="none" height="15" stroke="var(--text-faint)" stroke-width="1.5" viewbox="0 0 24 24" width="15"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
-<input autocomplete="off" id="new-chat-input" placeholder="Begin a conversation, start a task, or describe a goal…"/>
-<button class="btn btn-primary btn-sm" onclick="startNewChat()">
-<svg fill="none" height="13" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="13"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-</button>
-</div>
-<div class="quick-actions">
-<a class="quick-action" href="/drafting/index.html">✦ New Draft</a>
-<a class="quick-action" href="/research/index.html">◎ New Research</a>
-<a class="quick-action" href="/creator/index.html">◈ Creator Studio</a>
-<a class="quick-action" href="/crm/index.html">◉ New Contact</a>
-<a class="quick-action" href="/monetisation/platforms.html">⊞ Platforms</a>
-<a class="quick-action" href="/platform-agent/index.html" style="background:var(--ip-deep-teal,#0f3b3a);color:#f7f3e9;border-color:var(--ip-deep-teal,#0f3b3a)">▶ Platform Agent</a>
-<a class="quick-action" href="/agenti-city/index.html" style="background:var(--ip-deep-rose,#5c2d3f);color:#f7f3e9;border-color:var(--ip-deep-rose,#5c2d3f)">⊕ Agenti City</a>
-<a class="quick-action" href="/orchestrator/index.html" style="background:var(--bg-3);color:var(--ink)">◎ Orchestrator</a>
-</div>
-</div>
-<!-- Stats -->
-<div class="stats-strip">
-<div class="stat-item"><div class="stat-value" id="stat-chats">0</div><div class="stat-label">Chats</div></div>
-<div class="stat-item"><div class="stat-value" id="stat-drafts">0</div><div class="stat-label">Drafts</div></div>
-<div class="stat-item"><div class="stat-value" id="stat-research">0</div><div class="stat-label">Research Runs</div></div>
-<div class="stat-item"><div class="stat-value" id="stat-contacts">0</div><div class="stat-label">Contacts</div></div>
-</div>
-<!-- Feed -->
-<div class="section-header">
-<span class="section-header-title">Recent Chats</span>
-<a class="section-view-all" href="/chat/index.html">View all →</a>
-</div>
-<div class="feed-grid" id="feed-chats">
-<a class="feed-card fade-in" href="/chat/index.html">
-<div class="feed-card-icon">◎</div>
-<div class="feed-card-title">Begin your first conversation</div>
-<div class="feed-card-preview">Multi-model routing across Cerebras, Groq, DeepSeek, Gemini, NVIDIA and 10+ providers.</div>
-<div class="feed-card-footer"><span>Chat</span><span class="tag tag-ink">New</span></div>
-</a>
-</div>
-<div class="section-header">
-<span class="section-header-title">Recent Drafts</span>
-<a class="section-view-all" href="/drafting/index.html">View all →</a>
-</div>
-<div class="feed-grid" id="feed-drafts">
-<a class="feed-card fade-in" href="/drafting/index.html">
-<div class="feed-card-icon">✦</div>
-<div class="feed-card-title">Open Drafting Desk</div>
-<div class="feed-card-preview">Longform drafting with handwriting capture, dictation and AI atomisation.</div>
-<div class="feed-card-footer"><span>Drafting</span><span class="tag">Surface-first</span></div>
-</a>
-</div>
-<div class="section-header">
-<span class="section-header-title">Monetisation</span>
-<a class="section-view-all" href="/monetisation/index.html">View all →</a>
-</div>
-<div class="feed-grid" id="feed-monetisation">
-<a class="feed-card fade-in" href="/monetisation/platforms.html">
-<div class="feed-card-icon">⊞</div>
-<div class="feed-card-title">Platform Manager</div>
-<div class="feed-card-preview">150 Anglophone platforms tracked and ready. Fiverr, Bark, Premium.Chat, Topmate and more — all active.</div>
-<div class="feed-card-footer"><span>Monetisation</span><span class="tag tag-gold">150 platforms</span></div>
-</a>
-<a class="feed-card fade-in" href="/monetisation/index.html">
-<div class="feed-card-icon">◈</div>
-<div class="feed-card-title">Monetisation Station</div>
-<div class="feed-card-preview">Offers, memberships, programmes and revenue funnels for Identity Partners.</div>
-<div class="feed-card-footer"><span>Revenue</span><span class="tag tag-sage">Active</span></div>
-</a>
-</div>
-<div style="height:48px"></div>
-<!-- News Feed (§4) -->
-<div style="padding:0 20px 8px;display:flex;align-items:center;justify-content:space-between">
-<span style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);display:flex;align-items:center;gap:8px"><span style="width:2px;height:10px;background:var(--accent);border-radius:1px;display:inline-block"></span>News & Intelligence</span>
-<button class="btn btn-ghost btn-sm" onclick="refreshNews()" style="font-size:11px">↻ Refresh</button>
-</div>
-<div class="feed-grid" id="feed-news">
-<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center" id="news-placeholder">
-Configure TAVILY_API_KEY in Settings to enable live news. Quick searches:
-<div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:8px">
-<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('AI coaching identity development 2026')">AI & Coaching</button>
-<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('neurodivergent ADHD support UK')">Neurodivergent</button>
-<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('online coaching platforms UK 2026')">Coaching Platforms</button>
-<button class="btn btn-ghost btn-sm" onclick="loadNewsQuery('identity wellbeing sobriety support')">Wellbeing</button>
-</div>
-</div>
-</div>
-<div style="height:48px"></div>
-</div>
-</div>
-<script src="/shared/aurelia.js"></script>
-<script>
-  // Time-of-day hero background images (Unsplash curated)
-  const TIME_BACKGROUNDS = {
-    dawn:     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80', // misty dawn
-    morn:     'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80', // morning light
-    noon:     'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600&q=80', // bright day
-    arvo:     'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1600&q=80', // afternoon
-    dusk:     'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1600&q=80', // dusk
-    midnight: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80', // night stars
-  };
 
-  const h = new Date().getHours();
-  let timeKey = 'midnight';
-  if (h >= 5 && h < 8) timeKey = 'dawn';
-  else if (h >= 8 && h < 12) timeKey = 'morn';
-  else if (h >= 12 && h < 15) timeKey = 'noon';
-  else if (h >= 15 && h < 18) timeKey = 'arvo';
-  else if (h >= 18 && h < 21) timeKey = 'dusk';
+    <!-- Clock strip -->
+    <div class="clock-strip" id="world-clocks"></div>
 
-  // Set hero background
-  const heroBg = document.getElementById('hero-bg');
-  if (heroBg) {
-    heroBg.style.backgroundImage = `url('${TIME_BACKGROUNDS[timeKey]}')`;
-  }
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="stat-item"><div class="stat-val" id="stat-chats">0</div><div class="stat-lbl">Chats</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-drafts">0</div><div class="stat-lbl">Drafts</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-contacts">0</div><div class="stat-lbl">Contacts</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-platforms">0</div><div class="stat-lbl">Active Platforms</div></div>
+    </div>
 
-  const greetEl = document.getElementById('greeting-time');
-  if (greetEl) {
-    if (h >= 5 && h < 12) greetEl.textContent = 'morning';
-    else if (h >= 12 && h < 17) greetEl.textContent = 'afternoon';
-    else greetEl.textContent = 'evening';
-  }
-  const dateEl = document.getElementById('today-date');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    <!-- Atmosphere strip -->
+    <div class="atm-strip">
+      <button class="atm-btn" onclick="AudioAmbience.toggle('white-noise')" id="atm-wn">○ White Noise</button>
+      <button class="atm-btn" onclick="AudioAmbience.toggle('nature')" id="atm-nat">◎ Nature</button>
+      <button class="atm-btn" onclick="AudioAmbience.toggle('lofi')" id="atm-lofi">♩ Lo-Fi</button>
+      <button class="atm-btn" onclick="openMediaPanel('spotify')" id="atm-spotify">♫ Spotify</button>
+      <button class="atm-btn" onclick="openMediaPanel('youtube')" id="atm-yt">▶ YouTube</button>
+      <button class="atm-btn" onclick="openMediaPanel('iplayer')" id="atm-ip">📺 iPlayer</button>
+      <button class="atm-btn" onclick="openMediaPanel('global')" id="atm-gp">📻 Global Player</button>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <div id="model-selector-container"></div>
+        <button class="atm-btn" onclick="ThemeSystem.cycle()">◈ Theme</button>
+        <button class="atm-btn" onclick="changeBg()">🖼 BG</button>
+      </div>
+    </div>
 
-  // Multi-user: show current user name
-  const user = Auth.getUser();
-  const userName = user?.name || 'SJ';
-  const greetNameEl = document.getElementById('greeting-name');
-  if (greetNameEl) greetNameEl.textContent = userName;
+    <!-- Media panel (hidden by default) -->
+    <div id="media-panel" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="media-tabs">
+          <button class="media-tab on" onclick="switchMedia('spotify',this)">Spotify</button>
+          <button class="media-tab" onclick="switchMedia('youtube',this)">YouTube</button>
+          <button class="media-tab" onclick="switchMedia('iplayer',this)">iPlayer</button>
+          <button class="media-tab" onclick="switchMedia('global',this)">Global Player</button>
+          <button class="media-tab" onclick="switchMedia('amazon',this)">Amazon Music</button>
+        </div>
+        <button onclick="document.getElementById('media-panel').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--faint,#a8a29e);font-size:16px">✕</button>
+      </div>
+      <div id="media-content">
+        <div class="media-quick">
+          <button class="media-quick-btn" onclick="embedSpotify('37i9dQZF1DX4sWSpwq3LiO')">♫ Peaceful Piano</button>
+          <button class="media-quick-btn" onclick="embedSpotify('37i9dQZF1DWZeKCadgRdKQ')">♫ Deep Focus</button>
+          <button class="media-quick-btn" onclick="embedSpotify('37i9dQZF1DX3Ogo9pFvBkY')">♫ Ambient Chill</button>
+          <button class="media-quick-btn" onclick="embedYouTube('jfKfPfyJRdk')">▶ Lo-Fi Hip Hop (YouTube)</button>
+          <button class="media-quick-btn" onclick="window.open('https://www.bbc.co.uk/iplayer','_blank')">📺 BBC iPlayer</button>
+          <button class="media-quick-btn" onclick="window.open('https://www.globalplayer.com','_blank')">📻 Global Player</button>
+          <button class="media-quick-btn" onclick="window.open('https://music.amazon.co.uk','_blank')">♪ Amazon Music</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input class="input" id="media-url-input" placeholder="Paste Spotify/YouTube URL..." style="flex:1;font-size:12px">
+          <button class="btn btn-primary btn-sm" onclick="embedFromUrl()">Embed</button>
+        </div>
+        <div id="media-embed-container" style="margin-top:10px"></div>
+      </div>
+    </div>
 
-  function loadStats() {
-    const chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
-    const drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]');
-    const research = JSON.parse(localStorage.getItem('aurelia_research') || '[]');
-    const contacts = JSON.parse(localStorage.getItem('aurelia_contacts') || '[]');
-    document.getElementById('stat-chats').textContent = chats.length;
-    document.getElementById('stat-drafts').textContent = drafts.length;
-    document.getElementById('stat-research').textContent = research.length;
-    document.getElementById('stat-contacts').textContent = contacts.length;
-    const badge = document.getElementById('nav-chat-badge');
-    if (chats.length > 0) { badge.textContent = chats.length; badge.style.display = ''; }
-  }
-  loadStats();
+    <!-- Main content grid -->
+    <div class="home-grid" style="flex:1;overflow:hidden">
 
-  function startNewChat() {
-    const input = document.getElementById('new-chat-input');
-    const q = input ? input.value.trim() : '';
-    if (q) sessionStorage.setItem('aurelia_new_chat_query', q);
-    window.location.href = '/chat/index.html';
-  }
-  document.getElementById('new-chat-input')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startNewChat(); }
-  });
+      <!-- Left: main feed -->
+      <div class="home-main">
 
-  // ── Atmosphere / Music Panel (§2.10) ──────────────────────────────────────
-  function toggleMusicPanel() {
-    const panel = document.getElementById('music-panel');
-    const btn = document.getElementById('atm-music-btn');
-    const visible = panel.style.display !== 'none';
-    panel.style.display = visible ? 'none' : 'block';
-    if (btn) btn.classList.toggle('active', !visible);
-  }
-
-  function embedSpotify() {
-    const url = document.getElementById('spotify-url').value.trim();
-    if (!url) return;
-    embedSpotifyFromUrl(url);
-  }
-
-  function embedSpotifyQuick(playlistId) {
-    embedSpotifyFromUrl(`https://open.spotify.com/playlist/${playlistId}`);
-  }
-
-  function embedSpotifyFromUrl(url) {
-    // Convert Spotify URL to embed format
-    let embedUrl = url
-      .replace('open.spotify.com/', 'open.spotify.com/embed/')
-      .replace('/playlist/', '/embed/playlist/')
-      .replace('/track/', '/embed/track/')
-      .replace('/album/', '/embed/album/');
-    if (!embedUrl.includes('/embed/')) {
-      embedUrl = url.replace('open.spotify.com/', 'open.spotify.com/embed/');
-    }
-    const container = document.getElementById('spotify-embed-container');
-    container.innerHTML = `<iframe 
-      src="${embedUrl}?utm_source=generator&theme=0" 
-      width="100%" height="152" frameborder="0" 
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-      loading="lazy"
-      style="border-radius:8px;border:none"></iframe>`;
-  }
-
-  function embedYouTube() {
-    const url = document.getElementById('youtube-url').value.trim();
-    if (!url) return;
-    const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-    if (match) embedYouTubeQuick(match[1]);
-    else Toast.show('Could not parse YouTube URL', 'error');
-  }
-
-  function embedYouTubeQuick(videoId) {
-    const container = document.getElementById('youtube-embed-container');
-    container.innerHTML = `<iframe 
-      width="100%" height="120" 
-      src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0" 
-      frameborder="0" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-      allowfullscreen
-      style="border-radius:8px"></iframe>`;
-  }
-
-  function openMusic(url) { window.open(url, '_blank', 'noopener'); }
-
-  function loadFeed() {
-    const chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]').slice(-3).reverse();
-    const feedChats = document.getElementById('feed-chats');
-    if (chats.length && feedChats) {
-      feedChats.innerHTML = chats.map(c => `
-        <a href="/chat/index.html?id=${c.id}" class="feed-card fade-in">
-          <div class="feed-card-icon">◎</div>
-          <div class="feed-card-title">${escHtml(c.title || 'Untitled Chat')}</div>
-          <div class="feed-card-preview">${escHtml((c.preview || '').slice(0,100))}</div>
-          <div class="feed-card-footer"><span>${escHtml(c.model || 'AI')}</span><span>${timeAgo(c.ts)}</span></div>
-        </a>`).join('');
-    }
-    const drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]').slice(-3).reverse();
-    const feedDrafts = document.getElementById('feed-drafts');
-    if (drafts.length && feedDrafts) {
-      feedDrafts.innerHTML = drafts.map(d => `
-        <a href="/drafting/index.html" class="feed-card fade-in">
-          <div class="feed-card-icon">✦</div>
-          <div class="feed-card-title">${escHtml(d.title || 'Untitled Draft')}</div>
-          <div class="feed-card-preview">${escHtml((d.body || '').slice(0,100))}</div>
-          <div class="feed-card-footer"><span>${wordCount(d.body)} words</span><span>${timeAgo(d.ts)}</span></div>
-        </a>`).join('');
-    }
-  }
-  loadFeed();
-
-  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function timeAgo(ts) { if(!ts) return ''; const d=Date.now()-ts; if(d<60000) return 'just now'; if(d<3600000) return Math.floor(d/60000)+'m ago'; if(d<86400000) return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago'; }
-  function wordCount(t) { return t ? t.trim().split(/\s+/).filter(Boolean).length : 0; }
-  // News feed (§4)
-  async function loadNewsQuery(q) {
-    const grid = document.getElementById('feed-news');
-    const placeholder = document.getElementById('news-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
-    grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">Searching: ${escHtml(q)}…</div>`;
-    try {
-      const token = Auth.getToken();
-      const res = await fetch('/api/research?_lct=' + Date.now(), {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Cache-Control':'no-store'},
-        body:JSON.stringify({query:q,sources:['tavily','brave']})
-      });
-      const data = await res.json();
-      const results = data.results || [];
-      if (!results.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">No results — configure TAVILY_API_KEY in Settings → Key Ingester.</div>`;
-        return;
-      }
-      // Render with images using Unsplash for visual interest
-      const unsplashKey = localStorage.getItem('aurelia_key_UNSPLASH_API_KEY');
-      grid.innerHTML = results.slice(0,6).map((r, i) => {
-        // Use a relevant background image based on query keywords
-        const imgKeywords = q.split(' ').slice(0,2).join('+');
-        const imgUrl = unsplashKey 
-          ? `https://source.unsplash.com/400x200/?${encodeURIComponent(imgKeywords)}&sig=${i}`
-          : `https://images.unsplash.com/photo-${['1506905925346-21bda4d32df4','1470252649378-9c29740c9fa8','1500534314209-a25ddb2bd429','1504701954957-2010ec3bcec1','1495616811223-4d98c6e9c869','1419242902214-272b3f66ee7a'][i % 6]}?w=400&q=60`;
-        return `<a href="${escHtml(r.url||'#')}" target="_blank" class="feed-card fade-in" style="text-decoration:none;display:block">
-          <div style="height:100px;background:var(--bg-3);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;position:relative">
-            <img src="${imgUrl}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.7" loading="lazy" onerror="this.style.display='none'">
-            <div style="position:absolute;bottom:4px;right:6px"><span class="tag" style="font-size:9.5px;background:rgba(247,243,233,0.9)">${escHtml(r.source||'news')}</span></div>
+        <!-- News feed -->
+        <div class="sec-hdr">
+          <span class="sec-title">News & Intelligence</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="news-category" class="input" style="font-size:11px;padding:3px 8px;max-width:140px" onchange="loadNews()">
+              <option value="general">General</option>
+              <option value="ai">AI & Technology</option>
+              <option value="psychology">Psychology & Sociology</option>
+              <option value="coaching">Coaching & Wellbeing</option>
+              <option value="neurodivergent">Neurodivergent</option>
+              <option value="uk">UK News</option>
+              <option value="world">World News</option>
+            </select>
+            <a href="/research/index.html" class="sec-link">Research →</a>
           </div>
-          <div class="feed-card-title">${escHtml((r.title||'').slice(0,60))}</div>
-          <div class="feed-card-preview">${escHtml((r.snippet||'').slice(0,100))}</div>
-          <div class="feed-card-footer"><span style="font-size:10px;color:var(--text-faint)">↗ Read more</span></div>
-        </a>`;
-      }).join('');
-    } catch(e) {
-      grid.innerHTML = `<div style="grid-column:1/-1;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">News requires API keys. Configure TAVILY_API_KEY in Settings → Key Ingester.</div>`;
-    }
-  }
+        </div>
+        <div id="news-feed" class="news-grid">
+          <div style="text-align:center;padding:20px;color:var(--faint,#a8a29e);font-size:13px">Loading news...</div>
+        </div>
 
-  function refreshNews() { loadNewsQuery('AI coaching identity development wellbeing 2026'); }
+        <!-- Recent chats -->
+        <div class="sec-hdr" style="margin-top:20px">
+          <span class="sec-title">Recent Chats</span>
+          <a href="/chat/index.html" class="sec-link">All chats →</a>
+        </div>
+        <div id="feed-chats">
+          <a href="/chat/index.html" class="feed-card">
+            <div class="feed-card-title">Start a new conversation</div>
+            <div class="feed-card-sub">Multi-model AI — Gemma 4, GPT-OSS, DeepSeek, Gemini and more</div>
+            <div class="feed-card-meta"><span class="tag">Chat</span><span class="tag tag-gold">New</span></div>
+          </a>
+        </div>
 
-  // Auto-load news on page load if API key exists
-  document.addEventListener('DOMContentLoaded', () => {
-    const hasKey = localStorage.getItem('aurelia_key_TAVILY_API_KEY') || localStorage.getItem('aurelia_key_BRAVE_API_KEY');
-    if (hasKey) setTimeout(() => loadNewsQuery('AI coaching identity development 2026'), 1000);
-  });
+        <!-- Recent drafts -->
+        <div class="sec-hdr">
+          <span class="sec-title">Recent Drafts</span>
+          <a href="/drafting/index.html" class="sec-link">All drafts →</a>
+        </div>
+        <div id="feed-drafts">
+          <a href="/drafting/index.html" class="feed-card">
+            <div class="feed-card-title">Open Drafting Desk</div>
+            <div class="feed-card-sub">Handwriting, dictation, QuillJS rich text, AI atomisation</div>
+            <div class="feed-card-meta"><span class="tag">Drafting</span></div>
+          </a>
+        </div>
 
-</script>
+        <!-- Platform highlights -->
+        <div class="sec-hdr">
+          <span class="sec-title">Platform Highlights</span>
+          <a href="/monetisation/platforms.html" class="sec-link">All 150 →</a>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <a href="/monetisation/platforms.html" class="feed-card">
+            <div class="feed-card-title">⊞ Platform Manager</div>
+            <div class="feed-card-sub">150 platforms tracked. Tier 1 ready to deploy.</div>
+            <div class="feed-card-meta"><span class="tag tag-gold">150 platforms</span></div>
+          </a>
+          <a href="/monetisation/index.html" class="feed-card">
+            <div class="feed-card-title">💰 Monetisation Station</div>
+            <div class="feed-card-sub">Offers, memberships, programmes, funnels</div>
+            <div class="feed-card-meta"><span class="tag tag-sage">Active</span></div>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Right sidebar -->
+      <div class="home-sidebar">
+
+        <!-- Media player -->
+        <div class="media-player">
+          <div class="sb-panel-title">
+            Media
+            <button onclick="openMediaPanel('spotify')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--accent,#0f3b3a)">Open ↗</button>
+          </div>
+          <div class="media-quick">
+            <button class="media-quick-btn" onclick="embedSpotify('37i9dQZF1DX4sWSpwq3LiO')">♫ Peaceful Piano</button>
+            <button class="media-quick-btn" onclick="embedSpotify('37i9dQZF1DWZeKCadgRdKQ')">♫ Deep Focus</button>
+            <button class="media-quick-btn" onclick="embedYouTube('jfKfPfyJRdk')">▶ Lo-Fi (YouTube)</button>
+            <button class="media-quick-btn" onclick="window.open('https://www.bbc.co.uk/iplayer','_blank')">📺 BBC iPlayer</button>
+            <button class="media-quick-btn" onclick="window.open('https://www.globalplayer.com','_blank')">📻 Global Player</button>
+          </div>
+          <div id="sb-media-embed" style="margin-top:8px"></div>
+        </div>
+
+        <!-- Mini calendar -->
+        <div class="sb-panel">
+          <div class="sb-panel-title">
+            Calendar
+            <a href="/comms/index.html" class="sb-panel-link">Full →</a>
+          </div>
+          <div id="mini-calendar"></div>
+          <div id="upcoming-events" style="margin-top:10px"></div>
+        </div>
+
+        <!-- Inbox preview -->
+        <div class="sb-panel">
+          <div class="sb-panel-title">
+            Inbox
+            <a href="/comms/index.html" class="sb-panel-link">Open →</a>
+          </div>
+          <div id="inbox-preview">
+            <div style="font-size:12px;color:var(--faint,#a8a29e);text-align:center;padding:12px 0">
+              Connect email in Comms Centre to see inbox here.
+              <br><a href="/comms/index.html" style="color:var(--accent,#0f3b3a);font-size:11px">Set up →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social feed preview -->
+        <div class="sb-panel">
+          <div class="sb-panel-title">
+            Social Queue
+            <a href="/social/index.html" class="sb-panel-link">All →</a>
+          </div>
+          <div id="social-preview">
+            <div style="font-size:12px;color:var(--faint,#a8a29e);text-align:center;padding:8px 0">
+              No queued posts.
+              <br><a href="/social/index.html" style="color:var(--accent,#0f3b3a);font-size:11px">Create post →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pomodoro -->
+        <div class="sb-panel">
+          <div class="sb-panel-title">Focus Timer</div>
+          <div id="pomodoro-container"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/shared/aurelia.js"></script>
 <script src="/shared/help.js"></script>
+<script>
+// ── Background images by time of day ─────────────────────────────────────
+var BG_IMAGES = {
+  dawn: [
+    'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80',
+  ],
+  morn: [
+    'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80',
+    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=80',
+  ],
+  noon: [
+    'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1600&q=80',
+    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600&q=80',
+  ],
+  arvo: [
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1600&q=80',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=80',
+  ],
+  dusk: [
+    'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1600&q=80',
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80',
+  ],
+  midnight: [
+    'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1600&q=80',
+    'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=1600&q=80',
+  ],
+};
+
+var bgIndex = 0;
+
+function getTimeOfDay() {
+  var h = new Date().getHours();
+  if (h >= 5 && h < 8) return 'dawn';
+  if (h >= 8 && h < 12) return 'morn';
+  if (h >= 12 && h < 15) return 'noon';
+  if (h >= 15 && h < 18) return 'arvo';
+  if (h >= 18 && h < 21) return 'dusk';
+  return 'midnight';
+}
+
+function setHeroBg(url) {
+  var bg = document.getElementById('hero-bg');
+  if (bg) bg.style.backgroundImage = 'url(' + url + ')';
+}
+
+function changeBg() {
+  var tod = getTimeOfDay();
+  var imgs = BG_IMAGES[tod] || BG_IMAGES.noon;
+  bgIndex = (bgIndex + 1) % imgs.length;
+  setHeroBg(imgs[bgIndex]);
+}
+
+// ── News feed ─────────────────────────────────────────────────────────────
+// News sources by category — using RSS-to-JSON via rss2json.com (free)
+var NEWS_SOURCES = {
+  general: [
+    {name:'BBC News', rss:'https://feeds.bbci.co.uk/news/rss.xml', icon:'📰'},
+    {name:'Guardian', rss:'https://www.theguardian.com/uk/rss', icon:'📰'},
+    {name:'Independent', rss:'https://www.independent.co.uk/news/uk/rss', icon:'📰'},
+  ],
+  ai: [
+    {name:'MIT Tech Review', rss:'https://www.technologyreview.com/feed/', icon:'🤖'},
+    {name:'The Verge AI', rss:'https://www.theverge.com/ai-artificial-intelligence/rss/index.xml', icon:'🤖'},
+    {name:'Wired AI', rss:'https://www.wired.com/feed/tag/ai/latest/rss', icon:'🤖'},
+  ],
+  psychology: [
+    {name:'Psychology Today', rss:'https://www.psychologytoday.com/intl/front-page/feed', icon:'🧠'},
+    {name:'APA News', rss:'https://www.apa.org/news/press/releases/rss', icon:'🧠'},
+    {name:'SocArXiv', rss:'https://osf.io/preprints/socarxiv/feed/', icon:'📚'},
+  ],
+  coaching: [
+    {name:'ICF', rss:'https://coachingfederation.org/feed', icon:'💛'},
+    {name:'Positive Psychology', rss:'https://positivepsychology.com/feed/', icon:'💛'},
+  ],
+  neurodivergent: [
+    {name:'ADHD UK', rss:'https://adhduk.co.uk/feed/', icon:'🧩'},
+    {name:'Neurodiversity Hub', rss:'https://neurodiversityhub.org/feed/', icon:'🧩'},
+  ],
+  uk: [
+    {name:'BBC UK', rss:'https://feeds.bbci.co.uk/news/uk/rss.xml', icon:'🇬🇧'},
+    {name:'Sky News', rss:'https://feeds.skynews.com/feeds/rss/uk.xml', icon:'🇬🇧'},
+    {name:'Channel 4 News', rss:'https://www.channel4.com/news/feed', icon:'🇬🇧'},
+  ],
+  world: [
+    {name:'BBC World', rss:'https://feeds.bbci.co.uk/news/world/rss.xml', icon:'🌍'},
+    {name:'NYT', rss:'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', icon:'🌍'},
+    {name:'Washington Post', rss:'https://feeds.washingtonpost.com/rss/world', icon:'🌍'},
+  ],
+};
+
+async function loadNews() {
+  var cat = document.getElementById('news-category').value;
+  var sources = NEWS_SOURCES[cat] || NEWS_SOURCES.general;
+  var feed = document.getElementById('news-feed');
+  feed.innerHTML = '<div style="text-align:center;padding:16px;color:var(--faint,#a8a29e);font-size:13px">Loading news...</div>';
+  
+  var allItems = [];
+  
+  // Use rss2json.com free API to convert RSS to JSON
+  var RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+  
+  var promises = sources.map(async function(src) {
+    try {
+      var res = await fetch(RSS2JSON + encodeURIComponent(src.rss) + '&count=3', {signal: AbortSignal.timeout(8000)});
+      var data = await res.json();
+      if (data.status === 'ok' && data.items) {
+        data.items.forEach(function(item) {
+          allItems.push({
+            source: src.name,
+            icon: src.icon,
+            title: item.title || '',
+            description: item.description ? item.description.replace(/<[^>]+>/g,'').slice(0,150) : '',
+            url: item.link || '#',
+            image: item.thumbnail || item.enclosure?.link || null,
+            date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '',
+          });
+        });
+      }
+    } catch(e) {
+      // Silently fail individual sources
+    }
+  });
+  
+  await Promise.all(promises);
+  
+  feed.innerHTML = '';
+  
+  if (!allItems.length) {
+    // Fallback: show curated links without API
+    var fallbackItems = [
+      {source:'BBC News', icon:'📰', title:'Visit BBC News for the latest UK and world news', url:'https://www.bbc.co.uk/news', image:null, date:'Live'},
+      {source:'The Guardian', icon:'📰', title:'The Guardian — independent journalism', url:'https://www.theguardian.com', image:null, date:'Live'},
+      {source:'Psychology Today', icon:'🧠', title:'Psychology Today — mental health and wellbeing', url:'https://www.psychologytoday.com', image:null, date:'Live'},
+      {source:'MIT Technology Review', icon:'🤖', title:'MIT Technology Review — AI and emerging technology', url:'https://www.technologyreview.com', image:null, date:'Live'},
+      {source:'ADHD UK', icon:'🧩', title:'ADHD UK — neurodivergent resources and community', url:'https://adhduk.co.uk', image:null, date:'Live'},
+    ];
+    fallbackItems.forEach(function(item) { renderNewsCard(feed, item); });
+    return;
+  }
+  
+  // Sort by date (most recent first) and show top 8
+  allItems.slice(0, 8).forEach(function(item) { renderNewsCard(feed, item); });
+}
+
+function renderNewsCard(container, item) {
+  var card = document.createElement('a');
+  card.className = 'news-card';
+  card.href = item.url || '#';
+  card.target = '_blank';
+  card.rel = 'noopener';
+  
+  // Image
+  if (item.image) {
+    var img = document.createElement('img');
+    img.className = 'news-img';
+    img.src = item.image;
+    img.alt = '';
+    img.onerror = function() {
+      var ph = document.createElement('div');
+      ph.className = 'news-img-placeholder';
+      ph.textContent = item.icon || '📰';
+      img.parentNode.replaceChild(ph, img);
+    };
+    card.appendChild(img);
+  } else {
+    var ph = document.createElement('div');
+    ph.className = 'news-img-placeholder';
+    ph.textContent = item.icon || '📰';
+    card.appendChild(ph);
+  }
+  
+  var body = document.createElement('div');
+  body.className = 'news-body';
+  
+  var src = document.createElement('div');
+  src.className = 'news-source';
+  src.textContent = item.source || '';
+  
+  var title = document.createElement('div');
+  title.className = 'news-title';
+  title.textContent = item.title || '';
+  
+  var desc = document.createElement('div');
+  desc.className = 'news-desc';
+  desc.textContent = item.description || '';
+  
+  var meta = document.createElement('div');
+  meta.className = 'news-meta';
+  meta.textContent = item.date || '';
+  
+  body.appendChild(src);
+  body.appendChild(title);
+  if (item.description) body.appendChild(desc);
+  body.appendChild(meta);
+  card.appendChild(body);
+  container.appendChild(card);
+}
+
+// ── Mini Calendar ─────────────────────────────────────────────────────────
+function renderCalendar() {
+  var cal = document.getElementById('mini-calendar');
+  if (!cal) return;
+  
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth();
+  var today = now.getDate();
+  
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var daysInPrev = new Date(year, month, 0).getDate();
+  
+  var monthName = now.toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+  
+  var html = '<div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:8px;text-align:center">' + monthName + '</div>';
+  html += '<div class="cal-grid">';
+  
+  var days = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  days.forEach(function(d) { html += '<div class="cal-day-hdr">' + d + '</div>'; });
+  
+  // Previous month days
+  for (var i = firstDay - 1; i >= 0; i--) {
+    html += '<div class="cal-day other-month">' + (daysInPrev - i) + '</div>';
+  }
+  
+  // Current month
+  for (var d = 1; d <= daysInMonth; d++) {
+    var cls = 'cal-day' + (d === today ? ' today' : '');
+    html += '<div class="' + cls + '">' + d + '</div>';
+  }
+  
+  // Next month
+  var remaining = 42 - (firstDay + daysInMonth);
+  for (var n = 1; n <= remaining; n++) {
+    html += '<div class="cal-day other-month">' + n + '</div>';
+  }
+  
+  html += '</div>';
+  cal.innerHTML = html;
+  
+  // Upcoming events placeholder
+  var events = document.getElementById('upcoming-events');
+  if (events) {
+    events.innerHTML = '<div style="font-size:11px;color:var(--faint,#a8a29e);text-align:center;padding:6px 0">Connect Zoho Calendar in Comms Centre to see events.<br><a href="/comms/index.html" style="color:var(--accent,#0f3b3a)">Set up →</a></div>';
+  }
+}
+
+// ── Social queue preview ──────────────────────────────────────────────────
+function loadSocialPreview() {
+  var queue = JSON.parse(localStorage.getItem('aurelia_social_queue') || '[]');
+  var el = document.getElementById('social-preview');
+  if (!el) return;
+  var pending = queue.filter(function(p) { return p.status === 'queued' || p.status === 'scheduled'; });
+  if (!pending.length) return;
+  el.innerHTML = '';
+  pending.slice(0, 3).forEach(function(p) {
+    var item = document.createElement('div');
+    item.className = 'social-item';
+    var platform = document.createElement('div');
+    platform.className = 'social-platform';
+    platform.textContent = p.platform || 'Social';
+    var text = document.createElement('div');
+    text.className = 'social-text';
+    text.textContent = p.content || p.text || '';
+    var meta = document.createElement('div');
+    meta.className = 'social-meta';
+    meta.textContent = p.status || 'queued';
+    item.appendChild(platform);
+    item.appendChild(text);
+    item.appendChild(meta);
+    el.appendChild(item);
+  });
+}
+
+// ── Media ─────────────────────────────────────────────────────────────────
+function openMediaPanel(type) {
+  var panel = document.getElementById('media-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  if (type) switchMedia(type, null);
+}
+
+function switchMedia(type, btn) {
+  document.querySelectorAll('.media-tab').forEach(function(t) { t.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+  var content = document.getElementById('media-content');
+  var embed = document.getElementById('media-embed-container');
+  if (embed) embed.innerHTML = '';
+  
+  if (type === 'iplayer') {
+    window.open('https://www.bbc.co.uk/iplayer', '_blank');
+  } else if (type === 'global') {
+    window.open('https://www.globalplayer.com', '_blank');
+  } else if (type === 'amazon') {
+    window.open('https://music.amazon.co.uk', '_blank');
+  }
+}
+
+function embedSpotify(playlistId) {
+  var url = 'https://open.spotify.com/embed/playlist/' + playlistId + '?utm_source=generator&theme=0';
+  var container = document.getElementById('sb-media-embed') || document.getElementById('media-embed-container');
+  if (!container) return;
+  var iframe = document.createElement('iframe');
+  iframe.src = url;
+  iframe.width = '100%';
+  iframe.height = '152';
+  iframe.frameBorder = '0';
+  iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+  iframe.loading = 'lazy';
+  iframe.style.borderRadius = '8px';
+  container.innerHTML = '';
+  container.appendChild(iframe);
+  document.getElementById('media-panel').style.display = 'block';
+}
+
+function embedYouTube(videoId) {
+  var container = document.getElementById('sb-media-embed') || document.getElementById('media-embed-container');
+  if (!container) return;
+  var iframe = document.createElement('iframe');
+  iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=0';
+  iframe.width = '100%';
+  iframe.height = '120';
+  iframe.frameBorder = '0';
+  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+  iframe.allowFullscreen = true;
+  iframe.style.borderRadius = '8px';
+  container.innerHTML = '';
+  container.appendChild(iframe);
+  document.getElementById('media-panel').style.display = 'block';
+}
+
+function embedFromUrl() {
+  var url = document.getElementById('media-url-input').value.trim();
+  if (!url) return;
+  if (url.includes('spotify.com')) {
+    var match = url.match(/playlist\/([a-zA-Z0-9]+)/);
+    if (match) embedSpotify(match[1]);
+    else {
+      var embedUrl = url.replace('open.spotify.com/', 'open.spotify.com/embed/');
+      var container = document.getElementById('media-embed-container');
+      if (container) {
+        var iframe = document.createElement('iframe');
+        iframe.src = embedUrl;
+        iframe.width = '100%'; iframe.height = '152'; iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        iframe.style.borderRadius = '8px';
+        container.innerHTML = '';
+        container.appendChild(iframe);
+      }
+    }
+  } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    var match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (match) embedYouTube(match[1]);
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+// ── World clocks ──────────────────────────────────────────────────────────
+function renderClocks() {
+  var zones = [
+    {city:'Local', tz: Intl.DateTimeFormat().resolvedOptions().timeZone},
+    {city:'London', tz:'Europe/London'},
+    {city:'Brisbane', tz:'Australia/Brisbane'},
+    {city:'New York', tz:'America/New_York'},
+    {city:'Los Angeles', tz:'America/Los_Angeles'},
+    {city:'Tokyo', tz:'Asia/Tokyo'},
+  ];
+  var container = document.getElementById('world-clocks');
+  if (!container) return;
+  
+  function update() {
+    container.innerHTML = '';
+    zones.forEach(function(z) {
+      var now = new Date();
+      var time = now.toLocaleTimeString('en-GB', {timeZone:z.tz, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      var date = now.toLocaleDateString('en-GB', {timeZone:z.tz, weekday:'short', day:'numeric', month:'short'});
+      var item = document.createElement('div');
+      item.className = 'clock-item';
+      var city = document.createElement('div'); city.className = 'clock-city'; city.textContent = z.city;
+      var t = document.createElement('div'); t.className = 'clock-time'; t.textContent = time;
+      var d = document.createElement('div'); d.className = 'clock-date'; d.textContent = date;
+      item.appendChild(city); item.appendChild(t); item.appendChild(d);
+      container.appendChild(item);
+    });
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────
+function loadStats() {
+  var chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
+  var drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]');
+  var contacts = JSON.parse(localStorage.getItem('aurelia_contacts') || '[]');
+  var profiles = JSON.parse(localStorage.getItem('aurelia_platform_profiles') || '{}');
+  var activePlatforms = Object.values(profiles).filter(function(p) { return p.status === 'active'; }).length;
+  
+  var sc = document.getElementById('stat-chats'); if (sc) sc.textContent = chats.length;
+  var sd = document.getElementById('stat-drafts'); if (sd) sd.textContent = drafts.length;
+  var sco = document.getElementById('stat-contacts'); if (sco) sco.textContent = contacts.length;
+  var sp = document.getElementById('stat-platforms'); if (sp) sp.textContent = activePlatforms;
+}
+
+// ── Recent feed ───────────────────────────────────────────────────────────
+function loadFeed() {
+  var chats = JSON.parse(localStorage.getItem('aurelia_chats') || '[]').slice(-3).reverse();
+  var feedChats = document.getElementById('feed-chats');
+  if (chats.length && feedChats) {
+    feedChats.innerHTML = '';
+    chats.forEach(function(c) {
+      var card = document.createElement('a');
+      card.className = 'feed-card';
+      card.href = '/chat/index.html?id=' + c.id;
+      var title = document.createElement('div'); title.className = 'feed-card-title'; title.textContent = c.title || 'Untitled Chat';
+      var sub = document.createElement('div'); sub.className = 'feed-card-sub'; sub.textContent = (c.messages || []).length + ' messages';
+      var meta = document.createElement('div'); meta.className = 'feed-card-meta';
+      var tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = c.model ? c.model.split('/').pop() : 'AI';
+      meta.appendChild(tag);
+      card.appendChild(title); card.appendChild(sub); card.appendChild(meta);
+      feedChats.appendChild(card);
+    });
+  }
+  
+  var drafts = JSON.parse(localStorage.getItem('aurelia_drafts') || '[]').slice(-2).reverse();
+  var feedDrafts = document.getElementById('feed-drafts');
+  if (drafts.length && feedDrafts) {
+    feedDrafts.innerHTML = '';
+    drafts.forEach(function(d) {
+      var card = document.createElement('a');
+      card.className = 'feed-card';
+      card.href = '/drafting/index.html';
+      var title = document.createElement('div'); title.className = 'feed-card-title'; title.textContent = d.title || 'Untitled Draft';
+      var sub = document.createElement('div'); sub.className = 'feed-card-sub'; sub.textContent = (d.body || '').split(/\s+/).filter(Boolean).length + ' words';
+      card.appendChild(title); card.appendChild(sub);
+      feedDrafts.appendChild(card);
+    });
+  }
+}
+
+// ── Chat start ────────────────────────────────────────────────────────────
+function startChat() {
+  var input = document.getElementById('hero-input');
+  var q = input ? input.value.trim() : '';
+  if (q) sessionStorage.setItem('aurelia_new_chat_query', q);
+  window.location.href = '/chat/index.html';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Greeting
+  var h = new Date().getHours();
+  var g = document.getElementById('greeting');
+  if (g) g.textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  
+  // Date
+  var dateEl = document.getElementById('hero-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) + ' \u00b7 Identity Partners';
+  
+  // Background image
+  var tod = getTimeOfDay();
+  var imgs = BG_IMAGES[tod] || BG_IMAGES.noon;
+  setHeroBg(imgs[0]);
+  
+  // Clocks
+  renderClocks();
+  
+  // Stats
+  loadStats();
+  
+  // Feed
+  loadFeed();
+  
+  // Calendar
+  renderCalendar();
+  
+  // Social preview
+  loadSocialPreview();
+  
+  // News (load after a short delay to not block render)
+  setTimeout(loadNews, 500);
+  
+  // Enter key for hero search
+  var heroInput = document.getElementById('hero-input');
+  if (heroInput) {
+    heroInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') startChat();
+    });
+  }
+});
+</script>
 </body>
 </html>
