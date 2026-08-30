@@ -30,7 +30,8 @@
     <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
   </nav>
   <div class="main-content" id="main-content">
-    <div class="topbar"><span class="topbar-title">Research Library</span><div class="topbar-actions"><button class="btn btn-ghost btn-sm" onclick="exportResults()">Export</button><button class="btn btn-primary btn-sm" onclick="saveRun()">Save Run</button></div></div>
+    <div class="topbar"><span class="topbar-title">Research Library</span><div class="topbar-actions"><button class="btn btn-ghost btn-sm" onclick="exportResults()">Export</button><button class="btn btn-primary btn-sm" onclick="saveRun()">Save Run</button>
+        <button class="btn btn-ghost btn-sm" onclick="scheduleRun()" title="Schedule this search to run automatically">⏰ Schedule</button></div></div>
 <div style="display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden">
 <div style="width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:10px;overflow-y:auto">
   <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Saved Runs</div>
@@ -217,5 +218,131 @@ document.getElementById("research-query").addEventListener("keydown",function(e)
 savedRuns=JSON.parse(localStorage.getItem("aurelia_research")||"[]");
 </script>
 <script src="/shared/help.js"></script>
+
+<!-- Schedule Modal -->
+<div class="modal-overlay" id="schedule-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <span class="modal-title">Schedule Research Run</span>
+      <button class="modal-close" onclick="document.getElementById('schedule-modal').classList.remove('open')">&#10005;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="input-group">
+        <label class="input-label">Query to schedule</label>
+        <input class="input" id="sched-query" placeholder="Research query..." readonly>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Frequency</label>
+        <select class="input" id="sched-freq">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="once">Once (at specific time)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Time</label>
+        <input class="input" id="sched-time" type="time" value="08:00">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Notify via</label>
+        <div style="display:flex;gap:8px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="sched-notify-tg"> Telegram</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="sched-notify-email"> Email</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-primary" onclick="saveSchedule()">Save Schedule</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('schedule-modal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scheduled runs panel -->
+<div id="scheduled-runs-panel" style="display:none;position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:16px;max-width:300px;box-shadow:var(--shadow2);z-index:100">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:600;color:var(--ink)">Scheduled Runs</div>
+    <button onclick="document.getElementById('scheduled-runs-panel').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--faint,#a8a29e)">✕</button>
+  </div>
+  <div id="scheduled-runs-list" style="font-size:12px;color:var(--muted,#78716c)">No scheduled runs.</div>
+</div>
+<script>
+function scheduleRun() {
+  var q = document.getElementById("research-query");
+  var query = q ? q.value.trim() : "";
+  if (!query) { if (typeof Toast !== "undefined") Toast.show("Enter a query first", "info"); return; }
+  var schedQ = document.getElementById("sched-query");
+  if (schedQ) schedQ.value = query;
+  document.getElementById("schedule-modal").classList.add("open");
+}
+
+function saveSchedule() {
+  var query = document.getElementById("sched-query").value;
+  var freq = document.getElementById("sched-freq").value;
+  var time = document.getElementById("sched-time").value;
+  var notifyTg = document.getElementById("sched-notify-tg").checked;
+  var notifyEmail = document.getElementById("sched-notify-email").checked;
+  
+  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
+  schedules.push({
+    id: "sched_" + Date.now(),
+    query: query, freq: freq, time: time,
+    notifyTg: notifyTg, notifyEmail: notifyEmail,
+    created: Date.now(), lastRun: null, nextRun: getNextRun(freq, time)
+  });
+  localStorage.setItem("aurelia_research_schedules", JSON.stringify(schedules));
+  document.getElementById("schedule-modal").classList.remove("open");
+  if (typeof Toast !== "undefined") Toast.show("Research scheduled: " + freq + " at " + time, "success");
+  renderScheduledRuns();
+}
+
+function getNextRun(freq, time) {
+  var now = new Date();
+  var parts = time.split(":");
+  var next = new Date(now);
+  next.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+  if (next <= now) {
+    if (freq === "daily") next.setDate(next.getDate() + 1);
+    else if (freq === "weekly") next.setDate(next.getDate() + 7);
+    else if (freq === "monthly") next.setMonth(next.getMonth() + 1);
+  }
+  return next.toISOString();
+}
+
+function renderScheduledRuns() {
+  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
+  var list = document.getElementById("scheduled-runs-list");
+  if (!list) return;
+  if (!schedules.length) { list.textContent = "No scheduled runs."; return; }
+  list.innerHTML = "";
+  schedules.forEach(function(s) {
+    var item = document.createElement("div");
+    item.style.cssText = "padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px";
+    var info = document.createElement("div");
+    info.innerHTML = "<div style=\"font-weight:500;color:var(--ink)\">" + s.query.slice(0,30) + (s.query.length>30?"...":"") + "</div><div style=\"font-size:10.5px;color:var(--faint,#a8a29e)\">" + s.freq + " at " + s.time + "</div>";
+    var del = document.createElement("button");
+    del.className = "btn btn-ghost btn-sm";
+    del.textContent = "✕";
+    del.onclick = function() {
+      var scheds = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
+      localStorage.setItem("aurelia_research_schedules", JSON.stringify(scheds.filter(function(x) { return x.id !== s.id; })));
+      renderScheduledRuns();
+    };
+    item.appendChild(info);
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+// Show scheduled runs button
+(function() {
+  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
+  if (schedules.length > 0) {
+    document.getElementById("scheduled-runs-panel").style.display = "block";
+    renderScheduledRuns();
+  }
+})();
+</script>
 </body>
 </html>
