@@ -343,52 +343,132 @@ document.addEventListener('keydown', function(e) {
 // Users · Model Families · Modes · Personas
 // ═══════════════════════════════════════════════════════════════════════════
 
+const POLLEN = 'https://gen.pollinations.ai/image';
+
 const AVATARS = {
 
   // ── USER AVATARS ──────────────────────────────────────────────────────────
   users: {
-    'SJ':      { emoji: null, initials: 'SJ', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif', title: 'SJ — Identity Partners' },
-    'Olivia':  { emoji: '🌸', initials: 'OL', bg: '#fce4ec', color: '#880e4f', font: 'serif', title: 'Olivia' },
-    'Nicholas':{ emoji: '🎯', initials: 'NJ', bg: '#e8f5e9', color: '#1b5e20', font: 'serif', title: 'Nicholas' },
+    'SJ': {
+      img: POLLEN + '/' + encodeURIComponent('professional man portrait, warm teal background, Identity Partners, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=42',
+      initials: 'SJ', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif',
+      title: 'SJ — Identity Partners'
+    },
+    'Olivia': {
+      img: POLLEN + '/' + encodeURIComponent('professional woman portrait, soft pink background, warm smile, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=77',
+      initials: 'OL', bg: '#fce4ec', color: '#880e4f', font: 'serif',
+      title: 'Olivia'
+    },
+    'Nicholas': {
+      img: POLLEN + '/' + encodeURIComponent('professional man portrait, forest green background, confident, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=99',
+      initials: 'NJ', bg: '#e8f5e9', color: '#1b5e20', font: 'serif',
+      title: 'Nicholas'
+    },
   },
 
   // ── MODEL FAMILY AVATARS ──────────────────────────────────────────────────
-  // Each model family has a character, colour, and personality
   models: {
-    // Gemma — warm, curious woman (Google's gem)
-    'gemma':     { emoji: '💎', label: 'Gemma', bg: '#e8f4f4', color: '#0f3b3a', title: 'Gemma · Google DeepMind' },
-    // Kimi — elegant, long-context specialist (moonshot = moon goddess)
-    'kimi':      { emoji: '🌙', label: 'Kimi', bg: '#e8eaf6', color: '#283593', title: 'Kimi · Moonshot AI' },
-    // DeepSeek — whale (their actual logo is a whale)
-    'deepseek':  { emoji: '🐋', label: 'DeepSeek', bg: '#e3f2fd', color: '#0d47a1', title: 'DeepSeek · Whale' },
-    // Mistral — court jester (mistral = wild wind, French flair)
-    'mistral':   { emoji: '🃏', label: 'Mistral', bg: '#fff8e1', color: '#e65100', title: 'Mistral · Le Vent' },
-    // Groq — lightning bolt (LPU speed)
-    'groq':      { emoji: '⚡', label: 'Groq', bg: '#fff3e0', color: '#bf360c', title: 'Groq · LPU Speed' },
-    // Cerebras — brain chip (wafer-scale chip)
-    'cerebras':  { emoji: '🧠', label: 'Cerebras', bg: '#fce4ec', color: '#880e4f', title: 'Cerebras · Wafer-Scale' },
-    // GPT-OSS — open book (open source)
-    'gpt-oss':   { emoji: '📖', label: 'GPT-OSS', bg: '#f3e5f5', color: '#4a148c', title: 'GPT-OSS · Open Source' },
-    // Gemini — twin stars (Gemini constellation)
-    'gemini':    { emoji: '♊', label: 'Gemini', bg: '#e8f5e9', color: '#1b5e20', title: 'Gemini · Google' },
-    // Claude — thoughtful owl (Anthropic's careful reasoning)
-    'claude':    { emoji: '🦉', label: 'Claude', bg: '#fff8e1', color: '#5d4037', title: 'Claude · Anthropic' },
-    // Grok — telescope (xAI, looking at the universe)
-    'grok':      { emoji: '🔭', label: 'Grok', bg: '#e8eaf6', color: '#1a237e', title: 'Grok · xAI' },
-    // Nemotron — robot (NVIDIA's AI)
-    'nemotron':  { emoji: '🤖', label: 'Nemotron', bg: '#e0f2f1', color: '#004d40', title: 'Nemotron · NVIDIA' },
-    // Mixtral — jester with MoE (mixture of experts = many voices)
-    'mixtral':   { emoji: '🎭', label: 'Mixtral', bg: '#fce4ec', color: '#880e4f', title: 'Mixtral · MoE' },
-    // Qwen — dragon (Alibaba, Chinese dragon)
-    'qwen':      { emoji: '🐉', label: 'Qwen', bg: '#fff3e0', color: '#e65100', title: 'Qwen · Alibaba' },
-    // Llama — llama (Meta's actual mascot)
-    'llama':     { emoji: '🦙', label: 'Llama', bg: '#f3e5f5', color: '#6a1b9a', title: 'Llama · Meta' },
-    // Puter — cloud (user-pays cloud)
-    'puter':     { emoji: '☁️', label: 'Puter', bg: '#e3f2fd', color: '#0277bd', title: 'Puter · User-Pays' },
-    // Pollinations — flower (generative, blooming)
-    'pollinations': { emoji: '🌸', label: 'Pollinations', bg: '#fce4ec', color: '#c62828', title: 'Pollinations · Free' },
-    // Default AI
-    'ai':        { emoji: '✦', label: 'Aurelia', bg: '#0f3b3a', color: '#f7f3e9', title: 'Aurelia AI' },
+    // Gemma — elegant woman with teal gem (Google's gem)
+    'gemma': {
+      img: 'https://cdn.pixabay.com/photo/2021/01/19/08/23/woman-5930445_1280.png',
+      label: 'Gemma', bg: '#e8f4f4', color: '#0f3b3a',
+      title: 'Gemma · Google DeepMind'
+    },
+    // Kimi — moon goddess woman (Moonshot AI)
+    'kimi': {
+      img: 'https://images.nightcafe.studio/jobs/tJEak0jC1Zom2H1r2AbR/tJEak0jC1Zom2H1r2AbR--0--ro212.jpg',
+      label: 'Kimi', bg: '#e8eaf6', color: '#283593',
+      title: 'Kimi · Moonshot AI'
+    },
+    // DeepSeek — whale (their actual logo)
+    'deepseek': {
+      img: 'https://pngpix.com/images/file/cartoon-humpback-whale-character-png-06212024-gx5i1awb0ktm7hk8.png',
+      label: 'DeepSeek', bg: '#e3f2fd', color: '#0d47a1',
+      title: 'DeepSeek · Whale'
+    },
+    // Mistral — court jester (wild French wind)
+    'mistral': {
+      img: 'https://media.craiyon.com/2025-05-16/hgMVcdUBQKSCrmzSLMVDNA.webp',
+      label: 'Mistral', bg: '#fff8e1', color: '#e65100',
+      title: 'Mistral · Le Vent'
+    },
+    // Groq — lightning bolt mascot
+    'groq': {
+      img: 'https://assets-global.website-files.com/62acd253ab1488d884ac546a/62cb21a933c6502e98c4f23f_design-mascot-lightning_f.png',
+      label: 'Groq', bg: '#fff3e0', color: '#bf360c',
+      title: 'Groq · LPU Speed'
+    },
+    // Cerebras — brain/robot (wafer-scale chip)
+    'cerebras': {
+      img: 'https://as2.ftcdn.net/v2/jpg/05/97/51/13/1000_F_597511354_TaKKJjzvNQK3ao0sS8vgH3vAQuhbcbit.jpg',
+      label: 'Cerebras', bg: '#fce4ec', color: '#880e4f',
+      title: 'Cerebras · Wafer-Scale'
+    },
+    // GPT-OSS — open book character
+    'gpt-oss': {
+      img: POLLEN + '/' + encodeURIComponent('open book character mascot, purple background, friendly, cartoon, minimal') + '?model=flux&width=64&height=64&nologo=true&seed=55',
+      label: 'GPT-OSS', bg: '#f3e5f5', color: '#4a148c',
+      title: 'GPT-OSS · Open Source'
+    },
+    // Gemini — twin stars / constellation woman
+    'gemini': {
+      img: POLLEN + '/' + encodeURIComponent('gemini twins constellation character, green stars, minimal illustration, circle') + '?model=flux&width=64&height=64&nologo=true&seed=33',
+      label: 'Gemini', bg: '#e8f5e9', color: '#1b5e20',
+      title: 'Gemini · Google'
+    },
+    // Claude — wise owl (Anthropic)
+    'claude': {
+      img: 'https://as2.ftcdn.net/jpg/01/59/68/47/1000_F_159684724_Exjgd7zYDGehAPlYKSPHaR4wa8xx6a1B.jpg',
+      label: 'Claude', bg: '#fff8e1', color: '#5d4037',
+      title: 'Claude · Anthropic'
+    },
+    // Grok — telescope / astronomer
+    'grok': {
+      img: POLLEN + '/' + encodeURIComponent('astronomer with telescope, navy blue background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=88',
+      label: 'Grok', bg: '#e8eaf6', color: '#1a237e',
+      title: 'Grok · xAI'
+    },
+    // Nemotron — humanoid robot (NVIDIA)
+    'nemotron': {
+      img: 'https://pics.craiyon.com/2024-03-20/iv7tat8SRQCLqiecCIWtsg.webp',
+      label: 'Nemotron', bg: '#e0f2f1', color: '#004d40',
+      title: 'Nemotron · NVIDIA'
+    },
+    // Mixtral — jester with many hats (MoE)
+    'mixtral': {
+      img: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0dde8d14-b8c6-4523-bcad-419138b1adb9/dguejtm-9d3fbb59-292b-45f2-bc1e-ab858eeafb5f.png/v1/fill/w_706,h_1132/court_jester__comm__by_juneaupaws_dguejtm-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MzQzNSIsInBhdGgiOiJcL2ZcLzBkZGU4ZDE0LWI4YzYtNDUyMy1iY2FkLTQxOTEzOGIxYWRiOVwvZGd1ZWp0bS05ZDNmYmI1OS0yOTJiLTQ1ZjItYmMxZS1hYjg1OGVlYWZiNWYucG5nIiwid2lkdGgiOiI8PTIxNDIifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.wppoHCUoGU_9EH_ojqBREhL_VA-Goyd1WIjXQVKEbsw',
+      label: 'Mixtral', bg: '#fce4ec', color: '#880e4f',
+      title: 'Mixtral · MoE'
+    },
+    // Qwen — Chinese dragon
+    'qwen': {
+      img: POLLEN + '/' + encodeURIComponent('cute chinese dragon cartoon, orange background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=66',
+      label: 'Qwen', bg: '#fff3e0', color: '#e65100',
+      title: 'Qwen · Alibaba'
+    },
+    // Llama — cute llama (Meta)
+    'llama': {
+      img: 'https://cdn.pixabay.com/photo/2026/01/23/13/10/baby-alpaca-illustration-10084421_1280.png',
+      label: 'Llama', bg: '#f3e5f5', color: '#6a1b9a',
+      title: 'Llama · Meta'
+    },
+    // Puter — cloud character
+    'puter': {
+      img: POLLEN + '/' + encodeURIComponent('friendly cloud character, light blue background, minimal cartoon, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=11',
+      label: 'Puter', bg: '#e3f2fd', color: '#0277bd',
+      title: 'Puter · User-Pays'
+    },
+    // Pollinations — flower character
+    'pollinations': {
+      img: POLLEN + '/' + encodeURIComponent('blooming flower character face, pink background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=22',
+      label: 'Pollinations', bg: '#fce4ec', color: '#c62828',
+      title: 'Pollinations · Free'
+    },
+    // Default AI — Aurelia mark
+    'ai': {
+      img: null, initials: 'A', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif',
+      title: 'Aurelia AI'
+    },
   },
 
   // ── MODE AVATARS ──────────────────────────────────────────────────────────
@@ -405,16 +485,49 @@ const AVATARS = {
 
   // ── PERSONA AVATARS ───────────────────────────────────────────────────────
   personas: {
-    'butler':     { emoji: '🎩', label: 'Sardonic Butler', bg: '#1c1917', color: '#f7f3e9', title: 'Reginald — Sardonic Butler' },
-    'researcher': { emoji: '🔬', label: 'Research Associate', bg: '#e3f2fd', color: '#0d47a1', title: 'Dr. Chen — Research Associate' },
-    'pa':         { emoji: '📋', label: 'Long-Suffering PA', bg: '#fff8e1', color: '#5d4037', title: 'Margaret — Long-Suffering PA' },
-    'coach':      { emoji: '🌱', label: 'Identity Coach', bg: '#e8f5e9', color: '#1b5e20', title: 'Aurelia — Identity Coach' },
-    'critic':     { emoji: '🎭', label: 'Devil's Advocate', bg: '#fce4ec', color: '#880e4f', title: 'Mephistopheles — Devil's Advocate' },
-    'sage':       { emoji: '🦉', label: 'Wise Sage', bg: '#fff8e1', color: '#5d4037', title: 'The Sage — Ancient Wisdom' },
-    'strategist': { emoji: '♟️', label: 'Strategist', bg: '#e8eaf6', color: '#283593', title: 'The Strategist — Long Game' },
-    'poet':       { emoji: '🌹', label: 'Poet', bg: '#fce4ec', color: '#880e4f', title: 'The Poet — Beautiful Words' },
+    'butler': {
+      img: POLLEN + '/' + encodeURIComponent('sardonic british butler portrait, dark background, top hat, dry wit expression, elegant illustration') + '?model=flux&width=64&height=64&nologo=true&seed=101',
+      label: 'Sardonic Butler', bg: '#1c1917', color: '#f7f3e9',
+      title: 'Reginald — Sardonic Butler'
+    },
+    'researcher': {
+      img: POLLEN + '/' + encodeURIComponent('scientist researcher portrait, blue lab coat, microscope, professional illustration, circle') + '?model=flux&width=64&height=64&nologo=true&seed=102',
+      label: 'Research Associate', bg: '#e3f2fd', color: '#0d47a1',
+      title: 'Dr. Chen — Research Associate'
+    },
+    'pa': {
+      img: POLLEN + '/' + encodeURIComponent('tired but efficient personal assistant woman, clipboard, warm office background, illustration') + '?model=flux&width=64&height=64&nologo=true&seed=103',
+      label: 'Long-Suffering PA', bg: '#fff8e1', color: '#5d4037',
+      title: 'Margaret — Long-Suffering PA'
+    },
+    'coach': {
+      img: POLLEN + '/' + encodeURIComponent('warm identity coach woman portrait, green nature background, compassionate expression, illustration') + '?model=flux&width=64&height=64&nologo=true&seed=104',
+      label: 'Identity Coach', bg: '#e8f5e9', color: '#1b5e20',
+      title: 'Aurelia — Identity Coach'
+    },
+    'critic': {
+      img: POLLEN + '/' + encodeURIComponent('devil advocate character, dramatic red background, challenging expression, theatrical illustration') + '?model=flux&width=64&height=64&nologo=true&seed=105',
+      label: "Devil's Advocate", bg: '#fce4ec', color: '#880e4f',
+      title: "Mephistopheles — Devil's Advocate"
+    },
+    'sage': {
+      img: 'https://cdna.artstation.com/p/assets/images/images/078/342/792/large/nando-5-1.jpg?1721836577',
+      label: 'Wise Sage', bg: '#fff8e1', color: '#5d4037',
+      title: 'The Sage — Ancient Wisdom'
+    },
+    'strategist': {
+      img: POLLEN + '/' + encodeURIComponent('chess grandmaster strategist portrait, navy background, focused expression, minimal illustration') + '?model=flux&width=64&height=64&nologo=true&seed=106',
+      label: 'Strategist', bg: '#e8eaf6', color: '#283593',
+      title: 'The Strategist — Long Game'
+    },
+    'poet': {
+      img: POLLEN + '/' + encodeURIComponent('romantic poet portrait, rose garden background, dreamy expression, watercolor illustration') + '?model=flux&width=64&height=64&nologo=true&seed=107',
+      label: 'Poet', bg: '#fce4ec', color: '#880e4f',
+      title: 'The Poet — Beautiful Words'
+    },
   },
 };
+
 
 // Current active persona (null = use model avatar)
 let activePersona = null;
@@ -452,15 +565,28 @@ function getUserAvatar(name) {
 // ── Render avatar HTML ────────────────────────────────────────────────────
 function renderAvatar(av, size) {
   size = size || 32;
-  const fontSize = size <= 28 ? '13px' : size <= 36 ? '16px' : '20px';
-  const style = `width:${size}px;height:${size}px;border-radius:50%;background:${av.bg};color:${av.color};display:flex;align-items:center;justify-content:center;font-size:${fontSize};flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.1)`;
   const title = av.title || av.label || '';
-  if (av.emoji) {
-    return `<div style="${style}" title="${title}">${av.emoji}</div>`;
+  const baseStyle = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.12);overflow:hidden;display:flex;align-items:center;justify-content:center;`;
+
+  if (av.img) {
+    // Image-based avatar — load with fallback to initials/emoji
+    const fallback = av.initials || av.emoji || '?';
+    const fallbackStyle = `background:${av.bg};color:${av.color};font-size:${size <= 28 ? '12px' : '15px'};font-weight:600;`;
+    return `<div style="${baseStyle}background:${av.bg}" title="${title}">
+      <img src="${av.img}" alt="${title}" 
+        style="width:100%;height:100%;object-fit:cover;border-radius:50%"
+        onerror="this.style.display='none';this.nextSibling.style.display='flex'"
+        loading="lazy">
+      <div style="${baseStyle}${fallbackStyle}display:none;position:absolute">${fallback}</div>
+    </div>`;
+  } else if (av.emoji) {
+    const fontSize = size <= 28 ? '14px' : size <= 36 ? '17px' : '21px';
+    return `<div style="${baseStyle}background:${av.bg};font-size:${fontSize}" title="${title}">${av.emoji}</div>`;
   } else {
     // Initials
-    const fontStyle = av.font === 'serif' ? `font-family:var(--font-serif);font-weight:500;letter-spacing:0.02em` : `font-weight:600;letter-spacing:0.05em`;
-    return `<div style="${style};${fontStyle}" title="${title}">${av.initials}</div>`;
+    const fontSize = size <= 28 ? '12px' : size <= 36 ? '14px' : '17px';
+    const fontStyle = av.font === 'serif' ? `font-family:var(--font-serif);font-weight:500` : `font-weight:600`;
+    return `<div style="${baseStyle}background:${av.bg};color:${av.color};font-size:${fontSize};${fontStyle}" title="${title}">${av.initials}</div>`;
   }
 }
 
