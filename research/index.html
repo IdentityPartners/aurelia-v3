@@ -78,5 +78,6 @@ function exportResults(){if(!allResults.length){Toast.show("No results","info");
 document.getElementById("research-query").addEventListener("keydown",function(e){if(e.key==="Enter")runResearch();});
 savedRuns=JSON.parse(localStorage.getItem("aurelia_research")||"[]");
 </script>
+<script src="/shared/help.js"></script>
 </body>
 </html>
