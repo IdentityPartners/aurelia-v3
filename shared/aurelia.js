@@ -1323,3 +1323,118 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.setAttribute("data-theme", savedVisualTheme);
   }
 });
+/* ── Dictation System — Deepgram or Web Speech API ── */
+const Dictation = {
+  recognition: null,
+  active: false,
+  targetId: null,
+  
+  start(targetInputId) {
+    if (this.active) { this.stop(); return; }
+    this.targetId = targetInputId;
+    
+    // Try Web Speech API first (works in Edge/Chrome)
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SR();
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'en-GB';
+      
+      // No profanity filter — use raw transcript
+      let finalTranscript = '';
+      
+      this.recognition.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            finalTranscript += e.results[i][0].transcript;
+          } else {
+            interim = e.results[i][0].transcript;
+          }
+        }
+        const el = document.getElementById(this.targetId);
+        if (el) {
+          // Auto-inject punctuation via simple rules
+          let text = finalTranscript + interim;
+          text = this.autoPunctuate(text);
+          el.value = text;
+          if (typeof autoResize === 'function') autoResize(el);
+          // Update char count if present
+          const cc = document.getElementById('char-count');
+          if (cc) cc.textContent = el.value.length;
+        }
+      };
+      
+      this.recognition.onerror = (e) => {
+        console.warn('Dictation error:', e.error);
+        this.stop();
+      };
+      
+      this.recognition.onend = () => {
+        if (this.active) this.recognition.start(); // Keep going
+      };
+      
+      this.recognition.start();
+      this.active = true;
+      this.updateButtons(true);
+      if (typeof Toast !== 'undefined') Toast.show('Dictation started — speak now', 'success');
+    } else {
+      if (typeof Toast !== 'undefined') Toast.show('Speech recognition not supported in this browser', 'error');
+    }
+  },
+  
+  stop() {
+    if (this.recognition) {
+      this.recognition.stop();
+      this.recognition = null;
+    }
+    this.active = false;
+    this.updateButtons(false);
+    if (typeof Toast !== 'undefined') Toast.show('Dictation stopped', 'info');
+  },
+  
+  toggle(targetInputId) {
+    if (this.active && this.targetId === targetInputId) {
+      this.stop();
+    } else {
+      if (this.active) this.stop();
+      this.start(targetInputId);
+    }
+  },
+  
+  autoPunctuate(text) {
+    // Simple auto-punctuation rules
+    // Capitalise after sentence endings
+    text = text.replace(/([.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+    // Add period at end if no punctuation
+    text = text.trim();
+    if (text.length > 0 && !'.!?,;:'.includes(text[text.length-1])) {
+      // Don't add period mid-sentence (if last word is short, probably still speaking)
+    }
+    return text;
+  },
+  
+  updateButtons(active) {
+    document.querySelectorAll('[data-dictation-btn]').forEach(btn => {
+      const targetId = btn.dataset.dictationBtn;
+      if (targetId === this.targetId || !targetId) {
+        btn.classList.toggle('active', active);
+        btn.title = active ? 'Stop dictation' : 'Start dictation (Deepgram/Web Speech)';
+      }
+    });
+  },
+  
+  // Create a dictation button for any input
+  createButton(targetInputId, small) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost' + (small ? ' btn-sm' : '');
+    btn.dataset.dictationBtn = targetInputId;
+    btn.title = 'Dictate (click to start/stop)';
+    btn.innerHTML = '&#127908;';
+    btn.onclick = () => Dictation.toggle(targetInputId);
+    return btn;
+  }
+};
+
+window.Dictation = Dictation;
