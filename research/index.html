@@ -58,6 +58,48 @@
 </div>
 <script src="/shared/aurelia.js"></script>
 <script>
+const ALL_SOURCES = [
+  {name:'Google Scholar',cat:'Scholarly',url:'https://scholar.google.com/scholar?q=',desc:'Broad academic search'},
+  {name:'CORE',cat:'Scholarly',url:'https://core.ac.uk/search?q=',desc:'Open access research'},
+  {name:'OpenAlex',cat:'Scholarly',url:'https://openalex.org/works?search=',desc:'Open scholarly graph'},
+  {name:'arXiv',cat:'Preprints',url:'https://arxiv.org/search/?searchtype=all&query=',desc:'Physics, maths, CS'},
+  {name:'bioRxiv',cat:'Preprints',url:'https://www.biorxiv.org/search/',desc:'Biology preprints'},
+  {name:'medRxiv',cat:'Preprints',url:'https://www.medrxiv.org/search/',desc:'Medical preprints'},
+  {name:'SSRN',cat:'Preprints',url:'https://papers.ssrn.com/sol3/results.cfm?txtkey=',desc:'Social science preprints'},
+  {name:'PubMed',cat:'Health',url:'https://pubmed.ncbi.nlm.nih.gov/?term=',desc:'Biomedical literature'},
+  {name:'Europe PMC',cat:'Health',url:'https://europepmc.org/search?query=',desc:'European biomedical literature'},
+  {name:'ClinicalTrials.gov',cat:'Health',url:'https://clinicaltrials.gov/search?term=',desc:'Clinical trial registry'},
+  {name:'Zenodo',cat:'Data',url:'https://zenodo.org/search?q=',desc:'CERN open data'},
+  {name:'Figshare',cat:'Data',url:'https://figshare.com/search?q=',desc:'Research data & figures'},
+  {name:'Harvard Dataverse',cat:'Data',url:'https://dataverse.harvard.edu/dataverse/harvard?q=',desc:'Harvard research data'},
+  {name:'Kaggle',cat:'Data',url:'https://www.kaggle.com/search?q=',desc:'ML & data science datasets'},
+  {name:'World Bank Data',cat:'UN/Intl',url:'https://data.worldbank.org/indicator?q=',desc:'Development indicators'},
+  {name:'OECD Data',cat:'UN/Intl',url:'https://data-explorer.oecd.org/',desc:'OECD statistics'},
+  {name:'Eurostat',cat:'UN/Intl',url:'https://ec.europa.eu/eurostat/databrowser/',desc:'European statistics'},
+  {name:'WHO GHO',cat:'UN/Intl',url:'https://www.who.int/data/gho',desc:'Global health observatory'},
+  {name:'data.gov.uk',cat:'UK Data',url:'https://www.data.gov.uk/search?q=',desc:'UK government open data'},
+  {name:'ONS',cat:'UK Data',url:'https://www.ons.gov.uk/search?q=',desc:'Office for National Statistics'},
+  {name:'UK Data Service',cat:'UK Data',url:'https://ukdataservice.ac.uk/find-data/browse/?q=',desc:'UK social science data'},
+  {name:'BAILII',cat:'Law',url:'https://www.bailii.org/',desc:'British & Irish legal information'},
+  {name:'EUR-Lex',cat:'Law',url:'https://eur-lex.europa.eu/search.html?text=',desc:'EU law & legislation'},
+  {name:'Google Patents',cat:'Patents',url:'https://patents.google.com/?q=',desc:'Global patent search'},
+  {name:'Lens.org',cat:'Patents',url:'https://lens.org/lens/search/scholar?q=',desc:'Open patent & scholarly search'},
+  {name:'Internet Archive',cat:'Humanities',url:'https://archive.org/search?query=',desc:'Digital library & archive'},
+  {name:'Europeana',cat:'Humanities',url:'https://www.europeana.eu/en/search?query=',desc:'European cultural heritage'},
+  {name:'Library of Congress',cat:'Humanities',url:'https://www.loc.gov/search/?q=',desc:'US national library'},
+  {name:'Copernicus CDS',cat:'Environment',url:'https://cds.climate.copernicus.eu/datasets',desc:'EU climate data store'},
+  {name:'NASA EarthData',cat:'Environment',url:'https://earthdata.nasa.gov/search?q=',desc:'NASA earth observation'},
+  {name:'GBIF',cat:'Environment',url:'https://www.gbif.org/occurrence/search?q=',desc:'Biodiversity data'},
+  {name:'IDEAS/RePEc',cat:'Economics',url:'https://ideas.repec.org/search.html?q=',desc:'Economics research papers'},
+  {name:'NBER',cat:'Economics',url:'https://www.nber.org/search?q=',desc:'National Bureau of Economic Research'},
+  {name:'FRED',cat:'Economics',url:'https://fred.stlouisfed.org/search?st=',desc:'Federal Reserve economic data'},
+  {name:'ICPSR',cat:'Social Sci',url:'https://www.icpsr.umich.edu/web/pages/ICPSR/index.html',desc:'Social science data archive'},
+  {name:'Pew Research',cat:'Social Sci',url:'https://www.pewresearch.org/search/?q=',desc:'US & global surveys'},
+  {name:'EThOS',cat:'Theses',url:'https://ethos.bl.uk/SearchResults.do?query=',desc:'UK theses (British Library)'},
+  {name:'OATD',cat:'Theses',url:'https://oatd.org/oatd/search?q=',desc:'Open access theses'},
+  {name:'OSF',cat:'Preprints',url:'https://osf.io/search/?q=',desc:'Open Science Framework'},
+  {name:'PsyArXiv',cat:'Preprints',url:'https://psyarxiv.com/discover?q=',desc:'Psychology preprints'},
+];
 var srcs=new Set(["tavily","brave","exa"]),savedRuns=[],allResults=[];
 function selectAllSources() {
     document.querySelectorAll('[data-s]').forEach(el => {
