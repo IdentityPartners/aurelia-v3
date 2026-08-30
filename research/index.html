@@ -109,18 +109,107 @@ function selectAllSources() {
     Toast && Toast.show('All sources selected', 'success');
   }
   function toggleSrc(el) {var s=el.dataset.s;if(srcs.has(s)){srcs.delete(s);el.classList.remove("on");}else{srcs.add(s);el.classList.add("on");}}
-async function runResearch(){
-  var q=document.getElementById("research-query").value.trim();if(!q)return;
+async async function runResearch(){
+  var q=document.getElementById("research-query").value.trim();
+  if(!q)return;
   var list=document.getElementById("results-list");
-  list.innerHTML="<div style='text-align:center;color:var(--text-faint);padding:24px'>Searching…</div>";
   var tok=localStorage.getItem("aurelia_device_token")||"dt_research";
+  
+  // Show loading state using createElement (no innerHTML with mixed quotes)
+  list.innerHTML="";
+  var loading=document.createElement("div");
+  loading.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
+  loading.textContent="Searching across "+srcs.size+" sources…";
+  list.appendChild(loading);
+  
   try{
-    var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/research",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},body:JSON.stringify({query:q,sources:[...srcs]})});
+    var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/research",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+      body:JSON.stringify({query:q,sources:[...srcs]})
+    });
     var data=await res.json();
     allResults=data.results||[];
-    if(!allResults.length){list.innerHTML="<div style='text-align:center;color:var(--text-faint);padding:24px'>No results found.</div>";return;}
-    list.innerHTML=allResults.map(function(r){return "<div style='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:9px;cursor:pointer' onclick='window.open(""+r.url+"","_blank")'><div style='font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px'>"+r.title+"</div><div style='font-size:11px;color:var(--accent);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+r.url+"</div><div style='font-size:12.5px;color:var(--text-muted)'>"+((r.snippet||r.content||"").slice(0,180))+"…</div></div>";}).join("");
-  }catch(e){list.innerHTML="<div style='text-align:center;color:var(--text-faint);padding:24px'>Search failed: "+e.message+"</div>";}
+    list.innerHTML="";
+    if(!allResults.length){
+      var noRes=document.createElement("div");
+      noRes.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
+      noRes.textContent="No results found. Try different search terms or enable more sources.";
+      list.appendChild(noRes);
+      return;
+    }
+    allResults.forEach(function(r){
+      var card=document.createElement("div");
+      card.className="result-card fade-in";
+      card.style.cursor="pointer";
+      
+      var title=document.createElement("div");
+      title.className="result-title";
+      title.textContent=r.title||"Untitled";
+      
+      var url=document.createElement("div");
+      url.className="result-url";
+      url.textContent=r.url||"";
+      
+      var snip=document.createElement("div");
+      snip.className="result-snippet";
+      snip.textContent=(r.snippet||r.content||"").slice(0,220)+"…";
+      
+      var footer=document.createElement("div");
+      footer.className="result-footer";
+      footer.style.cssText="display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap";
+      
+      var srcTag=document.createElement("span");
+      srcTag.className="tag";
+      srcTag.textContent=r.source||"web";
+      footer.appendChild(srcTag);
+      
+      if(r.score){
+        var scoreTag=document.createElement("span");
+        scoreTag.className="tag tag-sage";
+        scoreTag.textContent=r.score;
+        footer.appendChild(scoreTag);
+      }
+      
+      var actions=document.createElement("span");
+      actions.style.cssText="margin-left:auto;display:flex;gap:5px";
+      
+      var chatBtn=document.createElement("button");
+      chatBtn.className="btn btn-ghost btn-sm";
+      chatBtn.textContent="→ Chat";
+      chatBtn.onclick=function(e){e.stopPropagation();sendToChat(r.title,r.snippet||"");};
+      
+      var draftBtn=document.createElement("button");
+      draftBtn.className="btn btn-ghost btn-sm";
+      draftBtn.textContent="→ Draft";
+      draftBtn.onclick=function(e){e.stopPropagation();sendToDraft(r.title,r.snippet||"");};
+      
+      var openBtn=document.createElement("a");
+      openBtn.className="btn btn-ghost btn-sm";
+      openBtn.textContent="↗";
+      openBtn.href=r.url||"#";
+      openBtn.target="_blank";
+      openBtn.onclick=function(e){e.stopPropagation();};
+      
+      actions.appendChild(chatBtn);
+      actions.appendChild(draftBtn);
+      actions.appendChild(openBtn);
+      footer.appendChild(actions);
+      
+      card.appendChild(title);
+      card.appendChild(url);
+      card.appendChild(snip);
+      card.appendChild(footer);
+      card.onclick=function(){showDetail(r);};
+      list.appendChild(card);
+    });
+  }catch(e){
+    list.innerHTML="";
+    var errDiv=document.createElement("div");
+    errDiv.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
+    errDiv.textContent="Search failed: "+e.message+". Check API keys in Settings.";
+    list.appendChild(errDiv);
+  }
 }
 function saveRun(){var q=document.getElementById("research-query").value.trim();if(!q||!allResults.length){Toast.show("Run a search first","info");return;}savedRuns.push({id:"run_"+Date.now(),query:q,results:allResults,ts:Date.now()});localStorage.setItem("aurelia_research",JSON.stringify(savedRuns));Toast.show("Run saved","success");}
 function exportResults(){if(!allResults.length){Toast.show("No results","info");return;}var text=allResults.map(function(r){return "# "+r.title+"\n"+r.url+"\n\n"+(r.snippet||"")+"\n\n---\n";}).join("\n");var blob=new Blob([text],{type:"text/markdown"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="research-"+Date.now()+".md";a.click();}
