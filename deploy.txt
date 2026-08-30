@@ -1,0 +1,2 @@
+Deploy: 2026-08-30T13:21:16.139599
+Forces Cloudflare Pages to rebuild all files from latest GitHub commit.
