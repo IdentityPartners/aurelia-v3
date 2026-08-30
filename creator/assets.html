@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Creator Assets</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .page-body{padding:20px;max-width:900px}
+    .asset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px}
+    .asset-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:14px;cursor:pointer;transition:all .15s}
+    .asset-card:hover{border-color:var(--ink-6,#d6d3d1);box-shadow:var(--shadow-sm)}
+    .asset-preview{height:120px;background:var(--bg-2,#f0e9e0);border-radius:var(--radius,8px);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:10px}
+    .asset-name{font-size:13px;font-weight:600;color:var(--ink)}
+    .asset-meta{font-size:11px;color:var(--faint,#a8a29e);margin-top:3px}
+    .new-card{background:var(--bg-2,#f0e9e0);border:2px dashed var(--border);border-radius:var(--radius-lg,12px);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;cursor:pointer;transition:all .15s;gap:8px;color:var(--faint,#a8a29e)}
+    .new-card:hover{border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/messages/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Messages</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item nav-sub"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><span class="nav-label">Comms Centre</span></a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="/agenti-city/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <a href="/workflow/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/profile/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">My Profile</span></a>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/dev-team/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Dev Team</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Creator Assets</span>
+      <div class="topbar-actions" id="page-actions"></div>
+    </div>
+    <div class="page-body">
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h2 style="font-family:var(--font-serif,Georgia);font-size:20px;font-weight:400;color:var(--ink)">Assets</h2>
+        <p style="font-size:12.5px;color:var(--faint,#a8a29e);margin-top:3px">Quote cards, testimonials, carousels, infographics</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="showCreateAsset()">+ New Asset</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <select class="input" id="asset-type-filter" onchange="filterAssets()" style="max-width:160px;font-size:12px">
+        <option value="">All types</option>
+        <option value="quote-card">Quote Cards</option>
+        <option value="carousel">Carousels</option>
+        <option value="infographic">Infographics</option>
+        <option value="testimonial">Testimonials</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='/creator/canvas.html'">Open Canvas</button>
+    </div>
+    <div class="asset-grid" id="asset-grid">
+      <div class="new-card" onclick="showCreateAsset()">
+        <span style="font-size:28px">+</span>
+        <span style="font-size:13px;font-weight:500">New Asset</span>
+      </div>
+    </div>
+    <div class="modal-overlay" id="create-asset-modal">
+      <div class="modal" style="max-width:520px">
+        <div class="modal-header"><span class="modal-title">Create Asset</span><button class="modal-close" onclick="closeModal()">&#10005;</button></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="input-group"><label class="input-label">Type</label><select class="input" id="new-asset-type"><option value="quote-card">Quote Card</option><option value="carousel">Carousel</option><option value="infographic">Infographic</option><option value="testimonial">Testimonial</option></select></div>
+          <div class="input-group"><label class="input-label">Title</label><input class="input" id="new-asset-title" placeholder="Asset title..."></div>
+          <div class="input-group"><label class="input-label">Content</label><textarea class="input" id="new-asset-content" rows="4" placeholder="Content or description..."></textarea></div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-primary" onclick="saveAsset()">Save Asset</button>
+            <button class="btn btn-ghost" onclick="generateAssetAI()">&#10024; Generate with AI</button>
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+<script>
+var assets = [];
+  function init() {
+    assets = JSON.parse(localStorage.getItem("aurelia_creator_assets") || "[]");
+    renderAssets();
+    var actions = document.getElementById("page-actions");
+    if (actions) {
+      var btn = document.createElement("button");
+      btn.className = "btn btn-ghost btn-sm";
+      btn.textContent = "Open Canvas";
+      btn.onclick = function() { window.location.href = "/creator/canvas.html"; };
+      actions.appendChild(btn);
+    }
+  }
+  function renderAssets() {
+    var grid = document.getElementById("asset-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    var typeFilter = document.getElementById("asset-type-filter");
+    var filter = typeFilter ? typeFilter.value : "";
+    var filtered = filter ? assets.filter(function(a) { return a.type === filter; }) : assets;
+    filtered.forEach(function(a) {
+      var card = document.createElement("div");
+      card.className = "asset-card";
+      var icons = {"quote-card":"&#10077;","carousel":"&#9776;","infographic":"&#128202;","testimonial":"&#9733;"};
+      var preview = document.createElement("div");
+      preview.className = "asset-preview";
+      preview.innerHTML = icons[a.type] || "&#9670;";
+      var name = document.createElement("div");
+      name.className = "asset-name";
+      name.textContent = a.title || "Untitled";
+      var meta = document.createElement("div");
+      meta.className = "asset-meta";
+      meta.textContent = a.type + " · " + new Date(a.ts).toLocaleDateString("en-GB");
+      card.appendChild(preview);
+      card.appendChild(name);
+      card.appendChild(meta);
+      grid.appendChild(card);
+    });
+    var newCard = document.createElement("div");
+    newCard.className = "new-card";
+    newCard.onclick = showCreateAsset;
+    newCard.innerHTML = "<span style='font-size:28px'>+</span><span style='font-size:13px;font-weight:500'>New Asset</span>";
+    grid.appendChild(newCard);
+  }
+  function filterAssets() { renderAssets(); }
+  function showCreateAsset() { document.getElementById("create-asset-modal").classList.add("open"); }
+  function closeModal() { document.getElementById("create-asset-modal").classList.remove("open"); }
+  function saveAsset() {
+    var title = document.getElementById("new-asset-title").value.trim();
+    if (!title) { if (typeof Toast !== "undefined") Toast.show("Title required", "error"); return; }
+    var asset = {
+      id: "a_" + Date.now(),
+      type: document.getElementById("new-asset-type").value,
+      title: title,
+      content: document.getElementById("new-asset-content").value.trim(),
+      ts: Date.now()
+    };
+    assets.push(asset);
+    localStorage.setItem("aurelia_creator_assets", JSON.stringify(assets));
+    renderAssets();
+    closeModal();
+    if (typeof Toast !== "undefined") Toast.show("Asset saved", "success");
+  }
+  async function generateAssetAI() {
+    var type = document.getElementById("new-asset-type").value;
+    var content = document.getElementById("new-asset-content").value.trim();
+    if (!content) { if (typeof Toast !== "undefined") Toast.show("Add some content first", "info"); return; }
+    var tok = localStorage.getItem("aurelia_device_token") || "dt_creator";
+    try {
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({messages:[{role:"user",content:"Create a " + type + " for Identity Partners based on: " + content + ". Make it professional and engaging."}],model:"groq/openai/gpt-oss-20b"})
+      });
+      var data = await res.json();
+      document.getElementById("new-asset-content").value = data.content || content;
+      if (typeof Toast !== "undefined") Toast.show("Generated!", "success");
+    } catch(e) { if (typeof Toast !== "undefined") Toast.show("Configure API keys in Settings", "info"); }
+  }
+document.addEventListener("DOMContentLoaded", function() {
+  if (typeof init === "function") init();
+});
+</script>
+</body>
+</html>
