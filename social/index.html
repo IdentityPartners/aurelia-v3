@@ -50,7 +50,22 @@
   <div style="flex:1;overflow-y:auto;padding:14px" id="queue-list"><div class="empty-state"><div class="empty-state-icon" style="font-size:28px;opacity:.2">📱</div><div class="empty-state-title">Social Queue is empty</div><div class="empty-state-desc">Compose a post or send content from Drafting Desk.</div></div></div>
 </div>
 <div style="width:320px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);padding:14px;overflow-y:auto">
-  <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Compose Post</div>
+  <div style="background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:12px">
+  <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:7px">Platform Status</div>
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+    <span id="tg-dot" style="width:8px;height:8px;border-radius:50%;background:#f57f17;flex-shrink:0"></span>
+    <span id="tg-label" style="font-size:11.5px;color:var(--ink)">Telegram — checking...</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+    <span id="bs-dot" style="width:8px;height:8px;border-radius:50%;background:#f57f17;flex-shrink:0"></span>
+    <span id="bs-label" style="font-size:11.5px;color:var(--ink)">Bluesky — checking...</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span style="width:8px;height:8px;border-radius:50%;background:#f57f17;flex-shrink:0"></span>
+    <span style="font-size:11.5px;color:var(--ink)">Zoho Social — <a href="/comms/zoho.html" style="color:var(--accent,#0f3b3a)">Connect</a></span>
+  </div>
+</div>
+<div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Compose Post</div>
   <div class="input-group mb-3"><label class="input-label">Platform</label><select class="input" id="compose-platform" style="font-size:12px"><option value="linkedin">💼 LinkedIn</option><option value="bluesky">🦋 Bluesky</option><option value="telegram">✈️ Telegram</option></select></div>
   <div class="input-group mb-3"><label class="input-label">Content</label><textarea class="input" id="compose-content" rows="6" placeholder="Write your post…" oninput="updateCharCount()"></textarea><div style="font-size:10.5px;color:var(--text-faint);text-align:right;margin-top:3px" id="char-counter">0</div></div>
   <div class="input-group mb-3"><label class="input-label">Schedule (optional)</label><input class="input" type="datetime-local" id="compose-schedule"></div>
