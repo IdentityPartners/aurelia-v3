@@ -578,10 +578,9 @@ async function loadNews() {
   var feed = document.getElementById("news-feed");
   if (!feed) return;
   
-  // ALWAYS show fallback articles immediately — no waiting
   var FALLBACK = {
     general: [
-      {source:"BBC News",title:"UK and world news from the BBC",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
+      {source:"BBC News",title:"UK and world news — click to visit BBC News",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
       {source:"The Guardian",title:"Independent journalism — politics, society, culture",url:"https://www.theguardian.com",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
       {source:"Sky News",title:"Breaking news, analysis and video",url:"https://news.sky.com",image:"https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70",date:"Live"},
       {source:"The Independent",title:"Independent news and opinion",url:"https://www.independent.co.uk",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
@@ -617,34 +616,31 @@ async function loadNews() {
     ],
   };
   
-  // Show fallback immediately
+  // STEP 1: Show fallback articles IMMEDIATELY — always visible
   feed.innerHTML = "";
   var fallbacks = FALLBACK[catVal] || FALLBACK.general;
   fallbacks.forEach(function(item) { renderNewsCard(feed, item); });
   
-  // Try to load live RSS in background (silently, no error shown)
-  var FEEDS = {
-    general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"}],
-    ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"}],
-    psychology: [{name:"Psychology Today",url:"https://www.psychologytoday.com/intl/front-page/feed"}],
-    coaching: [{name:"Positive Psychology",url:"https://positivepsychology.com/feed/"}],
-    neurodivergent: [{name:"ADHD UK",url:"https://adhduk.co.uk/feed/"}],
-    uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"}],
-    world: [{name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}],
-  };
-  
-  var sources = FEEDS[catVal] || FEEDS.general;
-  var liveItems = [];
-  
+  // STEP 2: Try to load live RSS in background — silently replace if successful
   try {
+    var FEEDS = {
+      general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"}],
+      ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"}],
+      psychology: [{name:"Psychology Today",url:"https://www.psychologytoday.com/intl/front-page/feed"}],
+      coaching: [{name:"Positive Psychology",url:"https://positivepsychology.com/feed/"}],
+      neurodivergent: [{name:"ADHD UK",url:"https://adhduk.co.uk/feed/"}],
+      uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"}],
+      world: [{name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}],
+    };
+    var sources = FEEDS[catVal] || FEEDS.general;
+    var liveItems = [];
+    
     var promises = sources.map(async function(src) {
       try {
-        // Use allorigins.win as CORS proxy
         var proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(src.url);
-        var res = await fetch(proxyUrl, {signal: AbortSignal.timeout(5000)});
+        var res = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
         var data = await res.json();
         if (data.contents) {
-          // Parse RSS XML
           var parser = new DOMParser();
           var xml = parser.parseFromString(data.contents, "text/xml");
           var items = xml.querySelectorAll("item");
@@ -661,9 +657,9 @@ async function loadNews() {
             }
             liveItems.push({
               source: src.name,
-              title: title ? title.textContent : "",
+              title: title ? title.textContent.trim() : "",
               description: desc ? (desc.textContent || "").replace(/<[^>]+>/g," ").trim().slice(0,160) : "",
-              url: link ? link.textContent : "#",
+              url: link ? link.textContent.trim() : "#",
               image: img,
               date: pubDate ? new Date(pubDate.textContent).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "",
             });
@@ -671,14 +667,16 @@ async function loadNews() {
         }
       } catch(e) {}
     });
+    
     await Promise.all(promises);
     
     if (liveItems.length > 0) {
-      // Replace fallback with live articles
       feed.innerHTML = "";
       liveItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
     }
-  } catch(e) {}
+  } catch(e) {
+    // Fallback already shown — do nothing
+  }
 }
 function extractFirstImage(html) {
   var match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
