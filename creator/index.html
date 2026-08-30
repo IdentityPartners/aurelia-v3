@@ -51,5 +51,145 @@
 <script src="/shared/aurelia.js"></script>
 <script></script>
 <script src="/shared/help.js"></script>
+<div class="modal-overlay" id="quick-create-modal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><span class="modal-title" id="qc-modal-title">Create Asset</span><button class="modal-close" onclick="closeQCModal()">&#10005;</button></div>
+    <div id="qc-modal-body"></div>
+  </div>
+</div>
+
+<script>
+  var QUICK_CREATE_TEMPLATES = {
+    "quote-card": {title:"Quote Card",fields:[{id:"quote",label:"Quote text",type:"textarea",placeholder:"Enter the quote..."},{id:"attribution",label:"Attribution",type:"input",placeholder:"— Name, Title"},{id:"style",label:"Style",type:"select",options:["Elegant","Modern","Minimal","Bold"]}]},
+    "linkedin-post": {title:"LinkedIn Post",fields:[{id:"topic",label:"Topic / angle",type:"input",placeholder:"e.g. Identity development after career change"},{id:"tone",label:"Tone",type:"select",options:["Thought-leadership","Conversational","Story-led","Educational"]},{id:"cta",label:"Call to action",type:"input",placeholder:"e.g. What has your experience been?"}]},
+    "carousel": {title:"Carousel",fields:[{id:"topic",label:"Topic",type:"input",placeholder:"e.g. 5 signs you need a thinking partner"},{id:"slides",label:"Number of slides",type:"select",options:["5","7","10","12"]},{id:"platform",label:"Platform",type:"select",options:["LinkedIn","Instagram","Both"]}]},
+    "podcast-script": {title:"Podcast Script",fields:[{id:"topic",label:"Episode topic",type:"input",placeholder:"e.g. Navigating identity after late ADHD diagnosis"},{id:"duration",label:"Duration",type:"select",options:["10 min","20 min","30 min","45 min","60 min"]},{id:"format",label:"Format",type:"select",options:["Solo","Interview","Panel"]}]},
+    "worksheet": {title:"Worksheet",fields:[{id:"title",label:"Worksheet title",type:"input",placeholder:"e.g. Values Mapping Exercise"},{id:"audience",label:"Audience",type:"input",placeholder:"e.g. Coaching clients, neurodivergent adults"},{id:"sections",label:"Number of sections",type:"select",options:["3","5","7","10"]}]},
+    "bluesky-thread": {title:"Bluesky Thread",fields:[{id:"topic",label:"Thread topic",type:"input",placeholder:"e.g. Why listening is a professional skill"},{id:"posts",label:"Number of posts",type:"select",options:["5","7","10","15"]},{id:"tone",label:"Tone",type:"select",options:["Conversational","Educational","Provocative","Story-led"]}]},
+    "infographic": {title:"Infographic",fields:[{id:"topic",label:"Topic",type:"input",placeholder:"e.g. The 7 types of life transition"},{id:"data",label:"Key data points",type:"textarea",placeholder:"List your key points or data..."},{id:"style",label:"Style",type:"select",options:["Minimal","Bold","Data-heavy","Illustrative"]}]},
+    "email-sequence": {title:"Email Sequence",fields:[{id:"goal",label:"Sequence goal",type:"input",placeholder:"e.g. Onboard new coaching clients"},{id:"emails",label:"Number of emails",type:"select",options:["3","5","7","10"]},{id:"tone",label:"Tone",type:"select",options:["Warm","Professional","Educational","Nurturing"]}]}
+  };
+
+  function quickCreate(type) {
+    var tpl = QUICK_CREATE_TEMPLATES[type];
+    if (!tpl) return;
+    var modal = document.getElementById("quick-create-modal");
+    var title = document.getElementById("qc-modal-title");
+    var body = document.getElementById("qc-modal-body");
+    if (!modal || !title || !body) return;
+    title.textContent = tpl.title;
+    body.innerHTML = "";
+    var form = document.createElement("div");
+    form.style.cssText = "display:flex;flex-direction:column;gap:12px";
+    tpl.fields.forEach(function(f) {
+      var group = document.createElement("div");
+      group.className = "input-group";
+      var label = document.createElement("label");
+      label.className = "input-label";
+      label.textContent = f.label;
+      var input;
+      if (f.type === "textarea") {
+        input = document.createElement("textarea");
+        input.className = "input";
+        input.rows = 3;
+        input.placeholder = f.placeholder || "";
+      } else if (f.type === "select") {
+        input = document.createElement("select");
+        input.className = "input";
+        (f.options || []).forEach(function(opt) {
+          var o = document.createElement("option");
+          o.value = opt; o.textContent = opt;
+          input.appendChild(o);
+        });
+      } else {
+        input = document.createElement("input");
+        input.className = "input";
+        input.placeholder = f.placeholder || "";
+      }
+      input.id = "qc-" + f.id;
+      group.appendChild(label);
+      group.appendChild(input);
+      form.appendChild(group);
+    });
+    var btnRow = document.createElement("div");
+    btnRow.style.cssText = "display:flex;gap:8px;margin-top:6px";
+    var genBtn = document.createElement("button");
+    genBtn.className = "btn btn-primary";
+    genBtn.textContent = "✦ Generate with AI";
+    genBtn.onclick = function() { generateAsset(type); };
+    var cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn btn-ghost";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.onclick = function() { closeQCModal(); };
+    btnRow.appendChild(genBtn);
+    btnRow.appendChild(cancelBtn);
+    form.appendChild(btnRow);
+    body.appendChild(form);
+    modal.classList.add("open");
+  }
+
+  async function generateAsset(type) {
+    var tpl = QUICK_CREATE_TEMPLATES[type];
+    if (!tpl) return;
+    var fields = {};
+    tpl.fields.forEach(function(f) {
+      var el = document.getElementById("qc-" + f.id);
+      if (el) fields[f.id] = el.value;
+    });
+    closeQCModal();
+    if (typeof Toast !== "undefined") Toast.show("Generating " + tpl.title + "...", "info");
+    var tok = localStorage.getItem("aurelia_device_token") || "dt_creator";
+    try {
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({
+          messages: [{role:"user",content:"Create a " + tpl.title + " for Identity Partners with these parameters: " + JSON.stringify(fields) + ". Format it professionally."}],
+          model: "groq/openai/gpt-oss-20b"
+        })
+      });
+      var data = await res.json();
+      sessionStorage.setItem("aurelia_creator_content", data.content || "Asset generated.");
+      window.location.href = "/creator/assets.html";
+    } catch(e) {
+      if (typeof Toast !== "undefined") Toast.show("Configure API keys in Settings to generate assets", "info");
+    }
+  }
+
+  function closeQCModal() {
+    var modal = document.getElementById("quick-create-modal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  function showCreateAgent() {
+    window.location.href = "/agenti-city/index.html";
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var assets = JSON.parse(localStorage.getItem("aurelia_creator_assets") || "[]");
+    var grid = document.getElementById("recent-assets-grid");
+    if (assets.length && grid) {
+      grid.innerHTML = "";
+      assets.slice(-8).reverse().forEach(function(a) {
+        var div = document.createElement("div");
+        div.className = "asset-thumb";
+        div.onclick = function() { window.location.href = "/creator/assets.html"; };
+        var icon = document.createElement("span");
+        icon.textContent = a.icon || "◈";
+        var label = document.createElement("span");
+        label.className = "asset-thumb-label";
+        label.textContent = (a.title || "Asset").slice(0,20);
+        div.appendChild(icon);
+        div.appendChild(label);
+        grid.appendChild(div);
+      });
+      var addDiv = document.createElement("div");
+      addDiv.className = "asset-thumb";
+      addDiv.onclick = function() { window.location.href = "/creator/assets.html"; };
+      addDiv.innerHTML = "<span>+</span><span class=\"asset-thumb-label\">New Asset</span>";
+      grid.appendChild(addDiv);
+    }
+  });
+</script>
 </body>
 </html>
