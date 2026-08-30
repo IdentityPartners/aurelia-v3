@@ -37,7 +37,11 @@
     .msg-action-btn { background:none; border:1px solid var(--border); color:var(--text-faint); border-radius:var(--radius-sm); padding:2px 7px; font-size:10.5px; cursor:pointer; transition:all var(--transition); }
     .msg-action-btn:hover { border-color:var(--ink-5); color:var(--ink); }
     @media(max-width:1100px) { .context-pane { display:none; } }
-    @media(max-width:700px) { .thread-pane { width:0; } }</style>
+    @media(max-width:700px) { .thread-pane.collapsed { width:0; } }
+    .qk { height:28px; min-width:26px; border-radius:4px; border:1px solid var(--border); background:var(--surface); font-size:12px; cursor:pointer; color:var(--ink); font-family:var(--font,Inter); transition:background 0.1s; padding:0 4px; }
+    .qk:hover { background:var(--bg-3,#e8ddd4); }
+    .qk:active { background:var(--accent3,rgba(15,59,58,0.1)); }
+  </style>
 <!-- fix-v2 -->
 <!-- chat-20260830142608 -->
 </head>
@@ -222,10 +226,102 @@ function generateImage() {
   }
 }
 
-// ── Main send function ─────────function doSend() {
+// ── Main send function ─────────
+  function qk(char) {
+    var ta = document.getElementById("chat-textarea");
+    if (!ta) return;
+    if (char === String.fromCharCode(8232)) {
+      // Line break — just add newline
+      ta.value += "\n";
+    } else {
+      ta.value += char;
+    }
+    if (typeof autoResize === "function") autoResize(ta);
+    var cc = document.getElementById("char-count");
+    if (cc) cc.textContent = ta.value.length;
+    ta.focus();
+  }
+  function qkDel() {
+    var ta = document.getElementById("chat-textarea");
+    if (!ta) return;
+    ta.value = ta.value.slice(0, -1);
+    if (typeof autoResize === "function") autoResize(ta);
+    var cc = document.getElementById("char-count");
+    if (cc) cc.textContent = ta.value.length;
+  }
+  
+  async function generateImageFromText(subject) {
+    var mc = document.getElementById("chat-messages");
+    var em = document.getElementById("chat-empty");
+    if (em) em.style.display = "none";
+    
+    // Show user message
+    if (mc) {
+      var userEl = document.createElement("div");
+      userEl.className = "message user fade-in";
+      var userAv = document.createElement("div"); userAv.className = "message-avatar"; userAv.textContent = "SJ";
+      var userBub = document.createElement("div"); userBub.className = "message-bubble"; userBub.textContent = "Generate an image of: " + subject;
+      userEl.appendChild(userAv); userEl.appendChild(userBub);
+      mc.appendChild(userEl); mc.scrollTop = mc.scrollHeight;
+    }
+    
+    // Show loading
+    var loadEl = document.createElement("div");
+    loadEl.className = "message fade-in"; loadEl.id = "img-loading";
+    var loadAv = document.createElement("div"); loadAv.className = "message-avatar"; loadAv.textContent = "A";
+    var loadBub = document.createElement("div"); loadBub.className = "message-bubble"; loadBub.textContent = "Generating image...";
+    loadEl.appendChild(loadAv); loadEl.appendChild(loadBub);
+    if (mc) { mc.appendChild(loadEl); mc.scrollTop = mc.scrollHeight; }
+    
+    // Generate via Pollinations (free, no key needed)
+    var encodedSubject = encodeURIComponent(subject + ", professional, high quality, Identity Partners aesthetic");
+    var imgUrl = "https://image.pollinations.ai/prompt/" + encodedSubject + "?width=1024&height=1024&nologo=true&enhance=true";
+    
+    var loadingEl = document.getElementById("img-loading");
+    if (loadingEl) loadingEl.remove();
+    
+    var aiEl = document.createElement("div");
+    aiEl.className = "message fade-in";
+    var aiAv = document.createElement("div"); aiAv.className = "message-avatar"; aiAv.textContent = "A";
+    var aiBub = document.createElement("div"); aiBub.className = "message-bubble";
+    
+    var img = document.createElement("img");
+    img.src = imgUrl;
+    img.style.cssText = "max-width:100%;border-radius:8px;display:block;margin-bottom:8px";
+    img.alt = subject;
+    
+    var imgMeta = document.createElement("div");
+    imgMeta.style.cssText = "font-size:11px;color:var(--text-faint)";
+    imgMeta.textContent = "Generated: " + subject;
+    
+    var downloadBtn = document.createElement("a");
+    downloadBtn.href = imgUrl;
+    downloadBtn.download = subject.replace(/\s+/g,"-").toLowerCase() + ".png";
+    downloadBtn.className = "btn btn-ghost btn-sm";
+    downloadBtn.style.marginTop = "6px";
+    downloadBtn.textContent = "Download";
+    downloadBtn.target = "_blank";
+    
+    aiBub.appendChild(img);
+    aiBub.appendChild(imgMeta);
+    aiBub.appendChild(downloadBtn);
+    aiEl.appendChild(aiAv); aiEl.appendChild(aiBub);
+    if (mc) { mc.appendChild(aiEl); mc.scrollTop = mc.scrollHeight; }
+  }
+  function doSend() {
   var ta = document.getElementById('chat-textarea');
   if (!ta) return;
   var t = ta.value.trim();
+  // Auto-detect image generation request
+  var imageKeywords = /generate.{0,30}image|create.{0,30}image|draw.{0,30}image|make.{0,30}image|show.{0,30}image|visualise|visualize|picture of|photo of|illustration of/i;
+  if (imageKeywords.test(t)) {
+    // Extract the subject after "image of" or similar
+    var imgSubject = t.replace(/.*(?:image|picture|photo|illustration|drawing)\s+(?:of\s+)?/i, '').trim() || t;
+    generateImageFromText(imgSubject);
+    ta.value = '';
+    ta.style.height = 'auto';
+    return;
+  }
   if (attachedFileContent) t = attachedFileContent + '\n\n' + t;
   if (!t) return;
   ta.value = '';
@@ -643,7 +739,11 @@ function setPersona(id) {
   if (sheet) sheet.remove();
   if (id) Toast.show('Persona: ' + AVATARS.personas[id].label, 'success');
   else Toast.show('Default model avatar', 'info');
-}
+
+    // Update topbar label
+    var topbarLabel = document.getElementById("persona-topbar-label");
+    if (topbarLabel) topbarLabel.textContent = (persona.emoji || "\u2728") + " " + (persona.name || "Aurelia");
+  }
 
 function setMode(id) {
   activeMode = id;
@@ -763,9 +863,22 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
 <button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#f57f17;font-size:14px">✕</button>
 </div>
 <div class="chat-topbar">
-<div style="flex:1">
-<div id="chat-thread-title" style="font-family:var(--font-serif);font-size:15px;font-weight:500;color:var(--ink)">New Conversation</div>
-<div id="chat-thread-meta" style="font-size:10.5px;color:var(--text-faint)">Ready</div>
+<div style="flex:1;min-width:0">
+  <div id="chat-thread-title" style="font-family:var(--font-serif);font-size:14px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">New Conversation</div>
+  <div id="chat-thread-meta" style="font-size:10px;color:var(--text-faint)">Ready</div>
+</div>
+<!-- Persona selector (prominent, at top) -->
+<button class="btn btn-ghost btn-sm" id="persona-topbar-btn" onclick="openPersonaSheet()" style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Change persona">
+  <span id="persona-topbar-label">&#10024; Aurelia</span>
+</button>
+<!-- Model selector -->
+<div id="model-selector-container"></div>
+<!-- Dictation -->
+<button class="btn btn-ghost btn-sm" id="dictate-btn" onclick="Dictation.toggle('chat-textarea')" data-dictation-btn="chat-textarea" title="Dictate (click to start/stop)" style="font-size:11px">&#127908;</button>
+<!-- Round Robin -->
+<button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px" title="Query multiple models simultaneously">&#8853; RR</button>
+<!-- Handwrite toggle -->
+<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px" title="Toggle handwriting canvas">&#9998;</button>
 </div>
 <div id="model-selector-container"></div>
 <button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px">⊕ Round Robin</button>
@@ -788,34 +901,49 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
 </div>
 </div>
 <div class="chat-input-area">
-<div style="display:flex;align-items:flex-end;gap:8px">
-<div class="chat-input-wrap" style="flex:1">
-<textarea data-autoresize="" id="chat-textarea" placeholder="Message Aurelia… (Enter to send, Shift+Enter for new line)" rows="1"></textarea>
-<div class="chat-input-actions">
-<button class="btn btn-ghost btn-sm" id="agent-research-btn" onclick="toggleAgent('research')">◎ Research</button>
-<button class="btn btn-ghost btn-sm" id="agent-atomise-btn" onclick="toggleAgent('atomise')">⚡ Atomise</button>
-<button class="btn btn-ghost btn-sm" id="agent-creator-btn" onclick="toggleAgent('creator')">◈ Creator</button>
-<button class="btn btn-ghost btn-sm" onclick="generateImage()" title="Generate image with AI">🎨 Image</button>
-<button class="btn btn-ghost btn-sm" id="rr-toggle-btn" onclick="toggleRR()" title="Round Robin — query multiple models">⟳ Round Robin</button>
-<button class="btn btn-ghost btn-sm" onclick="openPersonaSheet()" title="Avatar · Persona · Mode" id="persona-btn">🎭 Persona</button>
-<label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Attach file, image, or document">📎 <input type="file" id="file-input" accept="image/*,.pdf,.txt,.md,.csv,.docx,.xlsx" style="display:none" onchange="handleFileAttach(this)"></label>
-<span id="file-attach-preview" style="display:none;font-size:11px;color:var(--text-faint);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:2px 8px;align-items:center;gap:4px">
-  <span id="file-attach-name"></span>
-  <span onclick="clearAttach()" style="cursor:pointer;opacity:0.6">✕</span>
-</span>
-<button class="btn btn-ghost btn-sm" onclick="document.getElementById('chat-file-input').click()" title="Attach image or file (vision models)">📎 Image</button>
-<input accept="image/*,.pdf,.txt,.md,.csv" id="chat-file-input" onchange="handleFileAttach(this)" style="display:none" type="file"/>
-<span style="flex:1"></span>
-<span id="char-count" style="font-size:10.5px;color:var(--text-faint)">0</span>
+<!-- Main input row -->
+<div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:6px">
+  <!-- Attach button (left of textarea) -->
+  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0;height:36px;display:flex;align-items:center" title="Attach file or image">
+    &#128206;
+    <input type="file" accept="image/*,.pdf,.txt,.md,.docx,.csv" style="display:none" onchange="handleFileAttach(this)">
+  </label>
+  <!-- Textarea -->
+  <div class="chat-input-wrap" style="flex:1">
+    <textarea data-autoresize="" id="chat-textarea" placeholder="Message Aurelia&#8230; (Enter to send, Shift+Enter for new line)" rows="1"></textarea>
+    <div class="chat-input-actions">
+      <button class="btn btn-ghost btn-sm" id="agent-research-btn" onclick="toggleAgent('research')">&#9678; Research</button>
+      <button class="btn btn-ghost btn-sm" id="agent-atomise-btn" onclick="toggleAgent('atomise')">&#9889; Atomise</button>
+      <button class="btn btn-ghost btn-sm" id="agent-creator-btn" onclick="toggleAgent('creator')">&#9672; Creator</button>
+      <span style="flex:1"></span>
+      <span style="font-size:10.5px;color:var(--text-faint)" id="char-count">0</span>
+    </div>
+  </div>
+  <!-- Dictation button (right of textarea) -->
+  <button class="btn btn-ghost btn-sm" onclick="Dictation.toggle('chat-textarea')" data-dictation-btn="chat-textarea" title="Dictate" style="flex-shrink:0;height:36px">&#127908;</button>
+  <!-- Send button -->
+  <button class="btn btn-primary" id="send-btn" onclick="doSend()" style="height:44px;padding:0 16px;flex-shrink:0">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  </button>
 </div>
-<div id="file-preview" style="display:none;margin-top:5px;padding:5px 8px;background:var(--bg-3);border-radius:var(--radius-sm);font-size:11px;color:var(--text-muted);align-items:center;gap:6px">
-<span id="file-preview-name"></span>
-<button onclick="clearFileAttach()" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:12px;margin-left:auto">✕</button>
+<!-- Compact QWERTY — always visible, 3 rows -->
+<div id="chat-mini-qwerty" style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:5px;display:flex;flex-direction:column;gap:3px">
+  <div style="display:flex;gap:2px;justify-content:center">
+    <button class="qk" onclick="qk('q')">q</button><button class="qk" onclick="qk('w')">w</button><button class="qk" onclick="qk('e')">e</button><button class="qk" onclick="qk('r')">r</button><button class="qk" onclick="qk('t')">t</button><button class="qk" onclick="qk('y')">y</button><button class="qk" onclick="qk('u')">u</button><button class="qk" onclick="qk('i')">i</button><button class="qk" onclick="qk('o')">o</button><button class="qk" onclick="qk('p')">p</button>
+  </div>
+  <div style="display:flex;gap:2px;justify-content:center">
+    <button class="qk" onclick="qk('a')">a</button><button class="qk" onclick="qk('s')">s</button><button class="qk" onclick="qk('d')">d</button><button class="qk" onclick="qk('f')">f</button><button class="qk" onclick="qk('g')">g</button><button class="qk" onclick="qk('h')">h</button><button class="qk" onclick="qk('j')">j</button><button class="qk" onclick="qk('k')">k</button><button class="qk" onclick="qk('l')">l</button><button class="qk" onclick="qk('&#8232;')" style="width:36px">&#8617;</button>
+  </div>
+  <div style="display:flex;gap:2px;justify-content:center">
+    <button class="qk" onclick="qk('z')">z</button><button class="qk" onclick="qk('x')">x</button><button class="qk" onclick="qk('c')">c</button><button class="qk" onclick="qk('v')">v</button><button class="qk" onclick="qk('b')">b</button><button class="qk" onclick="qk('n')">n</button><button class="qk" onclick="qk('m')">m</button><button class="qk" onclick="qk('.')" style="width:28px">.</button><button class="qk" onclick="qk('&#8232;')" style="width:28px">?</button><button class="qk" onclick="qkDel()" style="width:36px">&#9003;</button>
+  </div>
+  <div style="display:flex;gap:2px;justify-content:center">
+    <button class="qk" onclick="qk(' ')" style="width:200px">&#9141; space</button>
+    <button class="qk" onclick="qk(',')" style="width:28px">,</button>
+    <button class="qk" onclick="qk('!')" style="width:28px">!</button>
+    <button class="qk" onclick="doSend()" style="width:60px;background:var(--accent,#0f3b3a);color:#fff;border-color:var(--accent,#0f3b3a)">&#8617; send</button>
+  </div>
 </div>
-</div>
-<button class="btn btn-primary" id="send-btn" onclick="doSend()" style="height:44px;padding:0 16px;flex-shrink:0">
-<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-</button>
 </div>
 </div>
 </div>
@@ -1224,7 +1352,23 @@ Troubleshooting:
 
   function clearChat() { if(!currentThread) return; if(confirm('Clear this conversation?')) { currentThread.messages=[]; saveThreads(); renderMessages(); } }
   function saveToWorkspace() { const ws=document.getElementById('workspace-select').value; if(ws&&currentThread) { currentThread.workspace=ws; saveThreads(); Toast.show('Saved to workspace','success'); } }
-  function exportChat() { if(!currentThread) return; const text=currentThread.messages.map(m=>`[${m.role.toUpperCase()}] ${new Date(m.ts).toLocaleString()}\n${m.content}\n`).join('\n---\n\n'); const blob=new Blob([text],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`aurelia-chat-${currentThread.id}.txt`; a.click(); }
+  function exportChat() {
+    if (!currentThread) return;
+    var text = "# " + (currentThread.title || "Chat") + "\n\n";
+    text += "**Date:** " + new Date().toLocaleDateString("en-GB") + "\n";
+    text += "**Model:** " + getCurrentModel().split("/").pop() + "\n\n---\n\n";
+    currentThread.messages.forEach(function(m) {
+      var role = m.role === "user" ? "**You**" : "**Aurelia**";
+      text += role + " (" + new Date(m.ts).toLocaleTimeString("en-GB") + ")\n\n";
+      text += m.content + "\n\n---\n\n";
+    });
+    var blob = new Blob([text], {type:"text/markdown"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (currentThread.title || "chat").replace(/\s+/g,"-").toLowerCase() + ".md";
+    a.click();
+    if (typeof Toast !== "undefined") Toast.show("Downloaded as Markdown", "success");
+  }
   function saveToCRM() { Toast.show('Chat saved to CRM','success'); }
   function sendToDrafting() { if(!currentThread) return; const last=currentThread.messages.filter(m=>m.role==='assistant').pop(); if(last) { sessionStorage.setItem('aurelia_draft_content',last.content); window.location.href='/drafting/index.html'; } }
   function setPrompt(text) { const ta=document.getElementById('chat-textarea'); ta.value=text; autoResize(ta); ta.focus(); }
