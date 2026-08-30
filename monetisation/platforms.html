@@ -307,9 +307,21 @@ const PLATFORMS_DATA = [
 let platformProfiles = {}, activeFlag = '', filteredPlatforms = [...PLATFORMS_DATA];
 
 function init() {
-  platformProfiles = JSON.parse(localStorage.getItem('aurelia_platform_profiles') || '{}');
-  renderPlatforms(PLATFORMS_DATA);
-  updateStats();
+  try {
+    platformProfiles = JSON.parse(localStorage.getItem('aurelia_platform_profiles') || '{}');
+    renderPlatforms(PLATFORMS_DATA);
+    updateStats();
+  } catch(e) {
+    console.error('Platform Manager init error:', e);
+    var grid = document.getElementById('platform-grid');
+    if (grid) {
+      grid.innerHTML = '';
+      var errDiv = document.createElement('div');
+      errDiv.style.cssText = 'grid-column:1/-1;padding:20px;color:red;font-size:13px';
+      errDiv.textContent = 'Error loading platforms: ' + e.message;
+      grid.appendChild(errDiv);
+    }
+  }
 }
 
 function updateStats() {
