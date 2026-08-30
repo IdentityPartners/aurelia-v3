@@ -558,49 +558,128 @@ const ModelRouter = {
   },
 
   renderSelector(containerId) {
-    const el = document.getElementById(containerId);
+    var el = document.getElementById(containerId);
     if (!el) return;
-    const m = this.getCurrent();
-    el.innerHTML = `
-      <div class="model-selector" onclick="ModelRouter.showPicker()" title="Switch AI model">
-        <span class="model-dot"></span>
-        <span>${m.name}</span>
-        <span style="opacity:0.5">▾</span>
-      </div>`;
+    var m = this.getCurrent();
+    el.innerHTML = "";
+    
+    var selector = document.createElement("div");
+    selector.className = "model-selector";
+    selector.title = "Switch AI model";
+    selector.onclick = function() { ModelRouter.showPicker(); };
+    selector.style.cssText = "display:flex;align-items:center;gap:6px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:var(--radius,8px);padding:5px 10px;font-size:11.5px;color:var(--muted,#78716c);cursor:pointer;transition:all .15s";
+    
+    var dot = document.createElement("span");
+    dot.className = "model-dot";
+    dot.style.cssText = "width:6px;height:6px;border-radius:50%;background:var(--sage,#6b7c6e);flex-shrink:0";
+    
+    var name = document.createElement("span");
+    name.textContent = m ? m.name : "Select Model";
+    
+    var arrow = document.createElement("span");
+    arrow.style.cssText = "opacity:0.5";
+    arrow.textContent = "▾";
+    
+    selector.appendChild(dot);
+    selector.appendChild(name);
+    selector.appendChild(arrow);
+    el.appendChild(selector);
   },
 
   showPicker() {
-    const existing = document.getElementById('model-picker-modal');
+    var existing = document.getElementById("model-picker-modal");
     if (existing) { existing.remove(); return; }
-    const modal = document.createElement('div');
-    modal.id = 'model-picker-modal';
-    modal.className = 'modal-overlay open';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:480px">
-        <div class="modal-header">
-          <span class="modal-title">Select AI Model</span>
-          <button class="modal-close" onclick="document.getElementById('model-picker-modal').remove()">✕</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto">
-          ${this.models.map(m => `
-            <div class="card" style="cursor:pointer;padding:10px 14px;${this.current===m.id?'border-color:var(--ink);background:var(--gold-4)':''}"
-              onclick="ModelRouter.set('${m.id}');document.getElementById('model-picker-modal').remove();ModelRouter.renderSelector('model-selector-container')">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <div style="flex:1;min-width:0">
-                  <div style="display:flex;align-items:center;gap:5px">
-                    <div style="font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</div>
-                    ${m.recommended?'<span style="font-size:9px;background:var(--ip-deep-teal,#0f3b3a);color:#fff;padding:1px 5px;border-radius:3px;flex-shrink:0">★ PRIMARY</span>':''}
-                    ${m.moe?'<span style="font-size:9px;background:var(--gold-4,#f5e9d4);color:var(--gold,#b5924c);padding:1px 5px;border-radius:3px;border:1px solid var(--gold-3,#e2c99a);flex-shrink:0">MoE</span>':''}
-                  </div>
-                  <div style="font-size:10.5px;color:var(--text-faint)">${m.provider} · ${m.type}${m.ctx?` · ${m.ctx>=1000000?'1M':(m.ctx/1000).toFixed(0)+'K'} ctx`:''}${m.input?` · $${m.input}/$${m.output}/1M`:''}${m.notes?` · ${m.notes}`:''}</div>
-                </div>
-                <span class="tag tag-${m.speed==='ultra'?'green':m.speed==='fast'?'sage':'gold'}" style="flex-shrink:0">${m.speed}</span>
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    
+    var self = this;
+    var overlay = document.createElement("div");
+    overlay.id = "model-picker-modal";
+    overlay.className = "modal-overlay open";
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px";
+    
+    var modal = document.createElement("div");
+    modal.className = "modal";
+    modal.style.cssText = "max-width:480px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.15)";
+    
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;align-items:center;justify-content:space-between;margin-bottom:16px";
+    var title = document.createElement("span");
+    title.style.cssText = "font-family:var(--font-serif,Georgia);font-size:18px;font-weight:500;color:var(--ink)";
+    title.textContent = "Select AI Model";
+    var closeBtn = document.createElement("button");
+    closeBtn.style.cssText = "background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-faint,#a8a29e)";
+    closeBtn.textContent = "✕";
+    closeBtn.onclick = function() { overlay.remove(); };
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+    
+    var list = document.createElement("div");
+    list.style.cssText = "display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto";
+    
+    self.models.forEach(function(m) {
+      var card = document.createElement("div");
+      card.className = "card";
+      card.style.cssText = "cursor:pointer;padding:10px 14px;" + (self.current === m.id ? "border-color:var(--ink);background:var(--gold-4,#f5e9d4)" : "");
+      card.onclick = function() {
+        ModelRouter.set(m.id);
+        overlay.remove();
+        ModelRouter.renderSelector("model-selector-container");
+      };
+      
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px";
+      
+      var info = document.createElement("div");
+      info.style.cssText = "flex:1;min-width:0";
+      
+      var nameRow = document.createElement("div");
+      nameRow.style.cssText = "display:flex;align-items:center;gap:5px";
+      
+      var nameEl = document.createElement("div");
+      nameEl.style.cssText = "font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+      nameEl.textContent = m.name;
+      nameRow.appendChild(nameEl);
+      
+      if (m.recommended) {
+        var primBadge = document.createElement("span");
+        primBadge.style.cssText = "font-size:9px;background:var(--accent,#0f3b3a);color:#fff;padding:1px 5px;border-radius:3px;flex-shrink:0";
+        primBadge.textContent = "★ PRIMARY";
+        nameRow.appendChild(primBadge);
+      }
+      if (m.moe) {
+        var moeBadge = document.createElement("span");
+        moeBadge.style.cssText = "font-size:9px;background:var(--gold-4,#f5e9d4);color:var(--gold,#b5924c);padding:1px 5px;border-radius:3px;border:1px solid var(--gold-3,#e2c99a);flex-shrink:0";
+        moeBadge.textContent = "MoE";
+        nameRow.appendChild(moeBadge);
+      }
+      
+      var metaEl = document.createElement("div");
+      metaEl.style.cssText = "font-size:10.5px;color:var(--text-faint,#a8a29e)";
+      var metaText = m.provider + " · " + m.type;
+      if (m.ctx) metaText += " · " + (m.ctx >= 1000000 ? "1M" : (m.ctx/1000).toFixed(0) + "K") + " ctx";
+      if (m.input) metaText += " · $" + m.input + "/$" + m.output + "/1M";
+      if (m.notes) metaText += " · " + m.notes;
+      metaEl.textContent = metaText;
+      
+      info.appendChild(nameRow);
+      info.appendChild(metaEl);
+      
+      var speedBadge = document.createElement("span");
+      var speedColor = m.speed === "ultra" ? "green" : m.speed === "fast" ? "sage" : "gold";
+      speedBadge.className = "tag tag-" + speedColor;
+      speedBadge.style.cssText = "flex-shrink:0";
+      speedBadge.textContent = m.speed;
+      
+      row.appendChild(info);
+      row.appendChild(speedBadge);
+      card.appendChild(row);
+      list.appendChild(card);
+    });
+    
+    modal.appendChild(list);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    overlay.addEventListener("click", function(e) { if (e.target === overlay) overlay.remove(); });
   }
 };
 
