@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia — Platform Manager</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .pm-body{padding:18px}
+    .pm-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .platform-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+    .platform-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;transition:all var(--transition)}
+    .platform-card:hover{border-color:var(--ink-6,#d6d3d1);box-shadow:var(--shadow-sm)}
+    .platform-card.active-profile{border-color:var(--accent);background:var(--accent3)}
+    .platform-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:7px}
+    .platform-name{font-size:13.5px;font-weight:600;color:var(--ink)}
+    .platform-model{font-size:11px;color:var(--text-faint,#a8a29e);margin-top:1px}
+    .platform-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+    .platform-desc{font-size:12px;color:var(--text-muted,#78716c);line-height:1.5;margin-bottom:8px}
+    .platform-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .platform-status{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-faint,#a8a29e);margin-top:5px}
+    .filter-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .filter-chip{padding:3px 9px;border-radius:var(--radius-pill,999px);background:var(--bg-2,#f0e9e0);border:1px solid var(--border);font-size:11px;color:var(--text-muted,#78716c);cursor:pointer;transition:all var(--transition)}
+    .filter-chip:hover{border-color:var(--ink-5,#a8a29e);color:var(--ink)}
+    .filter-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent);color:var(--accent)}
+    .stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+    .stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center}
+    .stat-mini-val{font-size:20px;font-weight:700;color:var(--accent);font-family:var(--font-mono)}
+    .stat-mini-lbl{font-size:10px;color:var(--text-faint,#a8a29e);margin-top:1px}
+    .tier-1{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9;border-radius:var(--radius-pill,999px);padding:2px 7px;font-size:10px;font-weight:600}
+    .tier-2{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb;border-radius:var(--radius-pill,999px);padding:2px 7px;font-size:10px;font-weight:600}
+    .tier-3{background:var(--bg-3,#e8ddd4);color:var(--text-muted,#78716c);border:1px solid var(--border);border-radius:var(--radius-pill,999px);padding:2px 7px;font-size:10px;font-weight:600}
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+<a href="/chat/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+<a href="/research/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+<a href="/drafting/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/social/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item "><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+  <div class="main-content" id="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Platform Manager</span>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--text-faint,#a8a29e)" id="platform-count-label">150 platforms</span>
+        <button class="btn btn-ghost btn-sm" onclick="exportPlatforms()">Export CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="showAddPlatformModal()">+ Add Platform</button>
+      </div>
+    </div>
+    <div class="pm-body">
+      <div class="stats-bar">
+        <div class="stat-mini"><div class="stat-mini-val" id="stat-total">150</div><div class="stat-mini-lbl">Total</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="stat-active">0</div><div class="stat-mini-lbl">Active Profiles</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="stat-tier1">14</div><div class="stat-mini-lbl">Tier 1</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="stat-uk">28</div><div class="stat-mini-lbl">UK-Relevant</div></div>
+        <div class="stat-mini"><div class="stat-mini-val" id="stat-discovery">45</div><div class="stat-mini-lbl">Discovery (D)</div></div>
+      </div>
+      <div class="pm-controls">
+        <input class="input" id="platform-search" placeholder="Search platforms…" oninput="filterPlatforms()" style="max-width:240px">
+        <select class="input" id="platform-cat-filter" onchange="filterPlatforms()" style="max-width:190px">
+          <option value="">All categories</option>
+          <option value="companionship">Companionship & Listening</option>
+          <option value="freelance">Freelance Marketplaces</option>
+          <option value="expert-calls">Expert Calls & Mentoring</option>
+          <option value="coaching">Coaching Directories</option>
+          <option value="neurodivergent">Neurodivergent & ADHD</option>
+          <option value="sobriety">Sobriety & Recovery</option>
+          <option value="tutoring">Tutoring & Learning</option>
+          <option value="membership">Membership & Community</option>
+          <option value="creator">Creator & Subscription</option>
+          <option value="courses">Courses & Programmes</option>
+          <option value="newsletter">Newsletter & Writing</option>
+          <option value="podcast">Podcast & Audio</option>
+          <option value="digital">Digital Products</option>
+          <option value="events">Events & Workshops</option>
+          <option value="booking">Booking & Infrastructure</option>
+        </select>
+        <select class="input" id="platform-tier-filter" onchange="filterPlatforms()" style="max-width:150px">
+          <option value="">All tiers</option>
+          <option value="1">Tier 1 — Deploy now</option>
+          <option value="2">Tier 2 — Build recurring</option>
+          <option value="3">Tier 3 — Apply selectively</option>
+        </select>
+      </div>
+      <div class="filter-chips">
+        <span class="filter-chip on" data-flag="" onclick="toggleFlag(this)">All</span>
+        <span class="filter-chip" data-flag="D" onclick="toggleFlag(this)">D — Discovery</span>
+        <span class="filter-chip" data-flag="F" onclick="toggleFlag(this)">F — Infrastructure</span>
+        <span class="filter-chip" data-flag="UK" onclick="toggleFlag(this)">UK — UK-relevant</span>
+        <span class="filter-chip" data-flag="V" onclick="toggleFlag(this)">V — Vetted</span>
+        <span class="filter-chip" data-flag="P" onclick="toggleFlag(this)">P — Pseudonym OK</span>
+        <span class="filter-chip" data-flag="C" onclick="toggleFlag(this)">C — Conditional</span>
+        <span class="filter-chip" data-flag="active" onclick="toggleFlag(this)">✓ Active Profiles</span>
+      </div>
+      <div class="platform-grid" id="platform-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal-overlay" id="platform-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header"><span class="modal-title" id="pm-modal-title">Platform</span><button class="modal-close" onclick="closeModal('platform-modal')">✕</button></div>
+    <div id="pm-modal-body"></div>
+  </div>
+</div>
+
+<script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
+<script>
+const PLATFORMS_DATA = [
+  {id:'fiverr',name:'Fiverr',model:'Productised gigs',cat:'freelance',flags:['D','P'],tier:1,url:'https://fiverr.com',desc:'Productised listening, companionship and accountability gigs. High volume, global reach.'},
+  {id:'bark',name:'Bark',model:'Paid lead acquisition',cat:'freelance',flags:['D','UK'],tier:1,url:'https://bark.com',desc:'Paid lead acquisition for coaching and companionship. Strong UK presence.'},
+  {id:'peopleperhour',name:'PeoplePerHour',model:'Hourly/packaged',cat:'freelance',flags:['D','UK'],tier:1,url:'https://peopleperhour.com',desc:'Hourly or packaged virtual support. UK-focused freelance marketplace.'},
+  {id:'premium-chat',name:'Premium.Chat',model:'Paid text/audio/video',cat:'companionship',flags:['F','P'],tier:1,url:'https://premium.chat',desc:'Paid text, audio and video conversations. Infrastructure-first, pseudonym workable.'},
+  {id:'topmate',name:'Topmate',model:'Paid sessions',cat:'expert-calls',flags:['D','F'],tier:1,url:'https://topmate.io',desc:'Paid one-to-one sessions, ADHD identity and productivity sessions.'},
+  {id:'popcall',name:'Popcall',model:'Paid calls/messages',cat:'expert-calls',flags:['F','P'],tier:1,url:'https://popcall.com',desc:'Paid calls and paid messages. Pseudonym workable.'},
+  {id:'talkspresso',name:'Talkspresso',model:'Paid consultations',cat:'expert-calls',flags:['D','F'],tier:1,url:'https://talkspresso.com',desc:'Paid consultations and introductory calls.'},
+  {id:'noomii',name:'Noomii',model:'Coaching directory',cat:'coaching',flags:['D'],tier:1,url:'https://noomii.com',desc:'UK life-coach discovery and virtual coaching. Strong directory presence.'},
+  {id:'approach-a-coach',name:'Approach a Coach',model:'Coaching directory',cat:'coaching',flags:['D','UK'],tier:1,url:'https://approachacoach.com',desc:'Includes personal development, wellbeing, ADHD, autism and counselling-adjacent categories.'},
+  {id:'superprof',name:'Superprof',model:'Tutoring/mentoring',cat:'tutoring',flags:['D','UK'],tier:1,url:'https://superprof.co.uk',desc:'Executive-function tutoring, reflective practice, personal values.'},
+  {id:'eventbrite',name:'Eventbrite',model:'Paid events',cat:'events',flags:['D','UK'],tier:1,url:'https://eventbrite.co.uk',desc:'Paid listening circles, body-doubling sessions, meaning workshops.'},
+  {id:'substack',name:'Substack',model:'Paid newsletter/community',cat:'newsletter',flags:['F'],tier:1,url:'https://substack.com',desc:'Paid newsletter, group calls, one-to-one listening funnel.'},
+  {id:'ko-fi',name:'Ko-fi',model:'Supporter/memberships',cat:'creator',flags:['F'],tier:1,url:'https://ko-fi.com',desc:'Memberships, shop, commissions. Low barrier to entry.'},
+  {id:'paperbell',name:'Paperbell',model:'Coaching infrastructure',cat:'booking',flags:['F'],tier:1,url:'https://paperbell.com',desc:'Coaching scheduling, packages, payments and client portal.'},
+  {id:'circle',name:'Circle',model:'Paid community',cat:'membership',flags:['F'],tier:2,url:'https://circle.so',desc:'Private community platform. Strong for recurring memberships and courses.'},
+  {id:'mighty-networks',name:'Mighty Networks',model:'Community/courses',cat:'membership',flags:['F'],tier:2,url:'https://mightynetworks.com',desc:'Community + courses + events. Strong for sobriety and identity communities.'},
+  {id:'nas-io',name:'Nas.io',model:'Community/sessions',cat:'membership',flags:['F'],tier:2,url:'https://nas.io',desc:'Paid one-to-one sessions, body-doubling communities, recovery communities.'},
+  {id:'patreon',name:'Patreon',model:'Creator memberships',cat:'creator',flags:['F'],tier:2,url:'https://patreon.com',desc:'Subscriptions, private posts, messages, calls, workshops.'},
+  {id:'podia',name:'Podia',model:'Courses/community',cat:'courses',flags:['F'],tier:2,url:'https://podia.com',desc:'Courses, memberships, digital downloads, community.'},
+  {id:'thinkific',name:'Thinkific',model:'Course platform',cat:'courses',flags:['F'],tier:2,url:'https://thinkific.com',desc:'Structured programmes. App-store and partner ecosystem.'},
+  {id:'teachable',name:'Teachable',model:'Course platform',cat:'courses',flags:['F'],tier:2,url:'https://teachable.com',desc:'Courses, memberships, coaching products.'},
+  {id:'gumroad',name:'Gumroad',model:'Digital products',cat:'digital',flags:['F'],tier:2,url:'https://gumroad.com',desc:'Workbooks, journals, templates, memberships.'},
+  {id:'payhip',name:'Payhip',model:'Digital products',cat:'digital',flags:['F'],tier:2,url:'https://payhip.com',desc:'Digital downloads, memberships, courses.'},
+  {id:'skool',name:'Skool',model:'Community/courses',cat:'membership',flags:['F'],tier:2,url:'https://skool.com',desc:'Accountability communities, sobriety support groups.'},
+  {id:'upwork',name:'Upwork',model:'Freelance contracts',cat:'freelance',flags:['D'],tier:2,url:'https://upwork.com',desc:'Listening/accountability contracts where permitted.'},
+  {id:'freelancer',name:'Freelancer.com',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:2,url:'https://freelancer.com',desc:'General freelance marketplace with coaching/listening categories.'},
+  {id:'airtasker',name:'Airtasker',model:'Task marketplace',cat:'freelance',flags:['D','UK'],tier:2,url:'https://airtasker.com',desc:'Local or remote companionship/support tasks.'},
+  {id:'taskrabbit',name:'TaskRabbit',model:'Local/remote tasks',cat:'freelance',flags:['D','V','UK'],tier:2,url:'https://taskrabbit.co.uk',desc:'Predominantly local companionship/assistance possibilities.'},
+  {id:'rentafriend',name:'RentAFriend',model:'Hourly companionship',cat:'companionship',flags:['D','R'],tier:2,url:'https://rentafriend.com',desc:'Hourly social companionship. Reputationally grey — investigate carefully.'},
+  {id:'companiions',name:'Companiions',model:'UK companionship',cat:'companionship',flags:['D','V','UK'],tier:2,url:'https://companiions.com',desc:'UK paid companionship. Companions set hourly rate, receive payment after visits.'},
+  {id:'trunkcall',name:'TrunkCall',model:'Expert calls/sessions',cat:'expert-calls',flags:['D','F','P'],tier:1,url:'https://trunkcall.com',desc:'Calls, messages, sessions, groups and courses.'},
+  {id:'intro',name:'Intro',model:'Paid video access',cat:'expert-calls',flags:['D','F','V'],tier:2,url:'https://intro.co',desc:'Bookable paid one-to-one video access. Experts set prices and availability.'},
+  {id:'minnect',name:'Minnect',model:'Paid consultations',cat:'expert-calls',flags:['D','F','V'],tier:2,url:'https://minnect.com',desc:'Paid messages and consultations.'},
+  {id:'superpeer',name:'Superpeer',model:'Paid sessions',cat:'expert-calls',flags:['D','F'],tier:2,url:'https://superpeer.com',desc:'Paid one-to-one sessions and group calls.'},
+  {id:'sessions-us',name:'Sessions.us',model:'Paid sessions',cat:'expert-calls',flags:['F'],tier:2,url:'https://sessions.us',desc:'Paid consultations and sessions.'},
+  {id:'pensight',name:'Pensight',model:'Paid calls/products',cat:'expert-calls',flags:['F'],tier:2,url:'https://pensight.com',desc:'Paid calls, digital products, memberships.'},
+  {id:'stan',name:'Stan',model:'Creator storefront',cat:'creator',flags:['F'],tier:2,url:'https://stan.store',desc:'Paid consultations, digital products, memberships.'},
+  {id:'beacons',name:'Beacons',model:'Creator storefront',cat:'creator',flags:['F'],tier:2,url:'https://beacons.ai',desc:'Paid appointments, digital products, link-in-bio.'},
+  {id:'coach-me',name:'Coach.me',model:'Habit/coaching',cat:'coaching',flags:['D','F'],tier:2,url:'https://coach.me',desc:'Habit and executive-function coaching. ADHD and accountability.'},
+  {id:'life-coach-hub',name:'Life Coach Hub',model:'Coaching directory',cat:'coaching',flags:['D'],tier:2,url:'https://lifecoachhub.com',desc:'Coaching directory and client management tools.'},
+  {id:'adhd-uk',name:'ADHD UK Marketplace',model:'ADHD coaching directory',cat:'neurodivergent',flags:['D','V','C'],tier:3,url:'https://adhduk.co.uk',desc:'Marketplace for ADHD-focused coaches. Requires ADHD-specific credentials.'},
+  {id:'shimmer',name:'Shimmer',model:'ADHD coaching',cat:'neurodivergent',flags:['D','V','C'],tier:3,url:'https://shimmer.care',desc:'ADHD coach network. High professional standard required.'},
+  {id:'coacherly',name:'Coacherly',model:'Recovery coaching',cat:'sobriety',flags:['F'],tier:3,url:'https://coacherly.com',desc:'Recovery coaches: pricing, packages, scheduling, Stripe payments.'},
+  {id:'life-coach-directory',name:'Life Coach Directory',model:'UK coaching directory',cat:'coaching',flags:['D','V','UK'],tier:3,url:'https://lifecoachdirectory.com',desc:'Verified UK coaches offering online and telephone sessions.'},
+  {id:'mentorcruise',name:'MentorCruise',model:'Mentoring platform',cat:'expert-calls',flags:['D','V'],tier:3,url:'https://mentorcruise.com',desc:'Neurodivergent career/life navigation mentoring.'},
+  {id:'tutorful',name:'Tutorful',model:'Tutoring marketplace',cat:'tutoring',flags:['D','UK'],tier:2,url:'https://tutorful.co.uk',desc:'UK tutoring marketplace. Reflective practice, personal values.'},
+  {id:'preply',name:'Preply',model:'Language/tutoring',cat:'tutoring',flags:['D'],tier:2,url:'https://preply.com',desc:'Tutoring and conversation practice.'},
+  {id:'cambly',name:'Cambly',model:'Conversation practice',cat:'tutoring',flags:['D'],tier:2,url:'https://cambly.com',desc:'Paid conversation sessions.'},
+  {id:'outschool',name:'Outschool',model:'Online classes',cat:'tutoring',flags:['D'],tier:2,url:'https://outschool.com',desc:'Neurodivergent study-skills classes, wellbeing topics.'},
+  {id:'udemy',name:'Udemy',model:'Course marketplace',cat:'courses',flags:['D','F'],tier:2,url:'https://udemy.com',desc:'Course marketplace with large discovery audience.'},
+  {id:'skillshare',name:'Skillshare',model:'Course platform',cat:'courses',flags:['D','F'],tier:2,url:'https://skillshare.com',desc:'Creative and educational courses.'},
+  {id:'maven',name:'Maven',model:'Cohort courses',cat:'courses',flags:['D','F'],tier:2,url:'https://maven.com',desc:'Cohort-based courses and mentoring.'},
+  {id:'kajabi',name:'Kajabi',model:'All-in-one platform',cat:'courses',flags:['F'],tier:2,url:'https://kajabi.com',desc:'Courses, memberships, community, email, podcasts.'},
+  {id:'whop',name:'Whop',model:'Digital marketplace',cat:'courses',flags:['D','F'],tier:2,url:'https://whop.com',desc:'Digital products, communities, courses.'},
+  {id:'systeme-io',name:'Systeme.io',model:'All-in-one funnel',cat:'courses',flags:['F'],tier:2,url:'https://systeme.io',desc:'Funnels, courses, email, memberships. Free tier available.'},
+  {id:'beehiiv',name:'beehiiv',model:'Newsletter platform',cat:'newsletter',flags:['F'],tier:2,url:'https://beehiiv.com',desc:'Newsletter platform with monetisation and referral tools.'},
+  {id:'ghost',name:'Ghost',model:'Publishing platform',cat:'newsletter',flags:['F'],tier:2,url:'https://ghost.org',desc:'Paid memberships, newsletter, courses.'},
+  {id:'kit',name:'Kit (ConvertKit)',model:'Email/creator',cat:'newsletter',flags:['F'],tier:2,url:'https://kit.com',desc:'Email marketing and creator monetisation.'},
+  {id:'memberful',name:'Memberful',model:'Membership platform',cat:'membership',flags:['F'],tier:2,url:'https://memberful.com',desc:'Memberships, private podcasts, newsletter integration.'},
+  {id:'buy-me-a-coffee',name:'Buy Me a Coffee',model:'Supporter platform',cat:'creator',flags:['F'],tier:1,url:'https://buymeacoffee.com',desc:'One-off support, memberships, extras.'},
+  {id:'lemon-squeezy',name:'Lemon Squeezy',model:'Digital products',cat:'digital',flags:['F'],tier:2,url:'https://lemonsqueezy.com',desc:'Digital products, subscriptions, SaaS billing.'},
+  {id:'etsy',name:'Etsy',model:'Digital marketplace',cat:'digital',flags:['D'],tier:2,url:'https://etsy.com',desc:'Digital resources, journals, templates. Not for personalised therapeutic claims.'},
+  {id:'humanitix',name:'Humanitix',model:'Event ticketing',cat:'events',flags:['D','UK'],tier:2,url:'https://humanitix.com',desc:'Ethical event ticketing. UK available.'},
+  {id:'ticket-tailor',name:'Ticket Tailor',model:'Event ticketing',cat:'events',flags:['F','UK'],tier:2,url:'https://tickettailor.com',desc:'Low-fee event ticketing. UK-based.'},
+  {id:'luma',name:'Luma',model:'Event platform',cat:'events',flags:['D','F'],tier:2,url:'https://lu.ma',desc:'Event discovery and ticketing.'},
+  {id:'meetup',name:'Meetup',model:'Community events',cat:'events',flags:['D','UK'],tier:2,url:'https://meetup.com',desc:'Paid organiser-led groups where payments and local rules permit.'},
+  {id:'coachaccountable',name:'CoachAccountable',model:'Coaching software',cat:'booking',flags:['F'],tier:2,url:'https://coachaccountable.com',desc:'Client management, session notes, programmes.'},
+  {id:'delenta',name:'Delenta',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://delenta.com',desc:'Coaching scheduling, packages, payments.'},
+  {id:'simply-coach',name:'Simply.Coach',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://simply.coach',desc:'Coaching management and client portal.'},
+  {id:'coachvantage',name:'CoachVantage',model:'Coaching software',cat:'booking',flags:['F'],tier:2,url:'https://coachvantage.com',desc:'Scheduling, invoicing, session notes.'},
+  {id:'calendly',name:'Calendly',model:'Scheduling',cat:'booking',flags:['F'],tier:1,url:'https://calendly.com',desc:'Scheduling with payment integration.'},
+  {id:'acuity',name:'Acuity Scheduling',model:'Scheduling',cat:'booking',flags:['F'],tier:1,url:'https://acuityscheduling.com',desc:'Scheduling, intake forms, payments.'},
+  {id:'tidycal',name:'TidyCal',model:'Scheduling',cat:'booking',flags:['F'],tier:2,url:'https://tidycal.com',desc:'Simple scheduling with one-off payment.'},
+  {id:'stripe-links',name:'Stripe Payment Links',model:'Payment infrastructure',cat:'booking',flags:['F'],tier:1,url:'https://stripe.com',desc:'Direct payment links for any service.'},
+  {id:'gocardless',name:'GoCardless',model:'Recurring payments',cat:'booking',flags:['F','UK'],tier:2,url:'https://gocardless.com',desc:'Recurring UK direct debit payments.'},
+  {id:'growthmentor',name:'GrowthMentor',model:'Mentoring platform',cat:'expert-calls',flags:['D','V'],tier:3,url:'https://growthmentor.com',desc:'Mentoring for growth and career development.'},
+  {id:'mentorcam',name:'Mentorcam',model:'Video mentoring',cat:'expert-calls',flags:['D','F'],tier:3,url:'https://mentorcam.com',desc:'Paid video mentoring sessions.'},
+  {id:'kounselly',name:'Kounselly',model:'Consulting/coaching',cat:'expert-calls',flags:['D','F'],tier:2,url:'https://kounselly.com',desc:'Paid consultations and coaching sessions.'},
+  {id:'adhd-coaches-org',name:'ADHD Coaches Organization',model:'ADHD directory',cat:'neurodivergent',flags:['D','V','C'],tier:3,url:'https://adhdcoaches.org',desc:'Distinguishes coaches with advanced verified training.'},
+  {id:'focusmate',name:'Focusmate',model:'Body-doubling',cat:'neurodivergent',flags:['F'],tier:3,url:'https://focusmate.com',desc:'Body-doubling sessions. Use as funnel/community rather than direct payment.'},
+  {id:'coachfinder',name:'CoachFinder',model:'Coaching directory',cat:'coaching',flags:['D','V','C'],tier:3,url:'https://coachfinder.com',desc:'Requires recognised qualification, professional-body membership and insurance.'},
+  {id:'trusted-coach',name:'Trusted Coach Directory',model:'Coaching directory',cat:'coaching',flags:['D','V','C'],tier:3,url:'https://trustedcoachdirectory.com',desc:'Requires qualifications, insurance, supervision and 100+ coaching hours.'},
+  {id:'friendpc',name:'FriendPC',model:'Virtual friend listings',cat:'companionship',flags:['D','P','R'],tier:2,url:'https://friendpc.com',desc:'Virtual-friend listings and paid interaction. Reputationally grey.'},
+  {id:'rent-a-local-friend',name:'Rent a Local Friend',model:'Local/virtual companionship',cat:'companionship',flags:['D','R'],tier:2,url:'https://rentalocalfriend.com',desc:'Local/virtual companionship. Reputationally grey.'},
+  {id:'rent-a-cyber-friend',name:'Rent a Cyber Friend',model:'Per-minute conversation',cat:'companionship',flags:['D','P','R'],tier:2,url:'https://rentacyberfriend.com',desc:'Per-minute virtual conversation. Reputationally grey.'},
+  {id:'care-com',name:'Care.com',model:'Companion care',cat:'companionship',flags:['D','V','C'],tier:3,url:'https://care.com',desc:'Companion-care and support work. Conditional eligibility.'},
+  {id:'elder',name:'Elder',model:'UK companion care',cat:'companionship',flags:['D','V','UK','C'],tier:3,url:'https://elder.org',desc:'UK companion-care work. More structured than virtual friendship.'},
+  {id:'supercast',name:'Supercast',model:'Private podcast',cat:'podcast',flags:['F'],tier:2,url:'https://supercast.com',desc:'Private podcast subscriptions.'},
+  {id:'podbean',name:'Podbean Patron',model:'Podcast subscriptions',cat:'podcast',flags:['F'],tier:3,url:'https://podbean.com',desc:'Podcast hosting with patron subscriptions.'},
+  {id:'buzzsprout',name:'Buzzsprout',model:'Podcast hosting',cat:'podcast',flags:['F'],tier:3,url:'https://buzzsprout.com',desc:'Podcast hosting with subscription support.'},
+  {id:'captivate',name:'Captivate',model:'Private podcasts',cat:'podcast',flags:['F'],tier:3,url:'https://captivate.fm',desc:'Private podcast feeds.'},
+  {id:'transistor',name:'Transistor',model:'Private podcasts',cat:'podcast',flags:['F'],tier:3,url:'https://transistor.fm',desc:'Private podcast feeds for members.'},
+  {id:'thriveCart',name:'ThriveCart',model:'Checkout platform',cat:'digital',flags:['F'],tier:2,url:'https://thrivecart.com',desc:'High-converting checkout with upsells.'},
+  {id:'samcart',name:'SamCart',model:'Checkout platform',cat:'digital',flags:['F'],tier:2,url:'https://samcart.com',desc:'Checkout optimisation for digital products.'},
+  {id:'kartra',name:'Kartra',model:'All-in-one platform',cat:'courses',flags:['F'],tier:3,url:'https://kartra.com',desc:'Funnels, courses, memberships, email.'},
+  {id:'learnworlds',name:'LearnWorlds',model:'Course platform',cat:'courses',flags:['F'],tier:2,url:'https://learnworlds.com',desc:'Interactive course platform.'},
+  {id:'heights-platform',name:'Heights Platform',model:'Course platform',cat:'courses',flags:['F'],tier:3,url:'https://heightsplatform.com',desc:'Course platform with AI coach.'},
+  {id:'vocal-media',name:'Vocal Media',model:'Writing platform',cat:'newsletter',flags:['D','F'],tier:3,url:'https://vocal.media',desc:'Paid writing platform with creator fund.'},
+  {id:'medium',name:'Medium Partner Program',model:'Writing platform',cat:'newsletter',flags:['D','C'],tier:3,url:'https://medium.com',desc:'Partner program for paid writing. Geographic eligibility varies.'},
+  {id:'hello-audio',name:'Hello Audio',model:'Private audio',cat:'podcast',flags:['F'],tier:3,url:'https://helloaudio.fm',desc:'Private audio feeds and courses.'},
+  {id:'redcircle',name:'RedCircle',model:'Podcast monetisation',cat:'podcast',flags:['F'],tier:3,url:'https://redcircle.com',desc:'Podcast subscriptions and dynamic ads.'},
+  {id:'contra',name:'Contra',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:2,url:'https://contra.com',desc:'Commission-free freelance marketplace.'},
+  {id:'malt',name:'Malt',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:3,url:'https://malt.com',desc:'European freelance marketplace.'},
+  {id:'yunojuno',name:'YunoJuno',model:'Freelance platform',cat:'freelance',flags:['D','UK'],tier:3,url:'https://yunojuno.com',desc:'UK freelance marketplace.'},
+  {id:'twine',name:'Twine',model:'Creative freelance',cat:'freelance',flags:['D'],tier:3,url:'https://twine.net',desc:'Creative freelance marketplace.'},
+  {id:'butter',name:'Butter',model:'Workshop platform',cat:'events',flags:['F'],tier:3,url:'https://butter.us',desc:'Interactive workshop and facilitation platform.'},
+  {id:'demio',name:'Demio',model:'Webinar platform',cat:'events',flags:['F'],tier:3,url:'https://demio.com',desc:'Webinar and virtual event platform.'},
+  {id:'airmeet',name:'Airmeet',model:'Virtual events',cat:'events',flags:['F'],tier:3,url:'https://airmeet.com',desc:'Virtual events and networking.'},
+  {id:'profi',name:'Profi',model:'Coaching platform',cat:'booking',flags:['F'],tier:3,url:'https://profi.io',desc:'Coaching and consulting platform.'},
+  {id:'savvycal',name:'SavvyCal',model:'Scheduling',cat:'booking',flags:['F'],tier:3,url:'https://savvycal.com',desc:'Scheduling with overlay calendar.'},
+  {id:'setmore',name:'Setmore',model:'Scheduling',cat:'booking',flags:['F'],tier:2,url:'https://setmore.com',desc:'Free scheduling with payment integration.'},
+  {id:'sumup',name:'SumUp Payment Links',model:'Payment links',cat:'booking',flags:['F','UK'],tier:2,url:'https://sumup.com',desc:'UK payment links and card reader.'},
+  {id:'paypal-links',name:'PayPal Booking/Payment',model:'Payment links',cat:'booking',flags:['F'],tier:2,url:'https://paypal.com',desc:'PayPal booking and payment buttons.'},
+  {id:'book-like-a-boss',name:'Book Like A Boss',model:'Booking page',cat:'booking',flags:['F'],tier:2,url:'https://booklikeaboss.com',desc:'Booking page with payments and digital products.'},
+  {id:'plato',name:'Plato',model:'Leadership mentoring',cat:'expert-calls',flags:['D','V','C'],tier:3,url:'https://platohq.com',desc:'Leadership mentoring. Requires applicable leadership experience.'},
+  {id:'adplist',name:'ADPList Expert',model:'Mentoring platform',cat:'expert-calls',flags:['D','C'],tier:3,url:'https://adplist.org',desc:'Expert products where paid functions are offered.'},
+  {id:'wisdo',name:'Wisdo',model:'Peer support',cat:'expert-calls',flags:['D','C'],tier:3,url:'https://wisdo.com',desc:'Paid expert programmes where recruiting.'},
+  {id:'coachconnector',name:'CoachConnector',model:'Coaching directory',cat:'coaching',flags:['D'],tier:3,url:'https://coachconnector.com',desc:'Coach matching and directory.'},
+  {id:'coachcompare',name:'CoachCompare',model:'Coaching directory',cat:'coaching',flags:['D'],tier:3,url:'https://coachcompare.com',desc:'Coach comparison and directory.'},
+  {id:'groove',name:'Groove',model:'Focus community',cat:'neurodivergent',flags:['F','C'],tier:3,url:'https://groove.ooo',desc:'If admitting paid facilitators or hosts.'},
+  {id:'flow-club',name:'Flow Club',model:'Focus sessions',cat:'neurodivergent',flags:['F','C'],tier:3,url:'https://flow.club',desc:'If recruiting facilitators.'},
+  {id:'creative-market',name:'Creative Market',model:'Design marketplace',cat:'digital',flags:['D'],tier:3,url:'https://creativemarket.com',desc:'Templates, journals, design assets.'},
+  {id:'teachers-pay-teachers',name:'Teachers Pay Teachers',model:'Educational resources',cat:'digital',flags:['D'],tier:3,url:'https://teacherspayteachers.com',desc:'Educational materials, worksheets.'},
+  {id:'liberapay',name:'Liberapay',model:'Donation-based',cat:'creator',flags:['F'],tier:3,url:'https://liberapay.com',desc:'Donation-based recurring support.'},
+  {id:'crowdfunder-uk',name:'Crowdfunder UK',model:'Crowdfunding',cat:'creator',flags:['D','UK'],tier:3,url:'https://crowdfunder.co.uk',desc:'UK community project crowdfunding.'},
+  {id:'fanbase',name:'Fanbase',model:'Creator platform',cat:'creator',flags:['F'],tier:3,url:'https://fanbase.app',desc:'Creator subscription platform.'},
+  {id:'passes',name:'Passes',model:'Fan access',cat:'creator',flags:['F','R'],tier:3,url:'https://passes.com',desc:'Fan access platform. Reputational associations — use with care.'},
+  {id:'bettermode',name:'Bettermode',model:'Community platform',cat:'membership',flags:['F'],tier:3,url:'https://bettermode.com',desc:'Customer community platform.'},
+  {id:'raklet',name:'Raklet',model:'Membership platform',cat:'membership',flags:['F'],tier:3,url:'https://raklet.com',desc:'Membership management platform.'},
+  {id:'disciple',name:'Disciple',model:'Community app',cat:'membership',flags:['F'],tier:3,url:'https://disciplemedia.com',desc:'Branded community app.'},
+  {id:'hivebrite',name:'Hivebrite',model:'Community platform',cat:'membership',flags:['F'],tier:3,url:'https://hivebrite.com',desc:'Professional community management.'},
+  {id:'wildapricot',name:'WildApricot',model:'Membership management',cat:'membership',flags:['F'],tier:3,url:'https://wildapricot.com',desc:'Membership management for associations.'},
+  {id:'memberstack',name:'Memberstack',model:'Web membership',cat:'membership',flags:['F'],tier:3,url:'https://memberstack.com',desc:'Membership for websites.'},
+  {id:'disco',name:'Disco',model:'Learning community',cat:'courses',flags:['F'],tier:3,url:'https://disco.co',desc:'Learning community platform.'},
+  {id:'groupapp',name:'GroupApp',model:'Community platform',cat:'membership',flags:['F'],tier:3,url:'https://groupapp.com',desc:'Community and course platform.'},
+  {id:'fourthwall',name:'Fourthwall',model:'Creator storefront',cat:'creator',flags:['F'],tier:2,url:'https://fourthwall.com',desc:'Creator storefront with memberships and products.'},
+  {id:'mentorpass',name:'MentorPass',model:'Mentoring credits',cat:'expert-calls',flags:['D','F'],tier:3,url:'https://mentorpass.co',desc:'Mentoring session credits marketplace.'},
+  {id:'directly-live',name:'Directly.live',model:'Expert sessions',cat:'expert-calls',flags:['D','F'],tier:3,url:'https://directly.live',desc:'Live expert sessions.'},
+  {id:'uscreen',name:'Uscreen',model:'Video membership',cat:'creator',flags:['F'],tier:3,url:'https://uscreen.tv',desc:'Video membership and OTT platform.'},
+  {id:'passion-io',name:'Passion.io',model:'Mobile app courses',cat:'courses',flags:['F'],tier:3,url:'https://passion.io',desc:'Mobile app for courses and memberships.'},
+  {id:'simplero',name:'Simplero',model:'All-in-one platform',cat:'courses',flags:['F'],tier:3,url:'https://simplero.com',desc:'Courses, memberships, email marketing.'},
+  {id:'freshlearn',name:'FreshLearn',model:'Course platform',cat:'courses',flags:['F'],tier:3,url:'https://freshlearn.com',desc:'Course and digital product platform.'},
+  {id:'teachery',name:'Teachery',model:'Course platform',cat:'courses',flags:['F'],tier:3,url:'https://teachery.co',desc:'Simple course creation.'},
+  {id:'ruzuku',name:'Ruzuku',model:'Course platform',cat:'courses',flags:['F'],tier:3,url:'https://ruzuku.com',desc:'Simple course creation platform.'},
+  {id:'graphy',name:'Graphy',model:'Course platform',cat:'courses',flags:['F'],tier:3,url:'https://graphy.com',desc:'Course and community platform.'},
+  {id:'openlearning',name:'OpenLearning',model:'Course platform',cat:'tutoring',flags:['D','F'],tier:3,url:'https://openlearning.com',desc:'Social learning platform.'},
+  {id:'lessonface',name:'Lessonface',model:'Tutoring marketplace',cat:'tutoring',flags:['D'],tier:3,url:'https://lessonface.com',desc:'Live online lessons marketplace.'},
+  {id:'takelessons',name:'TakeLessons',model:'Tutoring marketplace',cat:'tutoring',flags:['D'],tier:3,url:'https://takelessons.com',desc:'Online lessons and tutoring.'},
+  {id:'learnpick',name:'LearnPick',model:'Tutoring marketplace',cat:'tutoring',flags:['D'],tier:3,url:'https://learnpick.com',desc:'Tutoring and coaching marketplace.'},
+  {id:'classgap',name:'Classgap',model:'Online tutoring',cat:'tutoring',flags:['D'],tier:3,url:'https://classgap.com',desc:'Online tutoring and coaching.'},
+  {id:'amazingtalker',name:'AmazingTalker',model:'Language/tutoring',cat:'tutoring',flags:['D'],tier:3,url:'https://amazingtalker.com',desc:'Language and tutoring marketplace.'},
+  {id:'solidgigs',name:'SolidGigs',model:'Freelance leads',cat:'freelance',flags:['F'],tier:3,url:'https://solidgigs.com',desc:'Curated freelance job leads.'},
+  {id:'servicescape',name:'ServiceScape',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:3,url:'https://servicescape.com',desc:'Writing, editing, translation services.'},
+  {id:'legiit',name:'Legiit',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:3,url:'https://legiit.com',desc:'Digital services marketplace.'},
+  {id:'comeup',name:'ComeUp',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:3,url:'https://comeup.com',desc:'French-origin freelance marketplace.'},
+  {id:'truelancer',name:'Truelancer',model:'Freelance marketplace',cat:'freelance',flags:['D'],tier:3,url:'https://truelancer.com',desc:'Global freelance marketplace.'},
+  {id:'golance',name:'goLance',model:'Freelance platform',cat:'freelance',flags:['D'],tier:3,url:'https://golance.com',desc:'Freelance platform with low fees.'},
+  {id:'hubstaff-talent',name:'Hubstaff Talent',model:'Freelance directory',cat:'freelance',flags:['D'],tier:3,url:'https://talent.hubstaff.com',desc:'Free freelance talent directory.'},
+  {id:'worksome',name:'Worksome',model:'Freelance platform',cat:'freelance',flags:['D'],tier:3,url:'https://worksome.com',desc:'Freelance and contractor platform.'},
+  {id:'10to8',name:'10to8 / Sign In Scheduling',model:'Scheduling',cat:'booking',flags:['F','UK'],tier:3,url:'https://10to8.com',desc:'UK-based scheduling platform.'},
+  {id:'appointy',name:'Appointy',model:'Scheduling',cat:'booking',flags:['F'],tier:3,url:'https://appointy.com',desc:'Online scheduling software.'},
+  {id:'square-appointments',name:'Square Appointments',model:'Scheduling',cat:'booking',flags:['F'],tier:3,url:'https://squareup.com/appointments',desc:'Scheduling with Square payments.'},
+  {id:'practice-better',name:'Practice Better',model:'Health coaching',cat:'booking',flags:['F','C'],tier:3,url:'https://practicebetter.io',desc:'Health and wellness coaching platform.'},
+  {id:'upcoach',name:'UpCoach',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://upcoach.com',desc:'Group and individual coaching management.'},
+  {id:'honeybook',name:'HoneyBook',model:'Client management',cat:'booking',flags:['F'],tier:2,url:'https://honeybook.com',desc:'Proposals, contracts, invoicing, scheduling.'},
+  {id:'satori',name:'Satori',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://satorisoftware.com',desc:'Coaching packages, scheduling, payments.'},
+  {id:'practice-do',name:'Practice.do',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://practice.do',desc:'Client management for coaches.'},
+  {id:'coachli',name:'Coachli',model:'Coaching platform',cat:'booking',flags:['F'],tier:2,url:'https://coachli.co',desc:'Coaching scheduling and payments.'},
+];
+
+let platformProfiles = {}, activeFlag = '', filteredPlatforms = [...PLATFORMS_DATA];
+
+function init() {
+  platformProfiles = JSON.parse(localStorage.getItem('aurelia_platform_profiles') || '{}');
+  renderPlatforms(PLATFORMS_DATA);
+  updateStats();
+}
+
+function updateStats() {
+  const active = Object.values(platformProfiles).filter(p => p.status === 'active').length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-total').textContent = PLATFORMS_DATA.length;
+}
+
+function renderPlatforms(platforms) {
+  const grid = document.getElementById('platform-grid');
+  document.getElementById('platform-count-label').textContent = platforms.length + ' platforms';
+  if (!platforms.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-title">No platforms match your filters</div></div>'; return; }
+  grid.innerHTML = platforms.map(p => {
+    const profile = platformProfiles[p.id] || {};
+    const isActive = profile.status === 'active';
+    const tierClass = 'tier-' + p.tier;
+    return '<div class="platform-card ' + (isActive ? 'active-profile' : '') + '" id="pc-' + p.id + '">' +
+      '<div class="platform-header"><div><div class="platform-name">' + escHtml(p.name) + '</div><div class="platform-model">' + escHtml(p.model) + '</div></div><span class="' + tierClass + '">T' + p.tier + '</span></div>' +
+      '<div class="platform-badges">' + p.flags.map(f => '<span class="tag tag-' + (f==='D'?'green':f==='UK'?'blue':f==='R'?'red':f==='V'?'amber':'ink') + '">' + f + '</span>').join('') + '<span class="tag">' + escHtml(p.cat) + '</span></div>' +
+      '<div class="platform-desc">' + escHtml(p.desc) + '</div>' +
+      '<div class="platform-status"><span class="status-dot ' + (isActive ? 'status-online' : 'status-offline') + '"></span><span>' + (isActive ? 'Active profile' : 'No profile') + '</span>' + (profile.username ? '<span>· @' + escHtml(profile.username) + '</span>' : '') + '</div>' +
+      '<div class="platform-actions">' +
+      '<button class="btn btn-ghost btn-sm" onclick="openPlatform('' + p.id + '')" title="Open ' + escHtml(p.name) + '">↗ Open</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="showProfileModal('' + p.id + '')" title="Manage profile">📝 Profile</button>' +
+      '<button class="btn btn-' + (isActive ? 'primary' : 'ghost') + ' btn-sm" onclick="toggleActive('' + p.id + '')">' + (isActive ? '✓ Active' : 'Set Active') + '</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function filterPlatforms() {
+  const q = document.getElementById('platform-search').value.toLowerCase();
+  const cat = document.getElementById('platform-cat-filter').value;
+  const tier = document.getElementById('platform-tier-filter').value;
+  filteredPlatforms = PLATFORMS_DATA.filter(p => {
+    const matchQ = !q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.model.toLowerCase().includes(q);
+    const matchCat = !cat || p.cat === cat;
+    const matchTier = !tier || p.tier === parseInt(tier);
+    const matchFlag = !activeFlag || (activeFlag === 'active' ? platformProfiles[p.id]?.status === 'active' : p.flags.includes(activeFlag));
+    return matchQ && matchCat && matchTier && matchFlag;
+  });
+  renderPlatforms(filteredPlatforms);
+}
+
+function toggleFlag(chip) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  chip.classList.add('on');
+  activeFlag = chip.dataset.flag;
+  filterPlatforms();
+}
+
+function toggleActive(id) {
+  if (!platformProfiles[id]) platformProfiles[id] = {};
+  platformProfiles[id].status = platformProfiles[id].status === 'active' ? 'inactive' : 'active';
+  savePlatformProfiles();
+  updateStats();
+  filterPlatforms();
+}
+
+function openPlatform(id) {
+  const p = PLATFORMS_DATA.find(x => x.id === id);
+  if (p) window.open(p.url, '_blank', 'noopener');
+}
+
+function showProfileModal(id) {
+  const p = PLATFORMS_DATA.find(x => x.id === id);
+  if (!p) return;
+  const profile = platformProfiles[id] || {};
+  document.getElementById('pm-modal-title').textContent = p.name;
+  document.getElementById('pm-modal-body').innerHTML = '<div style="margin-bottom:10px;font-size:12.5px;color:var(--text-secondary)">' + escHtml(p.desc) + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<div class="input-group"><label class="input-label">Username / Profile URL</label><input class="input" id="pm-username" value="' + escHtml(profile.username||'') + '" placeholder="Your username or profile URL"></div>' +
+    '<div class="input-group"><label class="input-label">Status</label><select class="input" id="pm-status"><option ' + (profile.status==='active'?'selected':'') + '>active</option><option ' + (profile.status==='pending'?'selected':'') + '>pending</option><option ' + (!profile.status||profile.status==='inactive'?'selected':'') + '>inactive</option></select></div>' +
+    '<div class="input-group"><label class="input-label">Notes</label><textarea class="input" id="pm-notes" rows="3" placeholder="Profile notes, strategy…">' + escHtml(profile.notes||'') + '</textarea></div>' +
+    '<div class="input-group"><label class="input-label">Monthly Revenue (£)</label><input class="input" id="pm-revenue" type="number" value="' + (profile.revenue||0) + '" placeholder="0"></div>' +
+    '<div style="display:flex;gap:8px;margin-top:4px"><button class="btn btn-primary" onclick="saveProfile('' + id + '')">Save Profile</button><a href="' + escHtml(p.url) + '" target="_blank" class="btn btn-ghost">↗ Open Platform</a><button class="btn btn-ghost" onclick="closeModal('platform-modal')">Cancel</button></div>' +
+    '</div>';
+  document.getElementById('platform-modal').classList.add('open');
+}
+
+function saveProfile(id) {
+  if (!platformProfiles[id]) platformProfiles[id] = {};
+  platformProfiles[id].username = document.getElementById('pm-username').value.trim();
+  platformProfiles[id].status = document.getElementById('pm-status').value;
+  platformProfiles[id].notes = document.getElementById('pm-notes').value.trim();
+  platformProfiles[id].revenue = parseFloat(document.getElementById('pm-revenue').value) || 0;
+  savePlatformProfiles();
+  closeModal('platform-modal');
+  updateStats();
+  filterPlatforms();
+  if (typeof Toast !== 'undefined') Toast.show('Profile saved', 'success');
+}
+
+function showAddPlatformModal() { if (typeof Toast !== 'undefined') Toast.show('Custom platform addition — coming soon', 'info'); }
+
+function exportPlatforms() {
+  const csv = ['Name,Model,Category,Tier,Flags,URL,Status,Username'].concat(
+    PLATFORMS_DATA.map(p => { const pr = platformProfiles[p.id] || {}; return '"' + p.name + '","' + p.model + '","' + p.cat + '",' + p.tier + ',"' + p.flags.join(' ') + '","' + p.url + '","' + (pr.status||'inactive') + '","' + (pr.username||'') + '"'; })
+  ).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'aurelia-platforms.csv'; a.click();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function savePlatformProfiles() { localStorage.setItem('aurelia_platform_profiles', JSON.stringify(platformProfiles)); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
