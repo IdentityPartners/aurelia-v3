@@ -6,7 +6,20 @@
   <title>Aurelia — Research Library</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
   <link rel="stylesheet" href="/shared/aurelia.css">
-  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}</style>
+  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}
+    .source-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px}
+    .source-tab{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-2,#f0e9e0);color:var(--muted,#78716c);transition:all .12s;white-space:nowrap}
+    .source-tab.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
+    .source-category{display:none}.source-category.on{display:block}
+    .source-cat-label{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);margin:8px 0 5px}
+    .source-chips-wrap{max-height:140px;overflow-y:auto;padding-bottom:4px}
+    .source-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);font-size:11px;color:var(--muted,#78716c);cursor:pointer;transition:all .12s;margin:2px;white-space:nowrap}
+    .source-chip:hover{border-color:var(--ink-5,#a8a29e);color:var(--ink)}
+    .source-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
+    .source-chip.api{border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
+    .source-chip.api.on{background:var(--accent,#0f3b3a);color:#fff}
+
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -50,13 +63,124 @@
 <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)">
   <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)">
     <div style="display:flex;gap:8px;margin-bottom:10px"><input class="input" id="research-query" placeholder="Search across 150+ sources…" style="flex:1"><button class="btn btn-primary" onclick="runResearch()">Search</button></div>
-    <div style="display:flex;gap:5px;flex-wrap:wrap" id="source-chips">
-      <span class="chip on" data-s="tavily" onclick="toggleSrc(this)">⚡ Tavily</span>
-      <span class="chip on" data-s="brave" onclick="toggleSrc(this)">⚡ Brave</span>
-      <span class="chip on" data-s="exa" onclick="toggleSrc(this)">⚡ Exa</span>
-      <span class="chip" data-s="semantic_scholar" onclick="toggleSrc(this)">📚 Scholar</span>
-      <span class="chip" data-s="ncbi" onclick="toggleSrc(this)">🧬 NCBI</span>
-    </div>
+    <div class="source-tabs" id="source-tabs">
+          <button class="source-tab on" onclick="showSourceTab('api',this)">API Sources</button>
+          <button class="source-tab" onclick="showSourceTab('scholarly',this)">Scholarly</button>
+          <button class="source-tab" onclick="showSourceTab('preprints',this)">Preprints</button>
+          <button class="source-tab" onclick="showSourceTab('data',this)">Data</button>
+          <button class="source-tab" onclick="showSourceTab('health',this)">Health</button>
+          <button class="source-tab" onclick="showSourceTab('social',this)">Social Sci</button>
+          <button class="source-tab" onclick="showSourceTab('law',this)">Law</button>
+          <button class="source-tab" onclick="showSourceTab('uk',this)">UK Data</button>
+          <button class="source-tab" onclick="showSourceTab('humanities',this)">Humanities</button>
+        </div>
+        <div class="source-chips-wrap">
+          <div class="source-category on" id="tab-api">
+            <div class="source-cat-label">Live API Search</div>
+            <div>
+              <span class="source-chip api on" data-s="tavily" onclick="toggleSrc(this)">Tavily</span>
+              <span class="source-chip api on" data-s="brave" onclick="toggleSrc(this)">Brave</span>
+              <span class="source-chip api on" data-s="exa" onclick="toggleSrc(this)">Exa</span>
+              <span class="source-chip api" data-s="semantic_scholar" onclick="toggleSrc(this)">Semantic Scholar</span>
+              <span class="source-chip api" data-s="ncbi" onclick="toggleSrc(this)">NCBI/PubMed</span>
+              <span class="source-chip api" data-s="firecrawl" onclick="toggleSrc(this)">Firecrawl</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-scholarly">
+            <div class="source-cat-label">Scholarly Search</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://scholar.google.com/scholar?q=')">Google Scholar</span>
+              <span class="source-chip" onclick="openSource('https://core.ac.uk/search?q=')">CORE</span>
+              <span class="source-chip" onclick="openSource('https://openalex.org/works?search=')">OpenAlex</span>
+              <span class="source-chip" onclick="openSource('https://search.crossref.org/?q=')">Crossref</span>
+              <span class="source-chip" onclick="openSource('https://www.base-search.net/Search/Results?lookfor=')">BASE</span>
+              <span class="source-chip" onclick="openSource('https://doaj.org/search/articles?query=')">DOAJ</span>
+              <span class="source-chip" onclick="openSource('https://www.jstor.org/action/doBasicSearch?Query=')">JSTOR Open</span>
+              <span class="source-chip" onclick="openSource('https://scholar.archive.org/search?q=')">Internet Archive Scholar</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-preprints">
+            <div class="source-cat-label">Preprints & Theses</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://arxiv.org/search/?searchtype=all&query=')">arXiv</span>
+              <span class="source-chip" onclick="openSource('https://www.biorxiv.org/search/')">bioRxiv</span>
+              <span class="source-chip" onclick="openSource('https://www.medrxiv.org/search/')">medRxiv</span>
+              <span class="source-chip" onclick="openSource('https://papers.ssrn.com/sol3/results.cfm?txtkey=')">SSRN</span>
+              <span class="source-chip" onclick="openSource('https://psyarxiv.com/discover?q=')">PsyArXiv</span>
+              <span class="source-chip" onclick="openSource('https://osf.io/search/?q=')">OSF</span>
+              <span class="source-chip" onclick="openSource('https://ethos.bl.uk/SearchResults.do?query=')">EThOS (UK)</span>
+              <span class="source-chip" onclick="openSource('https://oatd.org/oatd/search?q=')">OATD</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-data">
+            <div class="source-cat-label">Data Repositories</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://zenodo.org/search?q=')">Zenodo</span>
+              <span class="source-chip" onclick="openSource('https://figshare.com/search?q=')">Figshare</span>
+              <span class="source-chip" onclick="openSource('https://www.kaggle.com/search?q=')">Kaggle</span>
+              <span class="source-chip" onclick="openSource('https://huggingface.co/datasets?search=')">HuggingFace</span>
+              <span class="source-chip" onclick="openSource('https://data.worldbank.org/indicator?q=')">World Bank</span>
+              <span class="source-chip" onclick="openSource('https://data-explorer.oecd.org/')">OECD Data</span>
+              <span class="source-chip" onclick="openSource('https://ec.europa.eu/eurostat/databrowser/')">Eurostat</span>
+              <span class="source-chip" onclick="openSource('https://www.who.int/data/gho')">WHO GHO</span>
+              <span class="source-chip" onclick="openSource('https://fred.stlouisfed.org/search?st=')">FRED</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-health">
+            <div class="source-cat-label">Health & Medicine</div>
+            <div>
+              <span class="source-chip api" onclick="openSource('https://pubmed.ncbi.nlm.nih.gov/?term=')">PubMed</span>
+              <span class="source-chip" onclick="openSource('https://europepmc.org/search?query=')">Europe PMC</span>
+              <span class="source-chip" onclick="openSource('https://clinicaltrials.gov/search?term=')">ClinicalTrials.gov</span>
+              <span class="source-chip" onclick="openSource('https://ourworldindata.org/search?q=')">Our World in Data</span>
+              <span class="source-chip" onclick="openSource('https://www.ncbi.nlm.nih.gov/datasets/')">NCBI Datasets</span>
+              <span class="source-chip" onclick="openSource('https://ghdx.healthdata.org/search?q=')">GHDx</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-social">
+            <div class="source-cat-label">Social Science & Economics</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://ideas.repec.org/search.html?q=')">IDEAS/RePEc</span>
+              <span class="source-chip" onclick="openSource('https://www.nber.org/search?q=')">NBER</span>
+              <span class="source-chip" onclick="openSource('https://www.pewresearch.org/search/?q=')">Pew Research</span>
+              <span class="source-chip" onclick="openSource('https://www.icpsr.umich.edu/web/pages/ICPSR/index.html')">ICPSR</span>
+              <span class="source-chip" onclick="openSource('https://ukdataservice.ac.uk/find-data/browse/?q=')">UK Data Service</span>
+              <span class="source-chip" onclick="openSource('https://www.worldvaluessurvey.org/')">World Values Survey</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-law">
+            <div class="source-cat-label">Law, Policy & Patents</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://www.bailii.org/')">BAILII</span>
+              <span class="source-chip" onclick="openSource('https://eur-lex.europa.eu/search.html?text=')">EUR-Lex</span>
+              <span class="source-chip" onclick="openSource('https://patents.google.com/?q=')">Google Patents</span>
+              <span class="source-chip" onclick="openSource('https://lens.org/lens/search/scholar?q=')">Lens.org</span>
+              <span class="source-chip" onclick="openSource('https://worldwide.espacenet.com/patent/search?q=')">Espacenet</span>
+              <span class="source-chip" onclick="openSource('https://www.congress.gov/search?q=')">Congress.gov</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-uk">
+            <div class="source-cat-label">UK Data</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://www.data.gov.uk/search?q=')">data.gov.uk</span>
+              <span class="source-chip" onclick="openSource('https://www.ons.gov.uk/search?q=')">ONS</span>
+              <span class="source-chip" onclick="openSource('https://www.nomisweb.co.uk/')">Nomis</span>
+              <span class="source-chip" onclick="openSource('https://ethos.bl.uk/SearchResults.do?query=')">EThOS</span>
+              <span class="source-chip" onclick="openSource('https://explore.data.parliament.uk/')">Parliament Data</span>
+            </div>
+          </div>
+          <div class="source-category" id="tab-humanities">
+            <div class="source-cat-label">Humanities & Archives</div>
+            <div>
+              <span class="source-chip" onclick="openSource('https://archive.org/search?query=')">Internet Archive</span>
+              <span class="source-chip" onclick="openSource('https://www.gutenberg.org/ebooks/search/?query=')">Project Gutenberg</span>
+              <span class="source-chip" onclick="openSource('https://www.europeana.eu/en/search?query=')">Europeana</span>
+              <span class="source-chip" onclick="openSource('https://www.loc.gov/search/?q=')">Library of Congress</span>
+              <span class="source-chip" onclick="openSource('https://discovery.nationalarchives.gov.uk/results/r?_q=')">National Archives (UK)</span>
+              <span class="source-chip" onclick="openSource('https://www.wikidata.org/w/index.php?search=')">Wikidata</span>
+            </div>
+          </div>
+        </div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:14px" id="results-list">
     <div class="empty-state"><div class="empty-state-icon" style="font-size:28px;opacity:.2">◎</div><div class="empty-state-title">Research Library</div><div class="empty-state-desc">Search across 150+ academic, data, health, law, and humanities sources.</div></div>
