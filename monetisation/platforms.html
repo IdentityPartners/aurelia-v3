@@ -310,24 +310,98 @@ function updateStats() {
 }
 
 function renderPlatforms(platforms) {
-  const grid = document.getElementById('platform-grid');
-  document.getElementById('platform-count-label').textContent = platforms.length + ' platforms';
-  if (!platforms.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-title">No platforms match your filters</div></div>'; return; }
-  grid.innerHTML = platforms.map(p => {
-    const profile = platformProfiles[p.id] || {};
-    const isActive = profile.status === 'active';
-    const tierClass = 'tier-' + p.tier;
-    return '<div class="platform-card ' + (isActive ? 'active-profile' : '') + '" id="pc-' + p.id + '">' +
-      '<div class="platform-header"><div><div class="platform-name">' + escHtml(p.name) + '</div><div class="platform-model">' + escHtml(p.model) + '</div></div><span class="' + tierClass + '">T' + p.tier + '</span></div>' +
-      '<div class="platform-badges">' + p.flags.map(f => '<span class="tag tag-' + (f==='D'?'green':f==='UK'?'blue':f==='R'?'red':f==='V'?'amber':'ink') + '">' + f + '</span>').join('') + '<span class="tag">' + escHtml(p.cat) + '</span></div>' +
-      '<div class="platform-desc">' + escHtml(p.desc) + '</div>' +
-      '<div class="platform-status"><span class="status-dot ' + (isActive ? 'status-online' : 'status-offline') + '"></span><span>' + (isActive ? 'Active profile' : 'No profile') + '</span>' + (profile.username ? '<span>· @' + escHtml(profile.username) + '</span>' : '') + '</div>' +
-      '<div class="platform-actions">' +
-      '<button class="btn btn-ghost btn-sm" onclick="openPlatform('' + p.id + '')" title="Open ' + escHtml(p.name) + '">↗ Open</button>' +
-      '<button class="btn btn-ghost btn-sm" onclick="showProfileModal('' + p.id + '')" title="Manage profile">📝 Profile</button>' +
-      '<button class="btn btn-' + (isActive ? 'primary' : 'ghost') + ' btn-sm" onclick="toggleActive('' + p.id + '')">' + (isActive ? '✓ Active' : 'Set Active') + '</button>' +
-      '</div></div>';
-  }).join('');
+  var grid = document.getElementById("platform-grid");
+  if (!grid) return;
+  var countLabel = document.getElementById("platform-count-label");
+  if (countLabel) countLabel.textContent = platforms.length + " platforms";
+  grid.innerHTML = "";
+  if (!platforms.length) {
+    var empty = document.createElement("div");
+    empty.style.cssText = "grid-column:1/-1;text-align:center;padding:32px;color:var(--faint,#a8a29e);font-size:13px";
+    empty.textContent = "No platforms match your filters";
+    grid.appendChild(empty);
+    return;
+  }
+  platforms.forEach(function(p) {
+    var profile = platformProfiles[p.id] || {};
+    var isActive = profile.status === "active";
+    var card = document.createElement("div");
+    card.className = "platform-card" + (isActive ? " active-profile" : "");
+    card.id = "pc-" + p.id;
+    // Header
+    var header = document.createElement("div");
+    header.className = "platform-header";
+    var nameDiv = document.createElement("div");
+    var nameEl = document.createElement("div");
+    nameEl.className = "platform-name";
+    nameEl.textContent = p.name;
+    var modelEl = document.createElement("div");
+    modelEl.className = "platform-model";
+    modelEl.textContent = p.model;
+    nameDiv.appendChild(nameEl);
+    nameDiv.appendChild(modelEl);
+    var tierEl = document.createElement("span");
+    tierEl.className = "tier-" + p.tier;
+    tierEl.textContent = "T" + p.tier;
+    header.appendChild(nameDiv);
+    header.appendChild(tierEl);
+    card.appendChild(header);
+    // Badges
+    var badges = document.createElement("div");
+    badges.className = "platform-badges";
+    p.flags.forEach(function(f) {
+      var tag = document.createElement("span");
+      var colorMap = {D:"green",UK:"blue",R:"red",V:"amber"};
+      tag.className = "tag tag-" + (colorMap[f] || "ink");
+      tag.textContent = f;
+      badges.appendChild(tag);
+    });
+    var catTag = document.createElement("span");
+    catTag.className = "tag";
+    catTag.textContent = p.cat;
+    badges.appendChild(catTag);
+    card.appendChild(badges);
+    // Description
+    var desc = document.createElement("div");
+    desc.className = "platform-desc";
+    desc.textContent = p.desc;
+    card.appendChild(desc);
+    // Status
+    var status = document.createElement("div");
+    status.className = "platform-status";
+    var dot = document.createElement("span");
+    dot.className = "status-dot " + (isActive ? "status-online" : "status-offline");
+    var statusText = document.createElement("span");
+    statusText.textContent = isActive ? "Active profile" : "No profile";
+    status.appendChild(dot);
+    status.appendChild(statusText);
+    if (profile.username) {
+      var uname = document.createElement("span");
+      uname.textContent = " @" + profile.username;
+      status.appendChild(uname);
+    }
+    card.appendChild(status);
+    // Actions
+    var actions = document.createElement("div");
+    actions.className = "platform-actions";
+    var openBtn = document.createElement("button");
+    openBtn.className = "btn btn-ghost btn-sm";
+    openBtn.textContent = "Open";
+    openBtn.onclick = (function(pid) { return function() { openPlatform(pid); }; })(p.id);
+    var profileBtn = document.createElement("button");
+    profileBtn.className = "btn btn-ghost btn-sm";
+    profileBtn.textContent = "Profile";
+    profileBtn.onclick = (function(pid) { return function() { showProfileModal(pid); }; })(p.id);
+    var activeBtn = document.createElement("button");
+    activeBtn.className = "btn btn-" + (isActive ? "primary" : "ghost") + " btn-sm";
+    activeBtn.textContent = isActive ? "Active" : "Set Active";
+    activeBtn.onclick = (function(pid) { return function() { toggleActive(pid); }; })(p.id);
+    actions.appendChild(openBtn);
+    actions.appendChild(profileBtn);
+    actions.appendChild(activeBtn);
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
 }
 
 function filterPlatforms() {
