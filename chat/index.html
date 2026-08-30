@@ -927,23 +927,32 @@ window._makeMsgWithAvatar = makeMsgWithAvatar;
   </button>
 </div>
 <!-- Compact QWERTY — always visible, 3 rows -->
-<div id="chat-mini-qwerty" style="background:var(--bg-2,#f0e9e0);border-radius:8px;padding:5px;display:flex;flex-direction:column;gap:3px">
-  <div style="display:flex;gap:2px;justify-content:center">
-    <button class="qk" onclick="qk('q')">q</button><button class="qk" onclick="qk('w')">w</button><button class="qk" onclick="qk('e')">e</button><button class="qk" onclick="qk('r')">r</button><button class="qk" onclick="qk('t')">t</button><button class="qk" onclick="qk('y')">y</button><button class="qk" onclick="qk('u')">u</button><button class="qk" onclick="qk('i')">i</button><button class="qk" onclick="qk('o')">o</button><button class="qk" onclick="qk('p')">p</button>
-  </div>
-  <div style="display:flex;gap:2px;justify-content:center">
-    <button class="qk" onclick="qk('a')">a</button><button class="qk" onclick="qk('s')">s</button><button class="qk" onclick="qk('d')">d</button><button class="qk" onclick="qk('f')">f</button><button class="qk" onclick="qk('g')">g</button><button class="qk" onclick="qk('h')">h</button><button class="qk" onclick="qk('j')">j</button><button class="qk" onclick="qk('k')">k</button><button class="qk" onclick="qk('l')">l</button><button class="qk" onclick="qk('&#8232;')" style="width:36px">&#8617;</button>
-  </div>
-  <div style="display:flex;gap:2px;justify-content:center">
-    <button class="qk" onclick="qk('z')">z</button><button class="qk" onclick="qk('x')">x</button><button class="qk" onclick="qk('c')">c</button><button class="qk" onclick="qk('v')">v</button><button class="qk" onclick="qk('b')">b</button><button class="qk" onclick="qk('n')">n</button><button class="qk" onclick="qk('m')">m</button><button class="qk" onclick="qk('.')" style="width:28px">.</button><button class="qk" onclick="qk('&#8232;')" style="width:28px">?</button><button class="qk" onclick="qkDel()" style="width:36px">&#9003;</button>
-  </div>
-  <div style="display:flex;gap:2px;justify-content:center">
-    <button class="qk" onclick="qk(' ')" style="width:200px">&#9141; space</button>
-    <button class="qk" onclick="qk(',')" style="width:28px">,</button>
-    <button class="qk" onclick="qk('!')" style="width:28px">!</button>
-    <button class="qk" onclick="doSend()" style="width:60px;background:var(--accent,#0f3b3a);color:#fff;border-color:var(--accent,#0f3b3a)">&#8617; send</button>
-  </div>
+<div id="chat-mini-qwerty" style="background:var(--bg-2,#f0e9e0);border-top:1px solid var(--border);padding:5px 6px;flex-shrink:0;user-select:none"><style>.qk{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:30px;padding:0 4px;margin:1.5px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11.5px;font-weight:500;color:var(--ink);cursor:pointer;font-family:var(--font);transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.07);}.qk:active{background:var(--bg-3,#e8ddd4);transform:scale(0.93);}.qk.w2{min-width:44px;}.qk.w3{min-width:60px;}.qk.w4{min-width:80px;}.qk.w5{min-width:130px;}.qk.sp{background:var(--bg-3,#e8ddd4);font-size:10px;color:var(--muted,#78716c);}.qk.mon{background:var(--accent,#0f3b3a);color:#fff;}.qrow{display:flex;justify-content:center;margin-bottom:1.5px;}</style>
+<div class="qrow"><div class="qk sp" onclick="qkP('`','~')">` ~</div><div class="qk" onclick="qkP('1','!')">1 !</div><div class="qk" onclick="qkP('2','@')">2 @</div><div class="qk" onclick="qkP('3','#')">3 #</div><div class="qk" onclick="qkP('4','$')">4 $</div><div class="qk" onclick="qkP('5','%')">5 %</div><div class="qk" onclick="qkP('6','^')">6 ^</div><div class="qk" onclick="qkP('7','&amp;')">7 &amp;</div><div class="qk" onclick="qkP('8','*')">8 *</div><div class="qk" onclick="qkP('9','(')">9 (</div><div class="qk" onclick="qkP('0',')')">0 )</div><div class="qk sp" onclick="qkP('-','_')">- _</div><div class="qk sp" onclick="qkP('=','+')">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
+<div class="qrow"><div class="qk w2 sp" onclick="qkP('    ','    ')">Tab</div><div class="qk" onclick="qkP('q','Q')">Q</div><div class="qk" onclick="qkP('w','W')">W</div><div class="qk" onclick="qkP('e','E')">E</div><div class="qk" onclick="qkP('r','R')">R</div><div class="qk" onclick="qkP('t','T')">T</div><div class="qk" onclick="qkP('y','Y')">Y</div><div class="qk" onclick="qkP('u','U')">U</div><div class="qk" onclick="qkP('i','I')">I</div><div class="qk" onclick="qkP('o','O')">O</div><div class="qk" onclick="qkP('p','P')">P</div><div class="qk sp" onclick="qkP('[','{')">[ {</div><div class="qk sp" onclick="qkP(']','}')">] }</div><div class="qk sp" onclick="qkP('\\','|')">\ |</div></div>
+<div class="qrow"><div class="qk w3 sp" onclick="qkCaps()" id="qk-caps">Caps Lock</div><div class="qk" onclick="qkP('a','A')">A</div><div class="qk" onclick="qkP('s','S')">S</div><div class="qk" onclick="qkP('d','D')">D</div><div class="qk" onclick="qkP('f','F')">F</div><div class="qk" onclick="qkP('g','G')">G</div><div class="qk" onclick="qkP('h','H')">H</div><div class="qk" onclick="qkP('j','J')">J</div><div class="qk" onclick="qkP('k','K')">K</div><div class="qk" onclick="qkP('l','L')">L</div><div class="qk sp" onclick="qkP(';',':')">; :</div><div class="qk sp" onclick="qkP(&quot;'&quot;,&quot;\&quot;&quot;)">' "</div><div class="qk w3 sp" onclick="qkEnter()">&#9166; Enter</div></div>
+<div class="qrow"><div class="qk w3 sp" onclick="qkShift()" id="qk-sh1">&#8679; Shift</div><div class="qk" onclick="qkP('z','Z')">Z</div><div class="qk" onclick="qkP('x','X')">X</div><div class="qk" onclick="qkP('c','C')">C</div><div class="qk" onclick="qkP('v','V')">V</div><div class="qk" onclick="qkP('b','B')">B</div><div class="qk" onclick="qkP('n','N')">N</div><div class="qk" onclick="qkP('m','M')">M</div><div class="qk sp" onclick="qkP(',','&lt;'">, &lt;</div><div class="qk sp" onclick="qkP('.','&gt;'">. &gt;</div><div class="qk sp" onclick="qkP('/','?'">/ ?</div><div class="qk w3 sp" onclick="qkShift()" id="qk-sh2">&#8679; Shift</div></div>
+<div class="qrow"><div class="qk w2 sp" onclick="qkCtrl()" id="qk-ctrl">Ctrl</div><div class="qk w3 sp" onclick="qkCtrlShift()" id="qk-cs" style="font-size:9.5px">Ctrl+Shift</div><div class="qk sp" onclick="qkP(' ',' ')">Alt</div><div class="qk w5 sp" onclick="qkP(' ',' ')">Space</div><div class="qk sp" onclick="qkP(' ',' ')">Alt Gr</div><div class="qk sp" onclick="qkLeft()">&#8592;</div><div class="qk sp" onclick="qkUp()">&#8593;</div><div class="qk sp" onclick="qkDown()">&#8595;</div><div class="qk sp" onclick="qkRight()">&#8594;</div><div class="qk w2 sp" onclick="doSend()" style="background:var(--accent,#0f3b3a);color:#fff;font-size:10.5px">Send &#9166;</div></div>
 </div>
+<script>
+var _sh=false,_caps=false,_ctrl=false,_cs=false;
+function qkP(lo,hi){var ta=document.getElementById("chat-textarea");if(!ta)return;var ch=(_sh||_caps)?hi:lo;var s=ta.selectionStart,e=ta.selectionEnd;ta.value=ta.value.slice(0,s)+ch+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s+ch.length;ta.focus();if(_sh&&!_caps){_sh=false;_qkU();}if(typeof autoResize==="function")autoResize(ta);var cc=document.getElementById("char-count");if(cc)cc.textContent=ta.value.length;}
+function qkBksp(){var ta=document.getElementById("chat-textarea");if(!ta)return;var s=ta.selectionStart,e=ta.selectionEnd;if(s===e&&s>0){ta.value=ta.value.slice(0,s-1)+ta.value.slice(s);ta.selectionStart=ta.selectionEnd=s-1;}else if(s!==e){ta.value=ta.value.slice(0,s)+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s;}ta.focus();if(typeof autoResize==="function")autoResize(ta);}
+function qkEnter(){if(_sh||_ctrl){qkP("
+","
+");}else{doSend();}}
+function qkShift(){_sh=!_sh;_qkU();}
+function qkCaps(){_caps=!_caps;_qkU();}
+function qkCtrl(){_ctrl=!_ctrl;_qkU();}
+function qkCtrlShift(){_cs=!_cs;_sh=_cs;_ctrl=_cs;_qkU();}
+function qkLeft(){var ta=document.getElementById("chat-textarea");if(ta&&ta.selectionStart>0){ta.selectionStart=ta.selectionEnd=ta.selectionStart-1;ta.focus();}}
+function qkRight(){var ta=document.getElementById("chat-textarea");if(ta){ta.selectionStart=ta.selectionEnd=ta.selectionStart+1;ta.focus();}}
+function qkUp(){var ta=document.getElementById("chat-textarea");if(ta){var p=ta.value.lastIndexOf("
+",ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();}}
+function qkDown(){var ta=document.getElementById("chat-textarea");if(ta){var p=ta.value.indexOf("
+",ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();}}
+function _qkU(){var s1=document.getElementById("qk-sh1");if(s1)s1.classList.toggle("mon",_sh);var s2=document.getElementById("qk-sh2");if(s2)s2.classList.toggle("mon",_sh);var cp=document.getElementById("qk-caps");if(cp)cp.classList.toggle("mon",_caps);var ct=document.getElementById("qk-ctrl");if(ct)ct.classList.toggle("mon",_ctrl);var cs=document.getElementById("qk-cs");if(cs)cs.classList.toggle("mon",_cs);}
+</script>
 </div>
 </div>
 </div>
