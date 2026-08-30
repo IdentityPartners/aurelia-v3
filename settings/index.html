@@ -315,6 +315,13 @@ DEEPSEEK_API_KEY=sk_ghi789
   function exportAllData(){const all={};['chats','drafts','research','contacts','offers'].forEach(k=>{all[k]=JSON.parse(localStorage.getItem('aurelia_'+k)||'[]');});const blob=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='aurelia-export-'+Date.now()+'.json';a.click();}
   function clearAllData(){if(!confirm('Clear ALL Aurelia data?'))return;localStorage.clear();Toast.show('All data cleared','success');setTimeout(()=>window.location.reload(),1500);}
 
+  function toggleHelp(el) {
+    el.classList.toggle('on');
+    const enabled = el.classList.contains('on');
+    localStorage.setItem('aurelia_help_enabled', enabled);
+    if (window.AureliaHelp) AureliaHelp.setEnabled(enabled);
+    Toast.show(enabled ? 'Help system enabled' : 'Help system hidden', 'success');
+  }
   function showSection(name,el){
     document.querySelectorAll('.settings-section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('.settings-nav-item').forEach(n=>n.classList.remove('active'));
