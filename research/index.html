@@ -59,7 +59,14 @@
 <script src="/shared/aurelia.js"></script>
 <script>
 var srcs=new Set(["tavily","brave","exa"]),savedRuns=[],allResults=[];
-function toggleSrc(el){var s=el.dataset.s;if(srcs.has(s)){srcs.delete(s);el.classList.remove("on");}else{srcs.add(s);el.classList.add("on");}}
+function selectAllSources() {
+    document.querySelectorAll('[data-s]').forEach(el => {
+      const s = el.dataset.s;
+      if (!srcs.has(s)) { srcs.add(s); el.classList.add('on'); }
+    });
+    Toast && Toast.show('All sources selected', 'success');
+  }
+  function toggleSrc(el) {var s=el.dataset.s;if(srcs.has(s)){srcs.delete(s);el.classList.remove("on");}else{srcs.add(s);el.classList.add("on");}}
 async function runResearch(){
   var q=document.getElementById("research-query").value.trim();if(!q)return;
   var list=document.getElementById("results-list");
