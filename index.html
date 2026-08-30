@@ -625,105 +625,138 @@ async function loadNews() {
   var feed = document.getElementById("news-feed");
   if (!feed) return;
   
-  var FALLBACK = {
+  // Show loading
+  feed.innerHTML = "";
+  var loading = document.createElement("div");
+  loading.style.cssText = "text-align:center;padding:20px;color:var(--faint,#a8a29e);font-size:13px;grid-column:1/-1";
+  loading.textContent = "Loading news...";
+  feed.appendChild(loading);
+  
+  // News queries by category
+  var QUERIES = {
+    general: "UK news today BBC Guardian Independent",
+    ai: "artificial intelligence AI news 2026",
+    psychology: "psychology mental health wellbeing research",
+    coaching: "coaching wellbeing identity development",
+    neurodivergent: "ADHD neurodivergent autism news",
+    uk: "UK politics society news today",
+    world: "world news international today",
+  };
+  
+  var query = QUERIES[catVal] || QUERIES.general;
+  var tok = localStorage.getItem("aurelia_device_token") || "dt_news";
+  
+  try {
+    var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/research", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + tok,
+        "Origin": "https://aurelia.identitypartners.uk"
+      },
+      body: JSON.stringify({
+        query: query,
+        sources: ["tavily", "brave"],
+        count: 6
+      }),
+      signal: AbortSignal.timeout(10000)
+    });
+    
+    var data = await res.json();
+    var results = data.results || [];
+    
+    feed.innerHTML = "";
+    
+    if (results.length > 0) {
+      results.slice(0, 6).forEach(function(r) {
+        renderNewsCard(feed, {
+          source: extractDomain(r.url || ""),
+          title: r.title || "",
+          description: (r.snippet || r.content || "").slice(0, 160),
+          url: r.url || "#",
+          image: r.image || null,
+          date: "Today",
+        });
+      });
+    } else {
+      showNewsLinks(feed, catVal);
+    }
+  } catch(e) {
+    // Show direct links to news sources as fallback
+    showNewsLinks(feed, catVal);
+  }
+}
+
+function extractDomain(url) {
+  try {
+    var m = url.match(/https?:\/\/(?:www\.)?([^/]+)/);
+    return m ? m[1].replace("feeds.","").replace(".co.uk","").replace(".com","").replace(".org","") : "News";
+  } catch(e) { return "News"; }
+}
+
+function showNewsLinks(feed, cat) {
+  var LINKS = {
     general: [
-      {source:"BBC News",title:"UK and world news — click to visit BBC News",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
-      {source:"The Guardian",title:"Independent journalism — politics, society, culture",url:"https://www.theguardian.com",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
-      {source:"Sky News",title:"Breaking news, analysis and video",url:"https://news.sky.com",image:"https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70",date:"Live"},
-      {source:"The Independent",title:"Independent news and opinion",url:"https://www.independent.co.uk",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
-      {source:"Channel 4 News",title:"In-depth news and current affairs",url:"https://www.channel4.com/news",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
+      {name:"BBC News", url:"https://www.bbc.co.uk/news"},
+      {name:"The Guardian", url:"https://www.theguardian.com"},
+      {name:"Sky News", url:"https://news.sky.com"},
+      {name:"The Independent", url:"https://www.independent.co.uk"},
+      {name:"Channel 4 News", url:"https://www.channel4.com/news"},
     ],
     ai: [
-      {source:"MIT Tech Review",title:"AI and emerging technology",url:"https://www.technologyreview.com",image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&q=70",date:"Live"},
-      {source:"The Verge",title:"Technology, science, art and culture",url:"https://www.theverge.com/ai-artificial-intelligence",image:"https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=200&q=70",date:"Live"},
-      {source:"Wired",title:"How technology is changing everything",url:"https://www.wired.com",image:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&q=70",date:"Live"},
+      {name:"MIT Technology Review", url:"https://www.technologyreview.com"},
+      {name:"The Verge — AI", url:"https://www.theverge.com/ai-artificial-intelligence"},
+      {name:"Wired", url:"https://www.wired.com"},
     ],
     psychology: [
-      {source:"Psychology Today",title:"Mental health, wellbeing and behaviour",url:"https://www.psychologytoday.com",image:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=200&q=70",date:"Live"},
-      {source:"APA",title:"American Psychological Association",url:"https://www.apa.org/news",image:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=70",date:"Live"},
-      {source:"SocArXiv",title:"Social science preprints and research",url:"https://osf.io/preprints/socarxiv",image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70",date:"Live"},
+      {name:"Psychology Today", url:"https://www.psychologytoday.com"},
+      {name:"APA News", url:"https://www.apa.org/news"},
     ],
     coaching: [
-      {source:"ICF",title:"International Coaching Federation",url:"https://coachingfederation.org",image:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&q=70",date:"Live"},
-      {source:"Positive Psychology",title:"Science of wellbeing and flourishing",url:"https://positivepsychology.com",image:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200&q=70",date:"Live"},
+      {name:"ICF", url:"https://coachingfederation.org"},
+      {name:"Positive Psychology", url:"https://positivepsychology.com"},
     ],
     neurodivergent: [
-      {source:"ADHD UK",title:"ADHD resources, community and support",url:"https://adhduk.co.uk",image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70",date:"Live"},
-      {source:"Neurodiversity Hub",title:"Neurodiversity in education and work",url:"https://neurodiversityhub.org",image:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&q=70",date:"Live"},
+      {name:"ADHD UK", url:"https://adhduk.co.uk"},
+      {name:"Neurodiversity Hub", url:"https://neurodiversityhub.org"},
     ],
     uk: [
-      {source:"BBC UK",title:"UK news from the BBC",url:"https://www.bbc.co.uk/news/uk",image:"https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=200&q=70",date:"Live"},
-      {source:"The Guardian UK",title:"UK politics, society and culture",url:"https://www.theguardian.com/uk",image:"https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=200&q=70",date:"Live"},
-      {source:"Sky News UK",title:"UK breaking news",url:"https://news.sky.com/uk",image:"https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=200&q=70",date:"Live"},
+      {name:"BBC UK", url:"https://www.bbc.co.uk/news/uk"},
+      {name:"The Guardian UK", url:"https://www.theguardian.com/uk"},
+      {name:"Sky News UK", url:"https://news.sky.com/uk"},
     ],
     world: [
-      {source:"BBC World",title:"World news from the BBC",url:"https://www.bbc.co.uk/news/world",image:"https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200&q=70",date:"Live"},
-      {source:"Reuters",title:"International news and analysis",url:"https://www.reuters.com",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
-      {source:"NYT",title:"The New York Times world coverage",url:"https://www.nytimes.com/section/world",image:"https://images.unsplash.com/photo-1485081669829-bacb8c7bb1f3?w=200&q=70",date:"Live"},
+      {name:"BBC World", url:"https://www.bbc.co.uk/news/world"},
+      {name:"Reuters", url:"https://www.reuters.com"},
+      {name:"NYT World", url:"https://www.nytimes.com/section/world"},
     ],
   };
   
-  // STEP 1: Show fallback articles IMMEDIATELY — always visible
+  var links = LINKS[cat] || LINKS.general;
   feed.innerHTML = "";
-  var fallbacks = FALLBACK[catVal] || FALLBACK.general;
-  fallbacks.forEach(function(item) { renderNewsCard(feed, item); });
   
-  // STEP 2: Try to load live RSS in background — silently replace if successful
-  try {
-    var FEEDS = {
-      general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"}],
-      ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"}],
-      psychology: [{name:"Psychology Today",url:"https://www.psychologytoday.com/intl/front-page/feed"}],
-      coaching: [{name:"Positive Psychology",url:"https://positivepsychology.com/feed/"}],
-      neurodivergent: [{name:"ADHD UK",url:"https://adhduk.co.uk/feed/"}],
-      uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"}],
-      world: [{name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}],
-    };
-    var sources = FEEDS[catVal] || FEEDS.general;
-    var liveItems = [];
-    
-    var promises = sources.map(async function(src) {
-      try {
-        var proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(src.url);
-        var res = await fetch(proxyUrl, {signal: AbortSignal.timeout(6000)});
-        var data = await res.json();
-        if (data.contents) {
-          var parser = new DOMParser();
-          var xml = parser.parseFromString(data.contents, "text/xml");
-          var items = xml.querySelectorAll("item");
-          items.forEach(function(item) {
-            var title = item.querySelector("title");
-            var link = item.querySelector("link");
-            var desc = item.querySelector("description");
-            var enclosure = item.querySelector("enclosure");
-            var pubDate = item.querySelector("pubDate");
-            var img = enclosure ? enclosure.getAttribute("url") : null;
-            if (!img && desc) {
-              var m = (desc.textContent || "").match(/<img[^>]+src=["']([^"']+)["']/i);
-              if (m) img = m[1];
-            }
-            liveItems.push({
-              source: src.name,
-              title: title ? title.textContent.trim() : "",
-              description: desc ? (desc.textContent || "").replace(/<[^>]+>/g," ").trim().slice(0,160) : "",
-              url: link ? link.textContent.trim() : "#",
-              image: img,
-              date: pubDate ? new Date(pubDate.textContent).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "",
-            });
-          });
-        }
-      } catch(e) {}
-    });
-    
-    await Promise.all(promises);
-    
-    if (liveItems.length > 0) {
-      feed.innerHTML = "";
-      liveItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
-    }
-  } catch(e) {
-    // Fallback already shown — do nothing
-  }
+  // Show a message explaining what happened
+  var msg = document.createElement("div");
+  msg.style.cssText = "grid-column:1/-1;padding:10px 0 6px;font-size:12px;color:var(--faint,#a8a29e)";
+  msg.textContent = "Configure TAVILY_API_KEY in Settings to load live news. Direct links:";
+  feed.appendChild(msg);
+  
+  links.forEach(function(link) {
+    var card = document.createElement("a");
+    card.href = link.url;
+    card.target = "_blank";
+    card.rel = "noopener";
+    card.style.cssText = "display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-decoration:none;transition:all .12s";
+    var name = document.createElement("div");
+    name.style.cssText = "font-size:13px;font-weight:500;color:var(--ink)";
+    name.textContent = link.name;
+    var arrow = document.createElement("div");
+    arrow.style.cssText = "margin-left:auto;color:var(--faint,#a8a29e);font-size:14px";
+    arrow.textContent = "\u2197";
+    card.appendChild(name);
+    card.appendChild(arrow);
+    feed.appendChild(card);
+  });
 }
 function extractFirstImage(html) {
   var match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
