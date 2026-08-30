@@ -578,31 +578,27 @@ async function loadNews() {
   var feed = document.getElementById("news-feed");
   if (!feed) return;
   
-  feed.innerHTML = "";
-  var loading = document.createElement("div");
-  loading.style.cssText = "text-align:center;padding:20px;color:var(--faint,#a8a29e);font-size:13px;grid-column:1/-1";
-  loading.textContent = "Loading news...";
-  feed.appendChild(loading);
-  
-  // Curated fallback articles — always shown if RSS fails
+  // ALWAYS show fallback articles immediately — no waiting
   var FALLBACK = {
     general: [
-      {source:"BBC News",title:"Latest UK and world news",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
-      {source:"The Guardian",title:"Independent journalism from The Guardian",url:"https://www.theguardian.com",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
-      {source:"Sky News",title:"Breaking news and analysis",url:"https://news.sky.com",image:"https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70",date:"Live"},
+      {source:"BBC News",title:"UK and world news from the BBC",url:"https://www.bbc.co.uk/news",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
+      {source:"The Guardian",title:"Independent journalism — politics, society, culture",url:"https://www.theguardian.com",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
+      {source:"Sky News",title:"Breaking news, analysis and video",url:"https://news.sky.com",image:"https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&q=70",date:"Live"},
+      {source:"The Independent",title:"Independent news and opinion",url:"https://www.independent.co.uk",image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70",date:"Live"},
+      {source:"Channel 4 News",title:"In-depth news and current affairs",url:"https://www.channel4.com/news",image:"https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&q=70",date:"Live"},
     ],
     ai: [
-      {source:"MIT Tech Review",title:"AI and emerging technology news",url:"https://www.technologyreview.com",image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&q=70",date:"Live"},
+      {source:"MIT Tech Review",title:"AI and emerging technology",url:"https://www.technologyreview.com",image:"https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=200&q=70",date:"Live"},
       {source:"The Verge",title:"Technology, science, art and culture",url:"https://www.theverge.com/ai-artificial-intelligence",image:"https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=200&q=70",date:"Live"},
       {source:"Wired",title:"How technology is changing everything",url:"https://www.wired.com",image:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&q=70",date:"Live"},
     ],
     psychology: [
       {source:"Psychology Today",title:"Mental health, wellbeing and behaviour",url:"https://www.psychologytoday.com",image:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=200&q=70",date:"Live"},
-      {source:"APA",title:"American Psychological Association news",url:"https://www.apa.org/news",image:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=70",date:"Live"},
+      {source:"APA",title:"American Psychological Association",url:"https://www.apa.org/news",image:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200&q=70",date:"Live"},
       {source:"SocArXiv",title:"Social science preprints and research",url:"https://osf.io/preprints/socarxiv",image:"https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200&q=70",date:"Live"},
     ],
     coaching: [
-      {source:"ICF",title:"International Coaching Federation news",url:"https://coachingfederation.org",image:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&q=70",date:"Live"},
+      {source:"ICF",title:"International Coaching Federation",url:"https://coachingfederation.org",image:"https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&q=70",date:"Live"},
       {source:"Positive Psychology",title:"Science of wellbeing and flourishing",url:"https://positivepsychology.com",image:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200&q=70",date:"Live"},
     ],
     neurodivergent: [
@@ -621,59 +617,68 @@ async function loadNews() {
     ],
   };
   
+  // Show fallback immediately
+  feed.innerHTML = "";
+  var fallbacks = FALLBACK[catVal] || FALLBACK.general;
+  fallbacks.forEach(function(item) { renderNewsCard(feed, item); });
+  
+  // Try to load live RSS in background (silently, no error shown)
   var FEEDS = {
-    general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"},{name:"Sky News",url:"https://feeds.skynews.com/feeds/rss/uk.xml"}],
-    ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"},{name:"The Verge",url:"https://www.theverge.com/ai-artificial-intelligence/rss/index.xml"}],
+    general: [{name:"BBC News",url:"https://feeds.bbci.co.uk/news/rss.xml"},{name:"The Guardian",url:"https://www.theguardian.com/uk/rss"}],
+    ai: [{name:"MIT Tech Review",url:"https://www.technologyreview.com/feed/"}],
     psychology: [{name:"Psychology Today",url:"https://www.psychologytoday.com/intl/front-page/feed"}],
     coaching: [{name:"Positive Psychology",url:"https://positivepsychology.com/feed/"}],
     neurodivergent: [{name:"ADHD UK",url:"https://adhduk.co.uk/feed/"}],
-    uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"},{name:"Sky News UK",url:"https://feeds.skynews.com/feeds/rss/uk.xml"}],
+    uk: [{name:"BBC UK",url:"https://feeds.bbci.co.uk/news/uk/rss.xml"}],
     world: [{name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml"}],
   };
   
   var sources = FEEDS[catVal] || FEEDS.general;
-  var fallbacks = FALLBACK[catVal] || FALLBACK.general;
-  var allItems = [];
-  var rssWorked = false;
+  var liveItems = [];
   
-  // Try RSS with timeout
   try {
     var promises = sources.map(async function(src) {
       try {
-        var apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(src.url) + "&count=3";
-        var res = await fetch(apiUrl, {signal: AbortSignal.timeout(5000)});
+        // Use allorigins.win as CORS proxy
+        var proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(src.url);
+        var res = await fetch(proxyUrl, {signal: AbortSignal.timeout(5000)});
         var data = await res.json();
-        if (data.status === "ok" && data.items && data.items.length > 0) {
-          rssWorked = true;
-          data.items.forEach(function(item) {
-            var img = item.thumbnail || (item.enclosure && item.enclosure.link) || null;
-            if (!img && item.content) {
-              var m = item.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (data.contents) {
+          // Parse RSS XML
+          var parser = new DOMParser();
+          var xml = parser.parseFromString(data.contents, "text/xml");
+          var items = xml.querySelectorAll("item");
+          items.forEach(function(item) {
+            var title = item.querySelector("title");
+            var link = item.querySelector("link");
+            var desc = item.querySelector("description");
+            var enclosure = item.querySelector("enclosure");
+            var pubDate = item.querySelector("pubDate");
+            var img = enclosure ? enclosure.getAttribute("url") : null;
+            if (!img && desc) {
+              var m = (desc.textContent || "").match(/<img[^>]+src=["']([^"']+)["']/i);
               if (m) img = m[1];
             }
-            allItems.push({
+            liveItems.push({
               source: src.name,
-              title: item.title || "",
-              description: (item.description || "").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,160),
-              url: item.link || "#",
+              title: title ? title.textContent : "",
+              description: desc ? (desc.textContent || "").replace(/<[^>]+>/g," ").trim().slice(0,160) : "",
+              url: link ? link.textContent : "#",
               image: img,
-              date: item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "",
+              date: pubDate ? new Date(pubDate.textContent).toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "",
             });
           });
         }
       } catch(e) {}
     });
     await Promise.all(promises);
+    
+    if (liveItems.length > 0) {
+      // Replace fallback with live articles
+      feed.innerHTML = "";
+      liveItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
+    }
   } catch(e) {}
-  
-  feed.innerHTML = "";
-  
-  if (allItems.length > 0) {
-    allItems.slice(0, 6).forEach(function(item) { renderNewsCard(feed, item); });
-  } else {
-    // Always show fallback cards with real Unsplash images
-    fallbacks.forEach(function(item) { renderNewsCard(feed, item); });
-  }
 }
 function extractFirstImage(html) {
   var match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
