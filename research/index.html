@@ -6,22 +6,44 @@
   <title>Aurelia — Research Library</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
   <link rel="stylesheet" href="/shared/aurelia.css">
-  <style>.chip{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;color:var(--text-muted);cursor:pointer;transition:all .12s}.chip.on{background:var(--accent3);border-color:var(--accent);color:var(--accent)}
-    .source-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;margin-bottom:6px}
-    .source-tab{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-2,#f0e9e0);color:var(--muted,#78716c);transition:all .12s;white-space:nowrap}
-    .source-tab.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
-    .source-category{display:none}.source-category.on{display:block}
-    .source-cat-label{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);margin:8px 0 5px}
-    .source-chips-wrap{max-height:140px;overflow-y:auto;padding-bottom:4px}
-    .source-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);font-size:11px;color:var(--muted,#78716c);cursor:pointer;transition:all .12s;margin:2px;white-space:nowrap}
-    .source-chip:hover{border-color:var(--ink-5,#a8a29e);color:var(--ink)}
-    .source-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
-    .source-chip.api{border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
-    .source-chip.api.on{background:var(--accent,#0f3b3a);color:#fff}
-
+  <style>
+    /* Research-specific layout */
+    .research-page { display:flex; height:calc(100vh - var(--topbar-h,56px)); overflow:hidden; }
+    .research-left { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+    .research-left-inner { flex:1; overflow-y:auto; padding:10px; }
+    .research-main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); }
+    .research-bar { padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+    .search-row { display:flex; gap:8px; margin-bottom:10px; }
+    .search-input { flex:1; background:var(--surface); border:1.5px solid var(--border-strong,#ddd0c8); border-radius:var(--radius,8px); padding:10px 13px; font-size:14px; color:var(--ink); outline:none; font-family:var(--font); transition:border-color .15s; }
+    .search-input:focus { border-color:var(--accent,#0f3b3a); }
+    .source-tabs { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--border); margin-top:8px; }
+    .source-tabs::-webkit-scrollbar { display:none; }
+    .stab { padding:7px 14px; font-size:11.5px; font-weight:500; cursor:pointer; border:none; background:none; color:var(--muted,#78716c); border-bottom:2px solid transparent; white-space:nowrap; font-family:var(--font); transition:all .12s; }
+    .stab.on { color:var(--accent,#0f3b3a); border-bottom-color:var(--accent,#0f3b3a); }
+    .source-chips-area { padding:8px 0 4px; display:flex; flex-wrap:wrap; gap:5px; }
+    .schip { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; background:var(--bg-2,#f0e9e0); border:1px solid var(--border); font-size:11px; color:var(--muted,#78716c); cursor:pointer; transition:all .12s; white-space:nowrap; }
+    .schip:hover { border-color:var(--ink-5,#a8a29e); color:var(--ink); }
+    .schip.on { background:var(--accent3,rgba(15,59,58,0.08)); border-color:var(--accent,#0f3b3a); color:var(--accent,#0f3b3a); }
+    .schip.api { border-color:var(--accent,#0f3b3a); color:var(--accent,#0f3b3a); }
+    .schip.api.on { background:var(--accent,#0f3b3a); color:#fff; }
+    /* Results area — THIS IS THE KEY FIX: simple overflow-y:auto, no flex tricks */
+    .results-area { flex:1; overflow-y:auto; padding:14px; }
+    .result-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius,8px); padding:14px; margin-bottom:10px; cursor:pointer; transition:all .12s; }
+    .result-card:hover { border-color:var(--ink-6,#d6d3d1); box-shadow:0 2px 8px rgba(28,25,23,0.06); }
+    .result-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:4px; }
+    .result-url { font-size:11px; color:var(--accent,#0f3b3a); margin-bottom:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .result-snippet { font-size:12.5px; color:var(--muted,#78716c); line-height:1.55; }
+    .result-footer { display:flex; align-items:center; gap:6px; margin-top:10px; flex-wrap:wrap; }
+    .filter-item { padding:6px 8px; border-radius:6px; cursor:pointer; font-size:12px; color:var(--muted,#78716c); transition:all .12s; }
+    .filter-item:hover { background:var(--bg-2,#f0e9e0); color:var(--ink); }
+    .filter-item.on { background:var(--bg-2,#f0e9e0); color:var(--ink); font-weight:500; }
+    .saved-run { padding:6px 8px; border-radius:6px; cursor:pointer; font-size:11.5px; color:var(--muted,#78716c); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:all .12s; }
+    .saved-run:hover { background:var(--bg-2,#f0e9e0); color:var(--ink); }
+    .sec-label { font-size:9.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--faint,#a8a29e); padding:10px 4px 4px; }
+    .detail-panel { width:280px; flex-shrink:0; background:var(--surface); border-left:1px solid var(--border); padding:16px; overflow-y:auto; display:none; }
+    .detail-panel.open { display:block; }
+    @media(max-width:900px) { .research-left { display:none; } }
   </style>
-<!-- old-deploy-133636 -->
-<!-- v20260830133914 -->
 </head>
 <body>
 <div class="app-shell">
@@ -30,463 +52,521 @@
     <div class="sidebar-nav">
       <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
       <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
-      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/research/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
       <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
       <div class="nav-section-label">Create</div>
       <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/atomise/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Atomise</span></a>
       <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
       <div class="nav-section-label">Business</div>
       <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
-      <a href="/messages/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Messages</span></a>
       <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
       <a href="/monetisation/platforms.html" class="nav-item nav-sub"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
-      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.72 6.72l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><span class="nav-label">Comms Centre</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Comms Centre</span></a>
       <div class="nav-section-label">Intelligence</div>
       <a href="/agenti-city/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
       <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
       <a href="/workflow/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">Workflow Wizard</span></a>
       <div class="nav-section-label">System</div>
-      <a href="/profile/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">My Profile</span></a>
       <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
       <a href="/dev-team/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Dev Team</span></a>
     </div>
     <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
   </nav>
+
   <div class="main-content" id="main-content">
-    <div class="topbar"><span class="topbar-title">Research Library</span><div class="topbar-actions"><button class="btn btn-ghost btn-sm" onclick="exportResults()">Export</button><button class="btn btn-primary btn-sm" onclick="saveRun()">Save Run</button>
-        <button class="btn btn-ghost btn-sm" onclick="scheduleRun()" title="Schedule this search to run automatically">⏰ Schedule</button></div></div>
-<div style="display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden">
-<div style="width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:10px;overflow-y:auto">
-  <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">Saved Runs</div>
-  <div id="saved-runs"></div>
-  <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:14px 0 8px">Sources</div>
-  <div id="source-filter"></div>
-</div>
-<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)">
-  <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)">
-    <div style="display:flex;gap:8px;margin-bottom:10px"><input class="input" id="research-query" placeholder="Search across 150+ sources…" style="flex:1"><button class="btn btn-primary" onclick="runResearch()">Search</button>
-        <button class="btn btn-ghost btn-sm" onclick="selectAllSources()">Select All</button>
-        <button class="btn btn-ghost btn-sm" onclick="clearAllSources()">Clear All</button></div>
-    <div class="source-tabs" id="source-tabs">
-          <button class="source-tab on" onclick="showSourceTab('api',this)">API Sources</button>
-          <button class="source-tab" onclick="showSourceTab('scholarly',this)">Scholarly</button>
-          <button class="source-tab" onclick="showSourceTab('preprints',this)">Preprints</button>
-          <button class="source-tab" onclick="showSourceTab('data',this)">Data</button>
-          <button class="source-tab" onclick="showSourceTab('health',this)">Health</button>
-          <button class="source-tab" onclick="showSourceTab('social',this)">Social Sci</button>
-          <button class="source-tab" onclick="showSourceTab('law',this)">Law</button>
-          <button class="source-tab" onclick="showSourceTab('uk',this)">UK Data</button>
-          <button class="source-tab" onclick="showSourceTab('humanities',this)">Humanities</button>
+    <div class="topbar">
+      <span class="topbar-title">Research Library</span>
+      <div class="topbar-actions">
+        <span style="font-size:11px;color:var(--faint,#a8a29e)" id="result-count"></span>
+        <button class="btn btn-ghost btn-sm" onclick="exportResults()">Export</button>
+        <button class="btn btn-ghost btn-sm" onclick="saveRun()">Save Run</button>
+        <button class="btn btn-primary btn-sm" onclick="scheduleRun()">Schedule</button>
+      </div>
+    </div>
+
+    <div class="research-page">
+      <!-- Left panel: saved runs + filters -->
+      <div class="research-left">
+        <div class="research-left-inner">
+          <div class="sec-label">Saved Runs</div>
+          <div id="saved-runs-list"><div style="font-size:11.5px;color:var(--faint,#a8a29e);padding:4px">No saved runs yet</div></div>
+          <div class="sec-label" style="margin-top:12px">Filter by Tag</div>
+          <div class="filter-item on" onclick="filterTag(null,this)">All results</div>
+          <div class="filter-item" onclick="filterTag('#IP',this)">#IP</div>
+          <div class="filter-item" onclick="filterTag('#academic',this)">#academic</div>
+          <div class="filter-item" onclick="filterTag('#health',this)">#health</div>
+          <div class="filter-item" onclick="filterTag('#law',this)">#law</div>
+          <div class="filter-item" onclick="filterTag('#data',this)">#data</div>
         </div>
-        <div class="source-chips-wrap">
-          <div class="source-category on" id="tab-api">
-            <div class="source-cat-label">Live API Search</div>
-            <div>
-              <span class="source-chip api on" data-s="tavily" onclick="toggleSrc(this)">Tavily</span>
-              <span class="source-chip api on" data-s="brave" onclick="toggleSrc(this)">Brave</span>
-              <span class="source-chip api on" data-s="exa" onclick="toggleSrc(this)">Exa</span>
-              <span class="source-chip api" data-s="semantic_scholar" onclick="toggleSrc(this)">Semantic Scholar</span>
-              <span class="source-chip api" data-s="ncbi" onclick="toggleSrc(this)">NCBI/PubMed</span>
-              <span class="source-chip api" data-s="firecrawl" onclick="toggleSrc(this)">Firecrawl</span>
-            </div>
+      </div>
+
+      <!-- Main: search bar + results -->
+      <div class="research-main">
+        <!-- Search bar -->
+        <div class="research-bar">
+          <div class="search-row">
+            <input class="search-input" id="research-query" placeholder="Search across 150+ sources — academic, web, news, health, law, data…">
+            <button class="btn btn-primary" onclick="runResearch()" id="search-btn">Search</button>
+            <button class="btn btn-ghost btn-sm" onclick="selectAllSources()" title="Select all API sources">All</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearAllSources()" title="Deselect all">None</button>
           </div>
-          <div class="source-category" id="tab-scholarly">
-            <div class="source-cat-label">Scholarly Search</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://scholar.google.com/scholar?q=')">Google Scholar</span>
-              <span class="source-chip" onclick="openSource('https://core.ac.uk/search?q=')">CORE</span>
-              <span class="source-chip" onclick="openSource('https://openalex.org/works?search=')">OpenAlex</span>
-              <span class="source-chip" onclick="openSource('https://search.crossref.org/?q=')">Crossref</span>
-              <span class="source-chip" onclick="openSource('https://www.base-search.net/Search/Results?lookfor=')">BASE</span>
-              <span class="source-chip" onclick="openSource('https://doaj.org/search/articles?query=')">DOAJ</span>
-              <span class="source-chip" onclick="openSource('https://www.jstor.org/action/doBasicSearch?Query=')">JSTOR Open</span>
-              <span class="source-chip" onclick="openSource('https://scholar.archive.org/search?q=')">Internet Archive Scholar</span>
-            </div>
+
+          <!-- Source category tabs -->
+          <div class="source-tabs">
+            <button class="stab on" onclick="showTab('api',this)">⚡ API Sources</button>
+            <button class="stab" onclick="showTab('scholarly',this)">Scholarly</button>
+            <button class="stab" onclick="showTab('preprints',this)">Preprints</button>
+            <button class="stab" onclick="showTab('data',this)">Data</button>
+            <button class="stab" onclick="showTab('health',this)">Health</button>
+            <button class="stab" onclick="showTab('social',this)">Social Sci</button>
+            <button class="stab" onclick="showTab('law',this)">Law</button>
+            <button class="stab" onclick="showTab('environment',this)">Environment</button>
+            <button class="stab" onclick="showTab('humanities',this)">Humanities</button>
+            <button class="stab" onclick="showTab('uk',this)">UK Data</button>
           </div>
-          <div class="source-category" id="tab-preprints">
-            <div class="source-cat-label">Preprints & Theses</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://arxiv.org/search/?searchtype=all&query=')">arXiv</span>
-              <span class="source-chip" onclick="openSource('https://www.biorxiv.org/search/')">bioRxiv</span>
-              <span class="source-chip" onclick="openSource('https://www.medrxiv.org/search/')">medRxiv</span>
-              <span class="source-chip" onclick="openSource('https://papers.ssrn.com/sol3/results.cfm?txtkey=')">SSRN</span>
-              <span class="source-chip" onclick="openSource('https://psyarxiv.com/discover?q=')">PsyArXiv</span>
-              <span class="source-chip" onclick="openSource('https://osf.io/search/?q=')">OSF</span>
-              <span class="source-chip" onclick="openSource('https://ethos.bl.uk/SearchResults.do?query=')">EThOS (UK)</span>
-              <span class="source-chip" onclick="openSource('https://oatd.org/oatd/search?q=')">OATD</span>
+
+          <!-- Source chips per tab -->
+          <div class="source-chips-area" id="chips-area">
+            <!-- API Sources (default visible) -->
+            <div id="tab-api">
+              <span class="schip api on" data-s="tavily" onclick="toggleSrc(this)">⚡ Tavily</span>
+              <span class="schip api on" data-s="brave" onclick="toggleSrc(this)">⚡ Brave</span>
+              <span class="schip api on" data-s="exa" onclick="toggleSrc(this)">⚡ Exa</span>
+              <span class="schip api" data-s="semantic_scholar" onclick="toggleSrc(this)">⚡ Semantic Scholar</span>
+              <span class="schip api" data-s="ncbi" onclick="toggleSrc(this)">⚡ NCBI/PubMed</span>
+              <span class="schip api" data-s="firecrawl" onclick="toggleSrc(this)">⚡ Firecrawl</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-data">
-            <div class="source-cat-label">Data Repositories</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://zenodo.org/search?q=')">Zenodo</span>
-              <span class="source-chip" onclick="openSource('https://figshare.com/search?q=')">Figshare</span>
-              <span class="source-chip" onclick="openSource('https://www.kaggle.com/search?q=')">Kaggle</span>
-              <span class="source-chip" onclick="openSource('https://huggingface.co/datasets?search=')">HuggingFace</span>
-              <span class="source-chip" onclick="openSource('https://data.worldbank.org/indicator?q=')">World Bank</span>
-              <span class="source-chip" onclick="openSource('https://data-explorer.oecd.org/')">OECD Data</span>
-              <span class="source-chip" onclick="openSource('https://ec.europa.eu/eurostat/databrowser/')">Eurostat</span>
-              <span class="source-chip" onclick="openSource('https://www.who.int/data/gho')">WHO GHO</span>
-              <span class="source-chip" onclick="openSource('https://fred.stlouisfed.org/search?st=')">FRED</span>
+            <div id="tab-scholarly" style="display:none">
+              <span class="schip" onclick="openSrc('https://scholar.google.com/scholar?q=')">Google Scholar</span>
+              <span class="schip" onclick="openSrc('https://core.ac.uk/search?q=')">CORE</span>
+              <span class="schip" onclick="openSrc('https://openalex.org/works?search=')">OpenAlex</span>
+              <span class="schip" onclick="openSrc('https://search.crossref.org/?q=')">Crossref</span>
+              <span class="schip" onclick="openSrc('https://www.base-search.net/Search/Results?lookfor=')">BASE</span>
+              <span class="schip" onclick="openSrc('https://www.semanticscholar.org/search?q=')">Semantic Scholar</span>
+              <span class="schip" onclick="openSrc('https://doaj.org/search/articles?query=')">DOAJ</span>
+              <span class="schip" onclick="openSrc('https://www.ncbi.nlm.nih.gov/pmc/search/?query=')">PMC</span>
+              <span class="schip" onclick="openSrc('https://www.jstor.org/action/doBasicSearch?Query=')">JSTOR Open</span>
+              <span class="schip" onclick="openSrc('https://scholar.archive.org/search?q=')">Internet Archive Scholar</span>
+              <span class="schip" onclick="openSrc('https://www.scielo.org/en/journals/?q=')">SciELO</span>
+              <span class="schip" onclick="openSrc('https://explore.openaire.eu/search/find/research-outcomes?keyword=')">OpenAIRE</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-health">
-            <div class="source-cat-label">Health & Medicine</div>
-            <div>
-              <span class="source-chip api" onclick="openSource('https://pubmed.ncbi.nlm.nih.gov/?term=')">PubMed</span>
-              <span class="source-chip" onclick="openSource('https://europepmc.org/search?query=')">Europe PMC</span>
-              <span class="source-chip" onclick="openSource('https://clinicaltrials.gov/search?term=')">ClinicalTrials.gov</span>
-              <span class="source-chip" onclick="openSource('https://ourworldindata.org/search?q=')">Our World in Data</span>
-              <span class="source-chip" onclick="openSource('https://www.ncbi.nlm.nih.gov/datasets/')">NCBI Datasets</span>
-              <span class="source-chip" onclick="openSource('https://ghdx.healthdata.org/search?q=')">GHDx</span>
+            <div id="tab-preprints" style="display:none">
+              <span class="schip" onclick="openSrc('https://arxiv.org/search/?searchtype=all&query=')">arXiv</span>
+              <span class="schip" onclick="openSrc('https://www.biorxiv.org/search/')">bioRxiv</span>
+              <span class="schip" onclick="openSrc('https://www.medrxiv.org/search/')">medRxiv</span>
+              <span class="schip" onclick="openSrc('https://papers.ssrn.com/sol3/results.cfm?txtkey=')">SSRN</span>
+              <span class="schip" onclick="openSrc('https://www.researchsquare.com/browse?q=')">Research Square</span>
+              <span class="schip" onclick="openSrc('https://chemrxiv.org/engage/chemrxiv/search-results?text=')">ChemRxiv</span>
+              <span class="schip" onclick="openSrc('https://psyarxiv.com/discover?q=')">PsyArXiv</span>
+              <span class="schip" onclick="openSrc('https://osf.io/search/?q=')">OSF</span>
+              <span class="schip" onclick="openSrc('https://oatd.org/oatd/search?q=')">OATD (Theses)</span>
+              <span class="schip" onclick="openSrc('https://ethos.bl.uk/SearchResults.do?query=')">EThOS (UK)</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-social">
-            <div class="source-cat-label">Social Science & Economics</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://ideas.repec.org/search.html?q=')">IDEAS/RePEc</span>
-              <span class="source-chip" onclick="openSource('https://www.nber.org/search?q=')">NBER</span>
-              <span class="source-chip" onclick="openSource('https://www.pewresearch.org/search/?q=')">Pew Research</span>
-              <span class="source-chip" onclick="openSource('https://www.icpsr.umich.edu/web/pages/ICPSR/index.html')">ICPSR</span>
-              <span class="source-chip" onclick="openSource('https://ukdataservice.ac.uk/find-data/browse/?q=')">UK Data Service</span>
-              <span class="source-chip" onclick="openSource('https://www.worldvaluessurvey.org/')">World Values Survey</span>
+            <div id="tab-data" style="display:none">
+              <span class="schip" onclick="openSrc('https://zenodo.org/search?q=')">Zenodo</span>
+              <span class="schip" onclick="openSrc('https://figshare.com/search?q=')">Figshare</span>
+              <span class="schip" onclick="openSrc('https://dataverse.harvard.edu/dataverse/harvard?q=')">Harvard Dataverse</span>
+              <span class="schip" onclick="openSrc('https://datadryad.org/stash/discover?q=')">Dryad</span>
+              <span class="schip" onclick="openSrc('https://www.kaggle.com/search?q=')">Kaggle</span>
+              <span class="schip" onclick="openSrc('https://huggingface.co/datasets?search=')">HuggingFace Datasets</span>
+              <span class="schip" onclick="openSrc('https://data.un.org/Search.aspx?q=')">UNdata</span>
+              <span class="schip" onclick="openSrc('https://data.worldbank.org/indicator?q=')">World Bank</span>
+              <span class="schip" onclick="openSrc('https://data-explorer.oecd.org/?q=')">OECD Data</span>
+              <span class="schip" onclick="openSrc('https://ec.europa.eu/eurostat/databrowser/')">Eurostat</span>
+              <span class="schip" onclick="openSrc('https://fred.stlouisfed.org/search?st=')">FRED</span>
+              <span class="schip" onclick="openSrc('https://www.imf.org/en/Data')">IMF Data</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-law">
-            <div class="source-cat-label">Law, Policy & Patents</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://www.bailii.org/')">BAILII</span>
-              <span class="source-chip" onclick="openSource('https://eur-lex.europa.eu/search.html?text=')">EUR-Lex</span>
-              <span class="source-chip" onclick="openSource('https://patents.google.com/?q=')">Google Patents</span>
-              <span class="source-chip" onclick="openSource('https://lens.org/lens/search/scholar?q=')">Lens.org</span>
-              <span class="source-chip" onclick="openSource('https://worldwide.espacenet.com/patent/search?q=')">Espacenet</span>
-              <span class="source-chip" onclick="openSource('https://www.congress.gov/search?q=')">Congress.gov</span>
+            <div id="tab-health" style="display:none">
+              <span class="schip" onclick="openSrc('https://pubmed.ncbi.nlm.nih.gov/?term=')">PubMed</span>
+              <span class="schip" onclick="openSrc('https://europepmc.org/search?query=')">Europe PMC</span>
+              <span class="schip" onclick="openSrc('https://clinicaltrials.gov/search?term=')">ClinicalTrials.gov</span>
+              <span class="schip" onclick="openSrc('https://open.fda.gov/')">OpenFDA</span>
+              <span class="schip" onclick="openSrc('https://ghdx.healthdata.org/search?q=')">GHDx</span>
+              <span class="schip" onclick="openSrc('https://data.cdc.gov/browse?q=')">CDC Data</span>
+              <span class="schip" onclick="openSrc('https://ourworldindata.org/search?q=')">Our World in Data</span>
+              <span class="schip" onclick="openSrc('https://www.who.int/data/gho')">WHO GHO</span>
+              <span class="schip" onclick="openSrc('https://www.gbif.org/occurrence/search?q=')">GBIF</span>
+              <span class="schip" onclick="openSrc('https://www.uniprot.org/uniprotkb?query=')">UniProt</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-uk">
-            <div class="source-cat-label">UK Data</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://www.data.gov.uk/search?q=')">data.gov.uk</span>
-              <span class="source-chip" onclick="openSource('https://www.ons.gov.uk/search?q=')">ONS</span>
-              <span class="source-chip" onclick="openSource('https://www.nomisweb.co.uk/')">Nomis</span>
-              <span class="source-chip" onclick="openSource('https://ethos.bl.uk/SearchResults.do?query=')">EThOS</span>
-              <span class="source-chip" onclick="openSource('https://explore.data.parliament.uk/')">Parliament Data</span>
+            <div id="tab-social" style="display:none">
+              <span class="schip" onclick="openSrc('https://papers.ssrn.com/sol3/results.cfm?txtkey=')">SSRN</span>
+              <span class="schip" onclick="openSrc('https://www.icpsr.umich.edu/web/pages/ICPSR/index.html')">ICPSR</span>
+              <span class="schip" onclick="openSrc('https://ukdataservice.ac.uk/find-data/browse/?q=')">UK Data Service</span>
+              <span class="schip" onclick="openSrc('https://www.pewresearch.org/search/?q=')">Pew Research</span>
+              <span class="schip" onclick="openSrc('https://ideas.repec.org/search.html?q=')">IDEAS/RePEc</span>
+              <span class="schip" onclick="openSrc('https://www.nber.org/search?q=')">NBER</span>
+              <span class="schip" onclick="openSrc('https://www.worldvaluessurvey.org/')">World Values Survey</span>
+              <span class="schip" onclick="openSrc('https://www.afrobarometer.org/data/')">Afrobarometer</span>
             </div>
-          </div>
-          <div class="source-category" id="tab-humanities">
-            <div class="source-cat-label">Humanities & Archives</div>
-            <div>
-              <span class="source-chip" onclick="openSource('https://archive.org/search?query=')">Internet Archive</span>
-              <span class="source-chip" onclick="openSource('https://www.gutenberg.org/ebooks/search/?query=')">Project Gutenberg</span>
-              <span class="source-chip" onclick="openSource('https://www.europeana.eu/en/search?query=')">Europeana</span>
-              <span class="source-chip" onclick="openSource('https://www.loc.gov/search/?q=')">Library of Congress</span>
-              <span class="source-chip" onclick="openSource('https://discovery.nationalarchives.gov.uk/results/r?_q=')">National Archives (UK)</span>
-              <span class="source-chip" onclick="openSource('https://www.wikidata.org/w/index.php?search=')">Wikidata</span>
+            <div id="tab-law" style="display:none">
+              <span class="schip" onclick="openSrc('https://www.bailii.org/')">BAILII</span>
+              <span class="schip" onclick="openSrc('https://eur-lex.europa.eu/search.html?text=')">EUR-Lex</span>
+              <span class="schip" onclick="openSrc('https://www.congress.gov/search?q=')">Congress.gov</span>
+              <span class="schip" onclick="openSrc('https://www.govinfo.gov/')">GovInfo</span>
+              <span class="schip" onclick="openSrc('https://patents.google.com/?q=')">Google Patents</span>
+              <span class="schip" onclick="openSrc('https://lens.org/lens/search/scholar?q=')">Lens.org</span>
+              <span class="schip" onclick="openSrc('https://worldwide.espacenet.com/patent/search?q=')">Espacenet</span>
+              <span class="schip" onclick="openSrc('https://patentscope.wipo.int/search/en/search.jsf')">PATENTSCOPE</span>
+            </div>
+            <div id="tab-environment" style="display:none">
+              <span class="schip" onclick="openSrc('https://cds.climate.copernicus.eu/datasets')">Copernicus CDS</span>
+              <span class="schip" onclick="openSrc('https://earthdata.nasa.gov/search?q=')">NASA EarthData</span>
+              <span class="schip" onclick="openSrc('https://www.ncei.noaa.gov/')">NOAA Data</span>
+              <span class="schip" onclick="openSrc('https://www.eea.europa.eu/data-and-maps/data')">EEA Data</span>
+              <span class="schip" onclick="openSrc('https://globalcarbonproject.org/')">Global Carbon Project</span>
+              <span class="schip" onclick="openSrc('https://www.worldclim.org/data/index.html')">WorldClim</span>
+            </div>
+            <div id="tab-humanities" style="display:none">
+              <span class="schip" onclick="openSrc('https://archive.org/search?query=')">Internet Archive</span>
+              <span class="schip" onclick="openSrc('https://www.gutenberg.org/ebooks/search/?query=')">Project Gutenberg</span>
+              <span class="schip" onclick="openSrc('https://catalog.hathitrust.org/Search/Home?lookfor=')">HathiTrust</span>
+              <span class="schip" onclick="openSrc('https://www.europeana.eu/en/search?query=')">Europeana</span>
+              <span class="schip" onclick="openSrc('https://www.loc.gov/search/?q=')">Library of Congress</span>
+              <span class="schip" onclick="openSrc('https://discovery.nationalarchives.gov.uk/results/r?_q=')">National Archives (UK)</span>
+              <span class="schip" onclick="openSrc('https://www.wikidata.org/w/index.php?search=')">Wikidata</span>
+              <span class="schip" onclick="openSrc('https://commons.wikimedia.org/w/index.php?search=')">Wikimedia Commons</span>
+            </div>
+            <div id="tab-uk" style="display:none">
+              <span class="schip" onclick="openSrc('https://www.data.gov.uk/search?q=')">data.gov.uk</span>
+              <span class="schip" onclick="openSrc('https://www.ons.gov.uk/search?q=')">ONS</span>
+              <span class="schip" onclick="openSrc('https://ukdataservice.ac.uk/find-data/browse/?q=')">UK Data Service</span>
+              <span class="schip" onclick="openSrc('https://www.nomisweb.co.uk/')">Nomis</span>
+              <span class="schip" onclick="openSrc('https://bl.iro.bl.uk/search?q=')">British Library Research</span>
+              <span class="schip" onclick="openSrc('https://explore.data.parliament.uk/')">Parliament Data</span>
+              <span class="schip" onclick="openSrc('https://ethos.bl.uk/SearchResults.do?query=')">EThOS (UK Theses)</span>
             </div>
           </div>
         </div>
-  </div>
-  <div style="flex:1;overflow-y:auto;padding:14px" id="results-list">
-    <div class="empty-state"><div class="empty-state-icon" style="font-size:28px;opacity:.2">◎</div><div class="empty-state-title">Research Library</div><div class="empty-state-desc">Search across 150+ academic, data, health, law, and humanities sources.</div></div>
+
+        <!-- Results — simple overflow-y:auto, no flex tricks -->
+        <div class="results-area" id="results-area">
+          <div id="results-empty" style="text-align:center;padding:40px 20px;color:var(--faint,#a8a29e)">
+            <div style="font-size:32px;margin-bottom:12px;opacity:0.3">◎</div>
+            <div style="font-size:15px;font-weight:500;color:var(--muted,#78716c);margin-bottom:8px">Research Library</div>
+            <div style="font-size:13px;line-height:1.6;max-width:320px;margin:0 auto">
+              Enter a query and click Search. Uses Tavily, Brave, and Exa for live results.<br><br>
+              Click any source tab above to open that database directly with your query.
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:16px">
+              <button class="btn btn-ghost btn-sm" onclick="quickSearch('AI agents autonomous systems 2025')">AI agents 2025</button>
+              <button class="btn btn-ghost btn-sm" onclick="quickSearch('neurodivergent ADHD identity coaching')">ADHD identity coaching</button>
+              <button class="btn btn-ghost btn-sm" onclick="quickSearch('sobriety recovery non-clinical support')">Sobriety support</button>
+              <button class="btn btn-ghost btn-sm" onclick="quickSearch('ikigai meaning purpose wellbeing')">Ikigai &amp; purpose</button>
+              <button class="btn btn-ghost btn-sm" onclick="quickSearch('life transition identity development')">Life transitions</button>
+            </div>
+          </div>
+          <div id="results-list"></div>
+        </div>
+      </div>
+
+      <!-- Detail panel -->
+      <div class="detail-panel" id="detail-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e)">Detail</span>
+          <button class="btn btn-ghost btn-sm" onclick="closeDetail()">&#10005;</button>
+        </div>
+        <div id="detail-body"></div>
+      </div>
+    </div>
   </div>
 </div>
-</div>
-  </div>
-</div>
+
 <script src="/shared/aurelia.js"></script>
+<script src="/shared/help.js"></script>
 <script>
-const ALL_SOURCES = [
-  {name:'Google Scholar',cat:'Scholarly',url:'https://scholar.google.com/scholar?q=',desc:'Broad academic search'},
-  {name:'CORE',cat:'Scholarly',url:'https://core.ac.uk/search?q=',desc:'Open access research'},
-  {name:'OpenAlex',cat:'Scholarly',url:'https://openalex.org/works?search=',desc:'Open scholarly graph'},
-  {name:'arXiv',cat:'Preprints',url:'https://arxiv.org/search/?searchtype=all&query=',desc:'Physics, maths, CS'},
-  {name:'bioRxiv',cat:'Preprints',url:'https://www.biorxiv.org/search/',desc:'Biology preprints'},
-  {name:'medRxiv',cat:'Preprints',url:'https://www.medrxiv.org/search/',desc:'Medical preprints'},
-  {name:'SSRN',cat:'Preprints',url:'https://papers.ssrn.com/sol3/results.cfm?txtkey=',desc:'Social science preprints'},
-  {name:'PubMed',cat:'Health',url:'https://pubmed.ncbi.nlm.nih.gov/?term=',desc:'Biomedical literature'},
-  {name:'Europe PMC',cat:'Health',url:'https://europepmc.org/search?query=',desc:'European biomedical literature'},
-  {name:'ClinicalTrials.gov',cat:'Health',url:'https://clinicaltrials.gov/search?term=',desc:'Clinical trial registry'},
-  {name:'Zenodo',cat:'Data',url:'https://zenodo.org/search?q=',desc:'CERN open data'},
-  {name:'Figshare',cat:'Data',url:'https://figshare.com/search?q=',desc:'Research data & figures'},
-  {name:'Harvard Dataverse',cat:'Data',url:'https://dataverse.harvard.edu/dataverse/harvard?q=',desc:'Harvard research data'},
-  {name:'Kaggle',cat:'Data',url:'https://www.kaggle.com/search?q=',desc:'ML & data science datasets'},
-  {name:'World Bank Data',cat:'UN/Intl',url:'https://data.worldbank.org/indicator?q=',desc:'Development indicators'},
-  {name:'OECD Data',cat:'UN/Intl',url:'https://data-explorer.oecd.org/',desc:'OECD statistics'},
-  {name:'Eurostat',cat:'UN/Intl',url:'https://ec.europa.eu/eurostat/databrowser/',desc:'European statistics'},
-  {name:'WHO GHO',cat:'UN/Intl',url:'https://www.who.int/data/gho',desc:'Global health observatory'},
-  {name:'data.gov.uk',cat:'UK Data',url:'https://www.data.gov.uk/search?q=',desc:'UK government open data'},
-  {name:'ONS',cat:'UK Data',url:'https://www.ons.gov.uk/search?q=',desc:'Office for National Statistics'},
-  {name:'UK Data Service',cat:'UK Data',url:'https://ukdataservice.ac.uk/find-data/browse/?q=',desc:'UK social science data'},
-  {name:'BAILII',cat:'Law',url:'https://www.bailii.org/',desc:'British & Irish legal information'},
-  {name:'EUR-Lex',cat:'Law',url:'https://eur-lex.europa.eu/search.html?text=',desc:'EU law & legislation'},
-  {name:'Google Patents',cat:'Patents',url:'https://patents.google.com/?q=',desc:'Global patent search'},
-  {name:'Lens.org',cat:'Patents',url:'https://lens.org/lens/search/scholar?q=',desc:'Open patent & scholarly search'},
-  {name:'Internet Archive',cat:'Humanities',url:'https://archive.org/search?query=',desc:'Digital library & archive'},
-  {name:'Europeana',cat:'Humanities',url:'https://www.europeana.eu/en/search?query=',desc:'European cultural heritage'},
-  {name:'Library of Congress',cat:'Humanities',url:'https://www.loc.gov/search/?q=',desc:'US national library'},
-  {name:'Copernicus CDS',cat:'Environment',url:'https://cds.climate.copernicus.eu/datasets',desc:'EU climate data store'},
-  {name:'NASA EarthData',cat:'Environment',url:'https://earthdata.nasa.gov/search?q=',desc:'NASA earth observation'},
-  {name:'GBIF',cat:'Environment',url:'https://www.gbif.org/occurrence/search?q=',desc:'Biodiversity data'},
-  {name:'IDEAS/RePEc',cat:'Economics',url:'https://ideas.repec.org/search.html?q=',desc:'Economics research papers'},
-  {name:'NBER',cat:'Economics',url:'https://www.nber.org/search?q=',desc:'National Bureau of Economic Research'},
-  {name:'FRED',cat:'Economics',url:'https://fred.stlouisfed.org/search?st=',desc:'Federal Reserve economic data'},
-  {name:'ICPSR',cat:'Social Sci',url:'https://www.icpsr.umich.edu/web/pages/ICPSR/index.html',desc:'Social science data archive'},
-  {name:'Pew Research',cat:'Social Sci',url:'https://www.pewresearch.org/search/?q=',desc:'US & global surveys'},
-  {name:'EThOS',cat:'Theses',url:'https://ethos.bl.uk/SearchResults.do?query=',desc:'UK theses (British Library)'},
-  {name:'OATD',cat:'Theses',url:'https://oatd.org/oatd/search?q=',desc:'Open access theses'},
-  {name:'OSF',cat:'Preprints',url:'https://osf.io/search/?q=',desc:'Open Science Framework'},
-  {name:'PsyArXiv',cat:'Preprints',url:'https://psyarxiv.com/discover?q=',desc:'Psychology preprints'},
-];
-var srcs=new Set(["tavily","brave","exa"]),savedRuns=[],allResults=[];
-function clearAllSources() {
-    document.querySelectorAll("[data-s]").forEach(function(el) {
-      var s = el.dataset.s;
-      srcs.delete(s);
-      el.classList.remove("on");
+  var srcs = new Set(["tavily","brave","exa"]);
+  var allResults = [];
+  var savedRuns = [];
+  var activeTab = "api";
+
+  function init() {
+    savedRuns = JSON.parse(localStorage.getItem("aurelia_research") || "[]");
+    renderSavedRuns();
+    document.getElementById("research-query").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") runResearch();
     });
+  }
+
+  function showTab(tab, btn) {
+    document.querySelectorAll("[id^='tab-']").forEach(function(el) { el.style.display = "none"; });
+    document.querySelectorAll(".stab").forEach(function(b) { b.classList.remove("on"); });
+    var el = document.getElementById("tab-" + tab);
+    if (el) el.style.display = "";
+    if (btn) btn.classList.add("on");
+    activeTab = tab;
+  }
+
+  function toggleSrc(chip) {
+    var s = chip.dataset.s;
+    if (srcs.has(s)) { srcs.delete(s); chip.classList.remove("on"); }
+    else { srcs.add(s); chip.classList.add("on"); }
+  }
+
+  function selectAllSources() {
+    var apiSrcs = ["tavily","brave","exa","semantic_scholar","ncbi","firecrawl"];
+    apiSrcs.forEach(function(s) {
+      srcs.add(s);
+      var chip = document.querySelector("[data-s='" + s + "']");
+      if (chip) chip.classList.add("on");
+    });
+    if (typeof Toast !== "undefined") Toast.show("All API sources selected", "success");
+  }
+
+  function clearAllSources() {
+    srcs.clear();
+    document.querySelectorAll("[data-s]").forEach(function(chip) { chip.classList.remove("on"); });
     if (typeof Toast !== "undefined") Toast.show("All sources deselected", "info");
   }
-  function selectAllSources() {
-    document.querySelectorAll('[data-s]').forEach(el => {
-      const s = el.dataset.s;
-      if (!srcs.has(s)) { srcs.add(s); el.classList.add('on'); }
-    });
-    Toast && Toast.show('All sources selected', 'success');
+
+  function openSrc(baseUrl) {
+    var q = document.getElementById("research-query").value.trim();
+    window.open(baseUrl + encodeURIComponent(q || ""), "_blank", "noopener");
   }
-  function toggleSrc(el) {var s=el.dataset.s;if(srcs.has(s)){srcs.delete(s);el.classList.remove("on");}else{srcs.add(s);el.classList.add("on");}}
-async function runResearch(){
-  var q=document.getElementById("research-query").value.trim();
-  if(!q)return;
-  var list=document.getElementById("results-list");
-  var tok=localStorage.getItem("aurelia_device_token")||"dt_research";
-  
-  // Show loading state using createElement (no innerHTML with mixed quotes)
-  list.innerHTML="";
-  var loading=document.createElement("div");
-  loading.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
-  loading.textContent="Searching across "+srcs.size+" sources…";
-  list.appendChild(loading);
-  
-  try{
-    var res=await fetch("https://aurelia-api.identitypartners.workers.dev/api/research",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
-      body:JSON.stringify({query:q,sources:[...srcs]})
-    });
-    var data=await res.json();
-    allResults=data.results||[];
-    list.innerHTML="";
-    if(!allResults.length){
-      var noRes=document.createElement("div");
-      noRes.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
-      noRes.textContent="No results found. Try different search terms or enable more sources.";
-      list.appendChild(noRes);
-      return;
+
+  async function runResearch() {
+    var q = document.getElementById("research-query").value.trim();
+    if (!q) { if (typeof Toast !== "undefined") Toast.show("Enter a search query", "info"); return; }
+
+    var btn = document.getElementById("search-btn");
+    if (btn) { btn.disabled = true; btn.textContent = "Searching…"; }
+
+    var empty = document.getElementById("results-empty");
+    var list = document.getElementById("results-list");
+    var countEl = document.getElementById("result-count");
+    if (empty) empty.style.display = "none";
+    if (list) list.innerHTML = "";
+
+    // Show skeleton
+    for (var i = 0; i < 4; i++) {
+      var sk = document.createElement("div");
+      sk.className = "result-card";
+      sk.style.opacity = "0.4";
+      sk.innerHTML = "<div style='height:14px;background:var(--bg-3,#e8ddd4);border-radius:4px;width:65%;margin-bottom:8px'></div><div style='height:11px;background:var(--bg-3,#e8ddd4);border-radius:4px;width:40%;margin-bottom:10px'></div><div style='height:11px;background:var(--bg-3,#e8ddd4);border-radius:4px;width:100%;margin-bottom:4px'></div><div style='height:11px;background:var(--bg-3,#e8ddd4);border-radius:4px;width:80%'></div>";
+      if (list) list.appendChild(sk);
     }
-    allResults.forEach(function(r){
-      var card=document.createElement("div");
-      card.className="result-card fade-in";
-      card.style.cursor="pointer";
-      
-      var title=document.createElement("div");
-      title.className="result-title";
-      title.textContent=r.title||"Untitled";
-      
-      var url=document.createElement("div");
-      url.className="result-url";
-      url.textContent=r.url||"";
-      
-      var snip=document.createElement("div");
-      snip.className="result-snippet";
-      snip.textContent=(r.snippet||r.content||"").slice(0,220)+"…";
-      
-      var footer=document.createElement("div");
-      footer.className="result-footer";
-      footer.style.cssText="display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap";
-      
-      var srcTag=document.createElement("span");
-      srcTag.className="tag";
-      srcTag.textContent=r.source||"web";
-      footer.appendChild(srcTag);
-      
-      if(r.score){
-        var scoreTag=document.createElement("span");
-        scoreTag.className="tag tag-sage";
-        scoreTag.textContent=r.score;
-        footer.appendChild(scoreTag);
+
+    var tok = localStorage.getItem("aurelia_device_token") || "dt_research";
+    try {
+      var activeSrcs = [...srcs].filter(function(s) { return ["tavily","brave","exa","semantic_scholar","ncbi","firecrawl"].includes(s); });
+      if (!activeSrcs.length) activeSrcs = ["tavily","brave","exa"];
+
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/research", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({query:q, sources:activeSrcs})
+      });
+      var data = await res.json();
+      allResults = data.results || [];
+
+      if (list) list.innerHTML = "";
+      if (countEl) countEl.textContent = allResults.length + " results";
+
+      if (!allResults.length) {
+        if (empty) { empty.style.display = "block"; }
+        if (typeof Toast !== "undefined") Toast.show("No results found. Try different terms.", "info");
+        return;
       }
-      
-      var actions=document.createElement("span");
-      actions.style.cssText="margin-left:auto;display:flex;gap:5px";
-      
-      var chatBtn=document.createElement("button");
-      chatBtn.className="btn btn-ghost btn-sm";
-      chatBtn.textContent="→ Chat";
-      chatBtn.onclick=function(e){e.stopPropagation();sendToChat(r.title,r.snippet||"");};
-      
-      var draftBtn=document.createElement("button");
-      draftBtn.className="btn btn-ghost btn-sm";
-      draftBtn.textContent="→ Draft";
-      draftBtn.onclick=function(e){e.stopPropagation();sendToDraft(r.title,r.snippet||"");};
-      
-      var openBtn=document.createElement("a");
-      openBtn.className="btn btn-ghost btn-sm";
-      openBtn.textContent="↗";
-      openBtn.href=r.url||"#";
-      openBtn.target="_blank";
-      openBtn.onclick=function(e){e.stopPropagation();};
-      
-      actions.appendChild(chatBtn);
-      actions.appendChild(draftBtn);
-      actions.appendChild(openBtn);
-      footer.appendChild(actions);
-      
-      card.appendChild(title);
-      card.appendChild(url);
-      card.appendChild(snip);
-      card.appendChild(footer);
-      card.onclick=function(){showDetail(r);};
-      list.appendChild(card);
+
+      allResults.forEach(function(r) {
+        var card = document.createElement("div");
+        card.className = "result-card fade-in";
+
+        var title = document.createElement("div");
+        title.className = "result-title";
+        title.textContent = r.title || "Untitled";
+
+        var url = document.createElement("div");
+        url.className = "result-url";
+        url.textContent = r.url || "";
+
+        var snip = document.createElement("div");
+        snip.className = "result-snippet";
+        snip.textContent = (r.snippet || r.content || "").slice(0, 240) + "…";
+
+        var footer = document.createElement("div");
+        footer.className = "result-footer";
+
+        var srcTag = document.createElement("span");
+        srcTag.className = "tag";
+        srcTag.textContent = r.source || "web";
+        footer.appendChild(srcTag);
+
+        if (r.score) {
+          var scoreTag = document.createElement("span");
+          scoreTag.className = "tag tag-sage";
+          scoreTag.textContent = parseFloat(r.score).toFixed(2);
+          footer.appendChild(scoreTag);
+        }
+
+        var actions = document.createElement("span");
+        actions.style.cssText = "margin-left:auto;display:flex;gap:5px";
+
+        var chatBtn = document.createElement("button");
+        chatBtn.className = "btn btn-ghost btn-sm";
+        chatBtn.textContent = "→ Chat";
+        chatBtn.onclick = (function(rt) { return function(e) { e.stopPropagation(); sendToChat(rt.title, rt.snippet || ""); }; })(r);
+
+        var draftBtn = document.createElement("button");
+        draftBtn.className = "btn btn-ghost btn-sm";
+        draftBtn.textContent = "→ Draft";
+        draftBtn.onclick = (function(rt) { return function(e) { e.stopPropagation(); sendToDraft(rt.title, rt.snippet || ""); }; })(r);
+
+        var openBtn = document.createElement("a");
+        openBtn.className = "btn btn-ghost btn-sm";
+        openBtn.textContent = "↗";
+        openBtn.href = r.url || "#";
+        openBtn.target = "_blank";
+        openBtn.onclick = function(e) { e.stopPropagation(); };
+
+        actions.appendChild(chatBtn);
+        actions.appendChild(draftBtn);
+        actions.appendChild(openBtn);
+        footer.appendChild(actions);
+
+        card.appendChild(title);
+        card.appendChild(url);
+        card.appendChild(snip);
+        card.appendChild(footer);
+        card.onclick = (function(rt) { return function() { showDetail(rt); }; })(r);
+
+        if (list) list.appendChild(card);
+      });
+
+    } catch(e) {
+      if (list) list.innerHTML = "";
+      if (empty) empty.style.display = "block";
+      if (typeof Toast !== "undefined") Toast.show("Search failed: " + e.message, "error");
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = "Search"; }
+  }
+
+  function quickSearch(q) {
+    document.getElementById("research-query").value = q;
+    runResearch();
+  }
+
+  function showDetail(r) {
+    var panel = document.getElementById("detail-panel");
+    var body = document.getElementById("detail-body");
+    if (!panel || !body) return;
+    panel.classList.add("open");
+    body.innerHTML = "";
+
+    var title = document.createElement("h3");
+    title.style.cssText = "font-family:var(--font-serif,Georgia);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.4";
+    title.textContent = r.title || "";
+    body.appendChild(title);
+
+    var link = document.createElement("a");
+    link.href = r.url || "#";
+    link.target = "_blank";
+    link.style.cssText = "font-size:11px;color:var(--accent,#0f3b3a);display:block;margin-bottom:12px;word-break:break-all";
+    link.textContent = r.url || "";
+    body.appendChild(link);
+
+    var snip = document.createElement("div");
+    snip.style.cssText = "font-size:12.5px;color:var(--muted,#78716c);line-height:1.7;margin-bottom:16px";
+    snip.textContent = r.snippet || r.content || "";
+    body.appendChild(snip);
+
+    var btns = [
+      ["→ Chat", function() { sendToChat(r.title, r.snippet || ""); }],
+      ["→ Draft", function() { sendToDraft(r.title, r.snippet || ""); }],
+      ["↗ Open", function() { window.open(r.url || "#", "_blank"); }],
+    ];
+    btns.forEach(function(b) {
+      var btn = document.createElement("button");
+      btn.className = "btn btn-ghost btn-sm w-full";
+      btn.style.marginBottom = "5px";
+      btn.textContent = b[0];
+      btn.onclick = b[1];
+      body.appendChild(btn);
     });
-  }catch(e){
-    list.innerHTML="";
-    var errDiv=document.createElement("div");
-    errDiv.style.cssText="text-align:center;color:var(--text-faint);padding:24px;font-size:13px";
-    errDiv.textContent="Search failed: "+e.message+". Check API keys in Settings.";
-    list.appendChild(errDiv);
   }
-}
-function saveRun(){var q=document.getElementById("research-query").value.trim();if(!q||!allResults.length){Toast.show("Run a search first","info");return;}savedRuns.push({id:"run_"+Date.now(),query:q,results:allResults,ts:Date.now()});localStorage.setItem("aurelia_research",JSON.stringify(savedRuns));Toast.show("Run saved","success");}
-function exportResults(){if(!allResults.length){Toast.show("No results","info");return;}var text=allResults.map(function(r){return "# "+r.title+"\n"+r.url+"\n\n"+(r.snippet||"")+"\n\n---\n";}).join("\n");var blob=new Blob([text],{type:"text/markdown"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="research-"+Date.now()+".md";a.click();}
-document.getElementById("research-query").addEventListener("keydown",function(e){if(e.key==="Enter")runResearch();});
-savedRuns=JSON.parse(localStorage.getItem("aurelia_research")||"[]");
-</script>
-<script src="/shared/help.js"></script>
 
-<!-- Schedule Modal -->
-<div class="modal-overlay" id="schedule-modal">
-  <div class="modal" style="max-width:440px">
-    <div class="modal-header">
-      <span class="modal-title">Schedule Research Run</span>
-      <button class="modal-close" onclick="document.getElementById('schedule-modal').classList.remove('open')">&#10005;</button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="input-group">
-        <label class="input-label">Query to schedule</label>
-        <input class="input" id="sched-query" placeholder="Research query..." readonly>
-      </div>
-      <div class="input-group">
-        <label class="input-label">Frequency</label>
-        <select class="input" id="sched-freq">
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="once">Once (at specific time)</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label class="input-label">Time</label>
-        <input class="input" id="sched-time" type="time" value="08:00">
-      </div>
-      <div class="input-group">
-        <label class="input-label">Notify via</label>
-        <div style="display:flex;gap:8px">
-          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="sched-notify-tg"> Telegram</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="checkbox" id="sched-notify-email"> Email</label>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:4px">
-        <button class="btn btn-primary" onclick="saveSchedule()">Save Schedule</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('schedule-modal').classList.remove('open')">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Scheduled runs panel -->
-<div id="scheduled-runs-panel" style="display:none;position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:16px;max-width:300px;box-shadow:var(--shadow2);z-index:100">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-    <div style="font-size:12px;font-weight:600;color:var(--ink)">Scheduled Runs</div>
-    <button onclick="document.getElementById('scheduled-runs-panel').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--faint,#a8a29e)">✕</button>
-  </div>
-  <div id="scheduled-runs-list" style="font-size:12px;color:var(--muted,#78716c)">No scheduled runs.</div>
-</div>
-<script>
-function scheduleRun() {
-  var q = document.getElementById("research-query");
-  var query = q ? q.value.trim() : "";
-  if (!query) { if (typeof Toast !== "undefined") Toast.show("Enter a query first", "info"); return; }
-  var schedQ = document.getElementById("sched-query");
-  if (schedQ) schedQ.value = query;
-  document.getElementById("schedule-modal").classList.add("open");
-}
-
-function saveSchedule() {
-  var query = document.getElementById("sched-query").value;
-  var freq = document.getElementById("sched-freq").value;
-  var time = document.getElementById("sched-time").value;
-  var notifyTg = document.getElementById("sched-notify-tg").checked;
-  var notifyEmail = document.getElementById("sched-notify-email").checked;
-  
-  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
-  schedules.push({
-    id: "sched_" + Date.now(),
-    query: query, freq: freq, time: time,
-    notifyTg: notifyTg, notifyEmail: notifyEmail,
-    created: Date.now(), lastRun: null, nextRun: getNextRun(freq, time)
-  });
-  localStorage.setItem("aurelia_research_schedules", JSON.stringify(schedules));
-  document.getElementById("schedule-modal").classList.remove("open");
-  if (typeof Toast !== "undefined") Toast.show("Research scheduled: " + freq + " at " + time, "success");
-  renderScheduledRuns();
-}
-
-function getNextRun(freq, time) {
-  var now = new Date();
-  var parts = time.split(":");
-  var next = new Date(now);
-  next.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
-  if (next <= now) {
-    if (freq === "daily") next.setDate(next.getDate() + 1);
-    else if (freq === "weekly") next.setDate(next.getDate() + 7);
-    else if (freq === "monthly") next.setMonth(next.getMonth() + 1);
+  function closeDetail() {
+    var panel = document.getElementById("detail-panel");
+    if (panel) panel.classList.remove("open");
   }
-  return next.toISOString();
-}
 
-function renderScheduledRuns() {
-  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
-  var list = document.getElementById("scheduled-runs-list");
-  if (!list) return;
-  if (!schedules.length) { list.textContent = "No scheduled runs."; return; }
-  list.innerHTML = "";
-  schedules.forEach(function(s) {
-    var item = document.createElement("div");
-    item.style.cssText = "padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px";
-    var info = document.createElement("div");
-    info.innerHTML = "<div style='font-weight:500;color:var(--ink)'>" + s.query.slice(0,30) + (s.query.length>30?"...":"") + "</div><div style='font-size:10.5px;color:var(--faint,#a8a29e)'>" + s.freq + " at " + s.time + "</div>";
-    var del = document.createElement("button");
-    del.className = "btn btn-ghost btn-sm";
-    del.textContent = "✕";
-    del.onclick = function() {
-      var scheds = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
-      localStorage.setItem("aurelia_research_schedules", JSON.stringify(scheds.filter(function(x) { return x.id !== s.id; })));
-      renderScheduledRuns();
-    };
-    item.appendChild(info);
-    item.appendChild(del);
-    list.appendChild(item);
-  });
-}
-
-// Show scheduled runs button
-(function() {
-  var schedules = JSON.parse(localStorage.getItem("aurelia_research_schedules") || "[]");
-  if (schedules.length > 0) {
-    document.getElementById("scheduled-runs-panel").style.display = "block";
-    renderScheduledRuns();
+  function saveRun() {
+    var q = document.getElementById("research-query").value.trim();
+    if (!q || !allResults.length) { if (typeof Toast !== "undefined") Toast.show("Run a search first", "info"); return; }
+    var run = {id:"run_"+Date.now(), query:q, results:allResults, ts:Date.now(), tags:["#research"]};
+    savedRuns.push(run);
+    localStorage.setItem("aurelia_research", JSON.stringify(savedRuns));
+    renderSavedRuns();
+    if (typeof Toast !== "undefined") Toast.show("Research run saved", "success");
   }
-})();
+
+  function renderSavedRuns() {
+    var el = document.getElementById("saved-runs-list");
+    if (!el) return;
+    if (!savedRuns.length) { el.innerHTML = "<div style='font-size:11.5px;color:var(--faint,#a8a29e);padding:4px'>No saved runs yet</div>"; return; }
+    el.innerHTML = "";
+    savedRuns.slice().reverse().slice(0,8).forEach(function(r) {
+      var div = document.createElement("div");
+      div.className = "saved-run";
+      div.textContent = r.query.slice(0,28) + (r.query.length > 28 ? "…" : "");
+      div.onclick = function() { loadRun(r.id); };
+      el.appendChild(div);
+    });
+  }
+
+  function loadRun(id) {
+    var run = savedRuns.find(function(r) { return r.id === id; });
+    if (!run) return;
+    document.getElementById("research-query").value = run.query;
+    allResults = run.results;
+    // Re-render results
+    var list = document.getElementById("results-list");
+    var empty = document.getElementById("results-empty");
+    if (empty) empty.style.display = "none";
+    if (list) {
+      list.innerHTML = "";
+      // Trigger the same render as runResearch
+      document.getElementById("research-query").value = run.query;
+      runResearch();
+    }
+  }
+
+  function exportResults() {
+    if (!allResults.length) { if (typeof Toast !== "undefined") Toast.show("No results to export", "info"); return; }
+    var text = allResults.map(function(r) { return "# " + r.title + "\n" + r.url + "\n\n" + (r.snippet || r.content || "") + "\n\n---\n"; }).join("\n");
+    var blob = new Blob([text], {type:"text/markdown"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "aurelia-research-" + Date.now() + ".md"; a.click();
+  }
+
+  function scheduleRun() {
+    var q = document.getElementById("research-query").value.trim();
+    if (!q) { if (typeof Toast !== "undefined") Toast.show("Enter a query to schedule", "info"); return; }
+    var freq = prompt("Schedule frequency:\n1 = Daily\n2 = Weekly\n3 = Monthly\n\nEnter 1, 2, or 3:");
+    if (!freq) return;
+    var freqMap = {"1":"daily","2":"weekly","3":"monthly"};
+    var scheduled = JSON.parse(localStorage.getItem("aurelia_scheduled_research") || "[]");
+    scheduled.push({id:"sched_"+Date.now(), query:q, frequency:freqMap[freq]||"daily", ts:Date.now()});
+    localStorage.setItem("aurelia_scheduled_research", JSON.stringify(scheduled));
+    if (typeof Toast !== "undefined") Toast.show("Scheduled: " + q + " (" + (freqMap[freq]||"daily") + ")", "success");
+  }
+
+  function filterTag(tag, el) {
+    document.querySelectorAll(".filter-item").forEach(function(i) { i.classList.remove("on"); });
+    if (el) el.classList.add("on");
+  }
+
+  function sendToChat(title, snippet) {
+    sessionStorage.setItem("aurelia_new_chat_query", "Research: " + title + "\n\n" + snippet + "\n\nPlease analyse this.");
+    window.location.href = "/chat/index.html";
+  }
+
+  function sendToDraft(title, snippet) {
+    sessionStorage.setItem("aurelia_draft_content", "# " + title + "\n\n" + snippet);
+    window.location.href = "/drafting/index.html";
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
