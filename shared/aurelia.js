@@ -1,8 +1,3 @@
-/* ============================================================
-   AURELIA v3.0 — SHARED JAVASCRIPT UTILITIES
-   Identity Partners | aurelia.identitypartners.uk
-   ============================================================ */
-
 'use strict';
 
 /* ── Live Cache Token (LCT) ── */
@@ -1437,17 +1432,4 @@ const Dictation = {
   }
 };
 
-window.Dictation = Dictation;function getCurrentModel() {
-  // Try localStorage first (set by model picker)
-  var saved = localStorage.getItem('aurelia_model');
-  if (saved) return saved;
-  // Try ModelRouter
-  if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
-  // PRIMARY default: Cerebras Gemma 4 31B
-  return 'cerebras/gemma-4-31b';
-}
-
-/* ============================================================
-   AURELIA v3.0 — SHARED JAVASCRIPT UTILITIES
-   Identity Partners | aurelia.identitypartners.uk
-   ============================================================ */
+window.Dictation = Dictation;
