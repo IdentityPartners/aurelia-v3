@@ -51,105 +51,36 @@
 function renderMd(text) {
   if (!text) return '';
   var s = text;
-
-  // 1. Escape HTML entities first
+  // 1. Escape HTML
   s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
   // 2. Code blocks (triple-backtick fenced)
-  s = s.replace(/```([\w]*)?\n?([\s\S]*?)```/g, function(m, lang, code) {
-    var l = lang ? '<div style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:6px 12px 0;font-family:var(--font-sans)">' + lang + '</div>' : '';
-    return l + '<pre style="background:var(--bg-3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--font-mono);font-size:12.5px;overflow-x:auto;margin:8px 0;line-height:1.6;color:var(--ink-2)">' + code.trim() + '</pre>';
+  var tripleBack = new RegExp('([\x60]{3})(\\w*)?\\n?([\\s\\S]*?)([\x60]{3})', 'g');
+  s = s.replace(tripleBack, function(m, o, lang, code) {
+    var l = lang ? '<div style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);padding:6px 12px 0;font-family:var(--font)">' + lang + '</div>' : '';
+    return l + '<pre style="background:var(--bg-3,#e8ddd4);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font-mono,monospace);font-size:12px;overflow-x:auto;margin:6px 0;white-space:pre-wrap">' + code.trim() + '</pre>';
   });
-
-  // 3. Inline code
-  s = s.replace(/`([^`]+)`/g, '<code style="background:var(--bg-3);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--rose)">$1</code>');
-
-  // 4. Blockquotes
-  s = s.replace(/^&gt; (.+)$/gm, '<blockquote style="border-left:3px solid var(--accent);padding:8px 14px;margin:8px 0;background:var(--accent3);border-radius:0 6px 6px 0;font-style:italic;color:var(--ink-2)">$1</blockquote>');
-
-  // 5. Horizontal rules
-  s = s.replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">');
-
-  // 6. Tables
-  s = s.replace(/((?:\|.+\|\n?)+)/g, function(block) {
-    var rows = block.trim().split('\n');
-    if (rows.length < 2) return block;
-    var isSep = rows[1] && /^[\|\s\-:]+$/.test(rows[1]);
-    if (!isSep) return block;
-    var header = rows[0].split('|').filter(function(c){return c.trim();}).map(function(c){return '<th style="padding:8px 12px;border:1px solid var(--border);background:var(--bg-2);font-weight:600;font-size:12.5px;text-align:left;white-space:nowrap">' + c.trim() + '</th>';}).join('');
-    var body = rows.slice(2).map(function(row){
-      var cells = row.split('|').filter(function(c){return c.trim();}).map(function(c){return '<td style="padding:7px 12px;border:1px solid var(--border);font-size:12.5px">' + c.trim() + '</td>';}).join('');
-      return '<tr>' + cells + '</tr>';
-    }).join('');
-    return '<div style="overflow-x:auto;margin:10px 0"><table style="border-collapse:collapse;width:100%;font-size:13px"><thead><tr>' + header + '</tr></thead><tbody>' + body + '</tbody></table></div>';
-  });
-
-  // 7. Headings
-  s = s.replace(/^# (.+)$/gm, '<h1 style="font-family:var(--font-serif);font-size:22px;font-weight:500;color:var(--ink);margin:16px 0 8px;line-height:1.3;border-bottom:2px solid var(--accent);padding-bottom:6px">$1</h1>');
-  s = s.replace(/^## (.+)$/gm, '<h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;color:var(--ink);margin:14px 0 6px;line-height:1.3">$1</h2>');
-  s = s.replace(/^### (.+)$/gm, '<h3 style="font-size:15px;font-weight:600;color:var(--ink);margin:12px 0 5px">$1</h3>');
-  s = s.replace(/^#### (.+)$/gm, '<h4 style="font-size:13.5px;font-weight:600;color:var(--ink-2);margin:10px 0 4px">$1</h4>');
-
-  // 8. Bold + Italic combined
-  s = s.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
-  // 9. Bold
-  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:600;color:var(--ink)">$1</strong>');
-  s = s.replace(/__([^_]+)__/g, '<strong style="font-weight:600;color:var(--ink)">$1</strong>');
-  // 10. Italic
-  s = s.replace(/\*([^*]+)\*/g, '<em style="font-style:italic;color:var(--ink-2)">$1</em>');
-  s = s.replace(/_([^_]+)_/g, '<em style="font-style:italic;color:var(--ink-2)">$1</em>');
-  // 11. Strikethrough
-  s = s.replace(/~~([^~]+)~~/g, '<del style="text-decoration:line-through;opacity:0.6">$1</del>');
-  // 12. Underline (custom ++text++)
-  s = s.replace(/\+\+([^+]+)\+\+/g, '<u>$1</u>');
-  // 13. Highlight (==text==)
-  s = s.replace(/==([^=]+)==/g, '<mark style="background:var(--gold-4);color:var(--ink);padding:1px 3px;border-radius:3px">$1</mark>');
-
-  // 14. Coloured text (:red[text], :teal[text], :gold[text])
-  s = s.replace(/:red\[([^\]]+)\]/g, '<span style="color:var(--rose)">$1</span>');
-  s = s.replace(/:teal\[([^\]]+)\]/g, '<span style="color:var(--accent)">$1</span>');
-  s = s.replace(/:gold\[([^\]]+)\]/g, '<span style="color:var(--gold)">$1</span>');
-  s = s.replace(/:green\[([^\]]+)\]/g, '<span style="color:#2e7d32">$1</span>');
-  s = s.replace(/:muted\[([^\]]+)\]/g, '<span style="color:var(--text-muted)">$1</span>');
-
-  // 15. Callout boxes (> [!NOTE], > [!TIP], > [!WARNING], > [!IMPORTANT])
-  s = s.replace(/&gt; \[!NOTE\] (.+)/g, '<div style="background:#e3f2fd;border-left:3px solid #1565c0;padding:10px 14px;border-radius:0 8px 8px 0;margin:8px 0;font-size:13px"><strong style="color:#1565c0">ℹ Note</strong><br>$1</div>');
-  s = s.replace(/&gt; \[!TIP\] (.+)/g, '<div style="background:#e8f5e9;border-left:3px solid #2e7d32;padding:10px 14px;border-radius:0 8px 8px 0;margin:8px 0;font-size:13px"><strong style="color:#2e7d32">💡 Tip</strong><br>$1</div>');
-  s = s.replace(/&gt; \[!WARNING\] (.+)/g, '<div style="background:#fff8e1;border-left:3px solid #f57f17;padding:10px 14px;border-radius:0 8px 8px 0;margin:8px 0;font-size:13px"><strong style="color:#f57f17">⚠ Warning</strong><br>$1</div>');
-  s = s.replace(/&gt; \[!IMPORTANT\] (.+)/g, '<div style="background:#fce4ec;border-left:3px solid var(--rose);padding:10px 14px;border-radius:0 8px 8px 0;margin:8px 0;font-size:13px"><strong style="color:var(--rose)">❗ Important</strong><br>$1</div>');
-
-  // 16. Numbered lists
-  s = s.replace(/((?:^\d+\. .+\n?)+)/gm, function(block) {
-    var items = block.trim().split('\n').map(function(line) {
-      return '<li style="margin:4px 0;padding-left:4px">' + line.replace(/^\d+\. /, '') + '</li>';
-    }).join('');
-    return '<ol style="padding-left:22px;margin:8px 0;line-height:1.7">' + items + '</ol>';
-  });
-
-  // 17. Unordered lists (-, *, •)
-  s = s.replace(/((?:^[\-\*•] .+\n?)+)/gm, function(block) {
-    var items = block.trim().split('\n').map(function(line) {
-      return '<li style="margin:3px 0;padding-left:2px">' + line.replace(/^[\-\*•] /, '') + '</li>';
-    }).join('');
-    return '<ul style="padding-left:20px;margin:8px 0;line-height:1.7">' + items + '</ul>';
-  });
-
-  // 18. Checkbox lists
-  s = s.replace(/^- \[x\] (.+)$/gm, '<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="color:#2e7d32;font-size:16px">✓</span><span style="text-decoration:line-through;opacity:0.6">$1</span></div>');
-  s = s.replace(/^- \[ \] (.+)$/gm, '<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="color:var(--text-faint);font-size:16px">○</span><span>$1</span></div>');
-
-  // 19. Links
-  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px">$1</a>');
-
-  // 20. Images
-  s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:8px 0;display:block">');
-
-  // 21. Paragraphs and line breaks
-  s = s.replace(/\n\n/g, '</p><p style="margin:8px 0;line-height:1.75">');
+  // 3. Inline code (single backtick)
+  var singleBack = new RegExp('[\x60]([^\x60]+)[\x60]', 'g');
+  s = s.replace(singleBack, '<code style="background:var(--bg-3,#e8ddd4);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-family:var(--font-mono,monospace);font-size:12px">$1</code>');
+  // 4. Bold
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // 5. Italic
+  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  // 6. Headers
+  s = s.replace(/^### (.+)$/gm, '<h3 style="font-size:14px;font-weight:600;margin:10px 0 4px">$1</h3>');
+  s = s.replace(/^## (.+)$/gm, '<h2 style="font-size:16px;font-weight:600;margin:12px 0 6px">$1</h2>');
+  s = s.replace(/^# (.+)$/gm, '<h1 style="font-size:18px;font-weight:600;margin:14px 0 8px">$1</h1>');
+  // 7. Bullet lists
+  s = s.replace(/^[\-\*] (.+)$/gm, '<li style="margin:2px 0;padding-left:4px">$1</li>');
+  s = s.replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul style="padding-left:20px;margin:6px 0">$&</ul>');
+  // 8. Numbered lists
+  s = s.replace(/^\d+\. (.+)$/gm, '<li style="margin:2px 0;padding-left:4px">$1</li>');
+  // 9. Horizontal rule
+  s = s.replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">');
+  // 10. Line breaks
+  s = s.replace(/\n\n/g, '</p><p style="margin:8px 0">');
   s = s.replace(/\n/g, '<br>');
-  s = '<p style="margin:0;line-height:1.75">' + s + '</p>';
-
-  return s;
+  return '<p style="margin:0">' + s + '</p>';
 }
 
 
