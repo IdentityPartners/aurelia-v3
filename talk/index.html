@@ -105,6 +105,27 @@ textarea::placeholder{color:var(--faint)}
 </style>
 </head>
 <body>
+<div id="diag" style="background:#e8f5e9;border-bottom:2px solid #2e7d32;padding:10px 16px;font-size:13px;font-family:monospace">
+  <strong>Diagnostic:</strong> <span id="diag-status">Testing fetch to Worker...</span>
+  <button onclick="testFetch()" style="margin-left:10px;padding:3px 8px;background:#2e7d32;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px">Re-test</button>
+</div>
+<script>
+function testFetch() {
+  var el = document.getElementById('diag-status');
+  if (el) el.textContent = 'Testing...';
+  fetch('https://aurelia-api.identitypartners.workers.dev/api/health', {
+    headers: {'Authorization': 'Bearer dt_test', 'Origin': 'https://aurelia.identitypartners.uk'}
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (el) el.textContent = 'Worker OK: ' + d.status + ' v' + d.version + ' — Send button should work';
+    document.getElementById('diag').style.background = '#e8f5e9';
+  }).catch(function(e) {
+    if (el) el.textContent = 'FETCH BLOCKED: ' + e.message + ' — This is why buttons do not work';
+    document.getElementById('diag').style.background = '#fce4ec';
+  });
+}
+document.addEventListener('DOMContentLoaded', testFetch);
+</script>
+
 <div class="shell">
 <!-- Sidebar -->
 <div class="sb">
