@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>Aurelia Chat Test</title>
+  <style>
+    body{font-family:Inter,sans-serif;background:#f7f3e9;margin:0;padding:20px;color:#1c1917}
+    h1{font-family:Georgia,serif;font-size:22px;margin-bottom:4px}
+    .status{padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px}
+    .ok{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}
+    .err{background:#fce4ec;color:#c62828;border:1px solid #f8bbd0}
+    .info{background:#e3f2fd;color:#1565c0;border:1px solid #bbdefb}
+    .msgs{background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px;min-height:200px;max-height:400px;overflow-y:auto;margin:10px 0}
+    .msg{padding:8px 12px;border-radius:8px;margin:4px 0;font-size:14px}
+    .user{background:#0f3b3a;color:#fff;text-align:right}
+    .ai{background:#f0e9e0;color:#1c1917}
+    .input-row{display:flex;gap:8px;margin-top:10px}
+    textarea{flex:1;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;resize:none;min-height:60px}
+    textarea:focus{border-color:#0f3b3a;outline:none}
+    button{padding:10px 20px;background:#0f3b3a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer}
+    button:active{opacity:0.8}
+    select{padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+  </style>
+</head>
+<body>
+  <h1>Aurelia Chat — Standalone Test</h1>
+  <p style="font-size:13px;color:#78716c">This page has NO shared JS dependencies. If this works but /chat/ doesn't, the issue is in aurelia.js.</p>
+
+  <div id="js-status" class="status info">Checking JavaScript...</div>
+
+  <div style="margin:10px 0">
+    <label style="font-size:12px;font-weight:600;color:#78716c">Model: </label>
+    <select id="model-sel">
+      <option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras)</option>
+      <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
+      <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
+    </select>
+  </div>
+
+  <div class="msgs" id="msgs">
+    <div class="msg ai">Hello! I am Aurelia. Type a message and click Send to test.</div>
+  </div>
+
+  <div class="input-row">
+    <textarea id="ta" placeholder="Type your message here..." rows="2"></textarea>
+    <button onclick="sendMsg()">Send</button>
+  </div>
+
+  <div id="error-display" style="margin-top:10px"></div>
+
+<script>
+// Self-test
+document.getElementById('js-status').textContent = 'JavaScript is working correctly on this page.';
+document.getElementById('js-status').className = 'status ok';
+
+var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
+localStorage.setItem('aurelia_device_token', tok);
+
+document.getElementById('ta').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+function sendMsg() {
+  var ta = document.getElementById('ta');
+  var text = ta.value.trim();
+  if (!text) return;
+  ta.value = '';
+
+  var msgs = document.getElementById('msgs');
+  var userDiv = document.createElement('div');
+  userDiv.className = 'msg user';
+  userDiv.textContent = text;
+  msgs.appendChild(userDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  var loadingDiv = document.createElement('div');
+  loadingDiv.className = 'msg ai';
+  loadingDiv.textContent = 'Thinking...';
+  loadingDiv.id = 'loading';
+  msgs.appendChild(loadingDiv);
+
+  var model = document.getElementById('model-sel').value;
+
+  fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + tok,
+      'Origin': 'https://aurelia.identitypartners.uk'
+    },
+    body: JSON.stringify({
+      messages: [{role: 'user', content: text}],
+      model: model,
+      system: 'You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise.'
+    })
+  }).then(function(r) {
+    return r.json();
+  }).then(function(data) {
+    var loading = document.getElementById('loading');
+    if (loading) loading.remove();
+    var aiDiv = document.createElement('div');
+    aiDiv.className = 'msg ai';
+    aiDiv.textContent = data.content || data.message || JSON.stringify(data);
+    msgs.appendChild(aiDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+  }).catch(function(err) {
+    var loading = document.getElementById('loading');
+    if (loading) loading.remove();
+    var errDiv = document.createElement('div');
+    errDiv.className = 'msg ai';
+    errDiv.style.color = '#c62828';
+    errDiv.textContent = 'Error: ' + err.message;
+    msgs.appendChild(errDiv);
+    document.getElementById('error-display').innerHTML = '<div class="status err">Fetch error: ' + err.message + '</div>';
+  });
+}
+</script>
+</body>
+</html>
