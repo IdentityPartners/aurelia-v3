@@ -80,6 +80,7 @@
       <div class="topbar-actions">
         <span style="font-size:11px;color:var(--faint,#a8a29e)" id="result-count"></span>
         <button class="btn btn-ghost btn-sm" onclick="exportResults()">Export</button>
+        <button class="btn btn-ghost btn-sm" onclick="synthesiseResults()">Synthesise All</button>
         <button class="btn btn-ghost btn-sm" onclick="saveRun()">Save Run</button>
         <button class="btn btn-primary btn-sm" onclick="scheduleRun()">Schedule</button>
       </div>
@@ -108,7 +109,7 @@
           <div class="search-row">
             <input class="search-input" id="research-query" placeholder="Search across 150+ sources — academic, web, news, health, law, data…">
             <button class="btn btn-primary" onclick="runResearch()" id="search-btn">Search</button>
-            <button class="btn btn-ghost btn-sm" onclick="selectAllSources()" title="Select all API sources">All</button>
+            <button class="btn btn-ghost btn-sm" onclick="selectAllSources()" title="Select all 80+ sources">All Sources</button>
             <button class="btn btn-ghost btn-sm" onclick="clearAllSources()" title="Deselect all">None</button>
           </div>
 
@@ -304,13 +305,19 @@
   }
 
   function selectAllSources() {
+    // Select ALL sources — both API sources and direct-link sources
     var apiSrcs = ["tavily","brave","exa","semantic_scholar","ncbi","firecrawl"];
     apiSrcs.forEach(function(s) {
       srcs.add(s);
       var chip = document.querySelector("[data-s='" + s + "']");
       if (chip) chip.classList.add("on");
     });
-    if (typeof Toast !== "undefined") Toast.show("All API sources selected", "success");
+    // Also open all direct-link source tabs to show they're "selected"
+    // and mark them visually
+    document.querySelectorAll(".schip").forEach(function(chip) {
+      chip.classList.add("on");
+    });
+    if (typeof Toast !== "undefined") Toast.show("All " + document.querySelectorAll(".schip").length + " sources selected — API sources will search live, others open in new tab", "success");
   }
 
   function clearAllSources() {
@@ -567,6 +574,41 @@
   }
 
   document.addEventListener("DOMContentLoaded", init);
+
+  async function synthesiseResults() {
+    if (!allResults.length) { if (typeof Toast !== "undefined") Toast.show("Run a search first", "info"); return; }
+    var q = document.getElementById("research-query").value.trim();
+    var tok = localStorage.getItem("aurelia_device_token") || "dt_research";
+    if (typeof Toast !== "undefined") Toast.show("Synthesising " + allResults.length + " results...", "info");
+    var snippets = allResults.slice(0, 15).map(function(r) { return (r.title || "") + ": " + (r.snippet || r.content || "").slice(0, 300); }).join("
+
+");
+    try {
+      var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
+        body: JSON.stringify({
+          messages: [{role:"user",content:"Synthesise these research results about '" + q + "' into a coherent summary with key themes, contradictions, and gaps:
+
+" + snippets}],
+          model: "deepseek/deepseek-v4-flash",
+          system: "You are a research synthesiser. Produce a structured synthesis with: 1) Key themes, 2) Main findings, 3) Contradictions or debates, 4) Gaps in the research, 5) Recommended next steps."
+        })
+      });
+      var data = await res.json();
+      var synthesis = data.content || "Synthesis failed";
+      // Show in a modal or send to drafting
+      sessionStorage.setItem("aurelia_draft_content", "# Research Synthesis: " + q + "
+
+" + synthesis);
+      if (confirm("Synthesis complete! Open in Drafting Desk?")) {
+        window.location.href = "/drafting/index.html";
+      }
+    } catch(e) {
+      if (typeof Toast !== "undefined") Toast.show("Synthesis error: " + e.message, "error");
+    }
+  }
+
 </script>
 </body>
 </html>
