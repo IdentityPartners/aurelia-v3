@@ -1445,7 +1445,9 @@ window.Dictation = Dictation;function getCurrentModel() {
   if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
   // PRIMARY default: Cerebras Gemma 4 31B
   return 'cerebras/gemma-4-31b';
-}* ============================================================
+}
+
+/* ============================================================
    AURELIA v3.0 — SHARED JAVASCRIPT UTILITIES
    Identity Partners | aurelia.identitypartners.uk
    ============================================================ */
