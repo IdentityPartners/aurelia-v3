@@ -4,196 +4,604 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
-<title>Aurelia Talk</title>
+<title>Aurelia — Talk</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,-apple-system,sans-serif;background:#f7f3e9;color:#1c1917;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.top{background:#fff;border-bottom:1px solid #e8ddd4;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.logo{font-family:Georgia,serif;font-size:20px;color:#0f3b3a;font-weight:500;text-decoration:none}
-.model-sel{padding:5px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;background:#f7f3e9;color:#1c1917;cursor:pointer}
-.nav-links{display:flex;gap:6px;margin-left:auto}
-.nav-links a{padding:5px 10px;border:1px solid #e8ddd4;border-radius:6px;font-size:12px;color:#78716c;text-decoration:none;background:#fff}
-.nav-links a:hover{background:#f7f3e9}
-.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.msg{display:flex;gap:8px;max-width:85%}
+:root{--bg:#f7f3e9;--bg2:#f0e9e0;--bg3:#e8ddd4;--surface:#fff;--border:#e8ddd4;--ink:#1c1917;--muted:#78716c;--faint:#a8a29e;--accent:#0f3b3a;--accent2:#1a5554;--rose:#5c2d3f;--gold:#b5924c;--r:8px;--font:Inter,-apple-system,sans-serif;--serif:Georgia,serif}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.shell{display:flex;flex:1;overflow:hidden}
+/* Sidebar */
+.sb{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sb-logo{padding:14px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sb-logo-mark{width:28px;height:28px;background:var(--ink);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:14px;color:var(--bg);font-weight:600}
+.sb-logo-text{font-family:var(--serif);font-size:17px;color:var(--ink);font-weight:500}
+.sb-threads{flex:1;overflow-y:auto;padding:6px}
+.sb-threads::-webkit-scrollbar{width:4px}
+.sb-threads::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.thread-item{padding:9px 10px;border-radius:6px;cursor:pointer;margin-bottom:2px;border:1px solid transparent;transition:all .12s}
+.thread-item:hover{background:var(--bg2)}
+.thread-item.active{background:var(--bg2);border-color:var(--border)}
+.thread-title{font-size:12.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thread-meta{font-size:10.5px;color:var(--faint);margin-top:2px}
+.sb-footer{padding:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+/* Topbar */
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0}
+.topbar-title{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel{padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;color:var(--muted);background:var(--bg2);cursor:pointer;font-family:var(--font)}
+.btn{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:opacity .12s}
+.btn:active{opacity:.8}
+.btn-p{background:var(--ink);color:var(--bg)}
+.btn-g{background:var(--bg2);border:1px solid var(--border);color:var(--muted)}
+.btn-sm{padding:4px 8px;font-size:11px}
+/* Messages */
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.msgs::-webkit-scrollbar{width:4px}
+.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;gap:8px;max-width:86%}
 .msg.u{align-self:flex-end;flex-direction:row-reverse}
-.av{width:30px;height:30px;border-radius:50%;background:#0f3b3a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;font-family:Georgia,serif}
-.msg.u .av{background:#e8ddd4;color:#1c1917}
-.bub{background:#fff;border:1px solid #e8ddd4;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.6;color:#1c1917;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
-.msg.u .bub{background:#0f3b3a;color:#fff;border-color:#0f3b3a}
-.meta{font-size:10px;color:#a8a29e;margin-top:3px}
+.av{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:2px;font-family:var(--serif)}
+.msg.u .av{background:var(--bg3);color:var(--ink)}
+.mbody{display:flex;flex-direction:column;gap:3px}
+.bub{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 13px;font-size:14px;line-height:1.65;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.msg.u .bub{background:var(--accent);color:#fff;border-color:var(--accent)}
+.meta{font-size:10px;color:var(--faint)}
+.msg.u .meta{text-align:right}
+.macts{display:flex;gap:4px;margin-top:2px}
+.mact{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2px 8px;font-size:10.5px;color:var(--muted);cursor:pointer;font-family:var(--font)}
+.mact:active{background:var(--bg3)}
 .dots{display:flex;gap:4px;padding:8px 0}
-.dot{width:6px;height:6px;border-radius:50%;background:#a8a29e;animation:d 1.2s infinite}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--faint);animation:d 1.2s infinite}
 .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
 @keyframes d{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-.bottom{background:#fff;border-top:1px solid #e8ddd4;padding:10px 14px;flex-shrink:0}
-.input-row{display:flex;gap:8px;align-items:flex-end}
-.ta-wrap{flex:1;background:#f7f3e9;border:1.5px solid #e8ddd4;border-radius:20px;padding:10px 14px;transition:border-color .15s}
-.ta-wrap:focus-within{border-color:#0f3b3a}
-textarea{width:100%;background:none;border:none;outline:none;font-family:Inter,-apple-system,sans-serif;font-size:14px;line-height:1.5;color:#1c1917;resize:none;max-height:120px;min-height:44px}
-textarea::placeholder{color:#a8a29e}
-.send{width:42px;height:42px;border-radius:50%;background:#0f3b3a;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .12s}
-.send:active{opacity:.8}
-.send svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
-.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{padding:4px 10px;border:1px solid #e8ddd4;border-radius:20px;font-size:11.5px;color:#78716c;cursor:pointer;white-space:nowrap;background:#fff;font-family:inherit}
-.chip:active{background:#f7f3e9}
+/* Empty state */
 .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
-.empty-a{font-family:Georgia,serif;font-size:56px;color:#0f3b3a;opacity:.12;line-height:1}
-.empty-t{font-family:Georgia,serif;font-size:20px;color:#1c1917;font-weight:500}
-.empty-s{font-size:13px;color:#a8a29e;line-height:1.6;max-width:260px}
+.empty-a{font-family:var(--serif);font-size:52px;color:var(--accent);opacity:.12;line-height:1}
+.empty-t{font-family:var(--serif);font-size:20px;color:var(--ink);font-weight:500}
+.empty-s{font-size:13px;color:var(--faint);line-height:1.6;max-width:260px}
 .starters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;margin-top:10px}
-.starter{background:#fff;border:1px solid #e8ddd4;border-radius:10px;padding:10px 14px;font-size:13px;color:#44403c;cursor:pointer;text-align:left;font-family:inherit;transition:background .12s}
-.starter:hover{background:#f7f3e9}
-.err{background:#fce4ec;border:1px solid #f8bbd0;padding:8px 14px;font-size:12px;color:#c62828;display:none}
+.starter{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:#44403c;cursor:pointer;text-align:left;font-family:var(--font);transition:background .12s}
+.starter:hover{background:var(--bg2)}
+/* Input area */
+.input-area{background:var(--surface);border-top:1px solid var(--border);padding:10px 13px;flex-shrink:0}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.ta-wrap{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:10px 14px;transition:border-color .15s}
+.ta-wrap:focus-within{border-color:var(--accent)}
+textarea{width:100%;background:none;border:none;outline:none;font-family:var(--font);font-size:14px;line-height:1.5;color:var(--ink);resize:none;max-height:120px;min-height:44px}
+textarea::placeholder{color:var(--faint)}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .12s}
+.send-btn:active{opacity:.8}
+.send-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
+.chips{display:flex;gap:5px;margin-top:7px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:3px 10px;border:1px solid var(--border);border-radius:20px;font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap;background:var(--surface);font-family:var(--font);transition:all .12s}
+.chip.on{background:var(--bg3);border-color:var(--ink);color:var(--ink)}
+.chip:active{background:var(--bg2)}
+/* Mode bar */
+.mode-bar{display:flex;align-items:center;gap:5px;padding:5px 0 0;border-top:1px solid var(--border);margin-top:7px}
+.mode-lbl{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-right:3px}
+/* Handwriting */
+.hw-panel{display:none;background:var(--surface);border-top:1px solid var(--border);padding:8px 13px;flex-shrink:0}
+.hw-canvas{width:100%;height:140px;background:#fff;border:1px solid var(--border);border-radius:8px;cursor:crosshair;touch-action:none;display:block}
+/* QWERTY */
+.qwerty-panel{background:var(--bg2);border-top:1px solid var(--border);padding:4px 5px;flex-shrink:0}
+.qk{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:29px;padding:0 3px;margin:1px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:500;color:var(--ink);cursor:pointer;font-family:var(--font);transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.06)}
+.qk:active{background:var(--bg3);transform:scale(0.93)}
+.qk.w2{min-width:42px}.qk.w3{min-width:58px}.qk.w4{min-width:76px}.qk.w5{min-width:120px}
+.qk.sp{background:var(--bg3);font-size:9.5px;color:var(--muted)}
+.qk.mon{background:var(--accent);color:#fff}
+.qrow{display:flex;justify-content:center;margin-bottom:1px}
+/* Context pane */
+.ctx{width:240px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);padding:13px;overflow-y:auto}
+.ctx-sec{margin-bottom:16px}
+.ctx-lbl{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+/* Round robin */
+.rr-panel{display:none;background:var(--bg2);border-top:1px solid var(--border);padding:10px 13px;flex-shrink:0}
+/* Error */
+.err-bar{display:none;background:#fce4ec;border-top:1px solid #f8bbd0;padding:7px 13px;font-size:12px;color:#c62828;flex-shrink:0}
+@media(max-width:1100px){.ctx{display:none}}
+@media(max-width:700px){.sb{display:none}}
 </style>
 </head>
 <body>
-<div class="top">
-  <a href="/index.html" class="logo">Aurelia</a>
-  <select class="model-sel" id="ms" onchange="setModel(this.value)">
-    <option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras)</option>
-    <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
-    <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
-    <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
-    <option value="mistral/mistral-large-latest">Mistral Large 3</option>
-  </select>
-  <div class="nav-links">
-    <a href="/research/index.html">Research</a>
-    <a href="/atomise/index.html">Atomise</a>
-    <a href="/social/index.html">Social</a>
-    <a href="/settings/index.html">Settings</a>
+<div class="shell">
+<!-- Sidebar -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">A</div>
+    <span class="sb-logo-text">Aurelia</span>
+  </div>
+  <div style="padding:8px 6px;border-bottom:1px solid var(--border);flex-shrink:0">
+    <button class="btn btn-p" style="width:100%;font-size:12px" onclick="newThread()">+ New Conversation</button>
+  </div>
+  <div class="sb-threads" id="thread-list"></div>
+  <div class="sb-footer">
+    <a href="/index.html" style="font-size:11.5px;color:var(--muted);text-decoration:none">Home</a>
+    <a href="/research/index.html" style="font-size:11.5px;color:var(--muted);text-decoration:none">Research</a>
+    <a href="/atomise/index.html" style="font-size:11.5px;color:var(--muted);text-decoration:none">Atomise</a>
+    <a href="/social/index.html" style="font-size:11.5px;color:var(--muted);text-decoration:none">Social Queue</a>
+    <a href="/settings/index.html" style="font-size:11.5px;color:var(--muted);text-decoration:none">Settings</a>
   </div>
 </div>
-<div id="err" class="err"></div>
-<div class="msgs" id="msgs">
-  <div class="empty" id="empty">
-    <div class="empty-a">A</div>
-    <div class="empty-t">Good <span id="gr">day</span></div>
-    <div class="empty-s">Aurelia routes to the best model for your task.</div>
-    <div class="starters">
-      <div class="starter" onclick="go('Summarise my week and suggest priorities')">Summarise my week</div>
-      <div class="starter" onclick="go('Help me draft a professional email')">Draft an email</div>
-      <div class="starter" onclick="go('Research the latest on AI agents')">Research AI agents</div>
-      <div class="starter" onclick="go('Create a LinkedIn post about identity development')">LinkedIn post</div>
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="chat-title">New Conversation</div>
+    <!-- Persona selector -->
+    <select class="sel" id="persona-sel" onchange="setPersona(this.value)" title="AI Persona">
+      <option value="default">Aurelia (default)</option>
+      <option value="sardonic">Sardonic Butler</option>
+      <option value="research">Research Associate</option>
+      <option value="coach">Identity Coach</option>
+      <option value="devils">Devil's Advocate</option>
+      <option value="sage">Wise Sage</option>
+    </select>
+    <!-- Model selector -->
+    <select class="sel" id="model-sel" onchange="setModel(this.value)" title="AI Model">
+      <option value="cerebras/gemma-4-31b">Gemma 4 31B</option>
+      <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B</option>
+      <option value="deepseek/deepseek-v4-flash">DeepSeek V4</option>
+      <option value="gemini/gemini-2.5-flash">Gemini 2.5</option>
+      <option value="mistral/mistral-large-latest">Mistral Large</option>
+      <option value="sambanova/Gemma-4-31B-IT">Gemma 4 (SambaNova)</option>
+    </select>
+    <button class="btn btn-g btn-sm" onclick="toggleRR()" id="rr-btn" title="Round Robin — query multiple models">Round Robin</button>
+    <button class="btn btn-g btn-sm" onclick="exportChat()">Export</button>
+    <button class="btn btn-g btn-sm" onclick="clearChat()">Clear</button>
+  </div>
+  <div class="err-bar" id="err-bar"></div>
+  <div class="msgs" id="msgs">
+    <div class="empty" id="empty">
+      <div class="empty-a">A</div>
+      <div class="empty-t" id="greeting">Good day</div>
+      <div class="empty-s">Aurelia routes to the best model for your task.</div>
+      <div class="starters">
+        <div class="starter" id="s1">Summarise my week and suggest priorities</div>
+        <div class="starter" id="s2">Help me draft a professional email</div>
+        <div class="starter" id="s3">Research the latest on AI agents</div>
+        <div class="starter" id="s4">Create a LinkedIn post about identity development</div>
+      </div>
+    </div>
+  </div>
+  <!-- Round Robin panel -->
+  <div class="rr-panel" id="rr-panel">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:7px">Round Robin — select models to query simultaneously</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px" id="rr-models">
+      <div class="chip" data-m="cerebras/gemma-4-31b" onclick="toggleRRModel(this)">Gemma 4 31B</div>
+      <div class="chip" data-m="groq/openai/gpt-oss-20b" onclick="toggleRRModel(this)">GPT-OSS 20B</div>
+      <div class="chip" data-m="deepseek/deepseek-v4-flash" onclick="toggleRRModel(this)">DeepSeek V4</div>
+      <div class="chip" data-m="gemini/gemini-2.5-flash" onclick="toggleRRModel(this)">Gemini 2.5</div>
+      <div class="chip" data-m="mistral/mistral-large-latest" onclick="toggleRRModel(this)">Mistral Large</div>
+    </div>
+    <button class="btn btn-p btn-sm" style="margin-top:8px" onclick="sendRR()">Query All Selected</button>
+  </div>
+  <!-- Handwriting panel -->
+  <div class="hw-panel" id="hw-panel">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:11.5px;color:var(--muted)">Draw or write — click Recognise to convert to text</span>
+      <button class="btn btn-g btn-sm" onclick="clearHW()" style="margin-left:auto">Clear</button>
+      <button class="btn btn-p btn-sm" onclick="recogniseHW()">Recognise</button>
+    </div>
+    <canvas class="hw-canvas" id="hw-canvas"></canvas>
+  </div>
+  <!-- QWERTY -->
+  <div class="qwerty-panel" id="qwerty-panel">
+    <div class="qrow"><div class="qk sp" onclick="qkP(96,126)">` ~</div><div class="qk" onclick="qkP(49,33)">1 !</div><div class="qk" onclick="qkP(50,64)">2 @</div><div class="qk" onclick="qkP(51,35)">3 #</div><div class="qk" onclick="qkP(52,36)">4 $</div><div class="qk" onclick="qkP(53,37)">5 %</div><div class="qk" onclick="qkP(54,94)">6 ^</div><div class="qk" onclick="qkP(55,38)">7 &amp;</div><div class="qk" onclick="qkP(56,42)">8 *</div><div class="qk" onclick="qkP(57,40)">9 (</div><div class="qk" onclick="qkP(48,41)">0 )</div><div class="qk sp" onclick="qkP(45,95)">- _</div><div class="qk sp" onclick="qkP(61,43)">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
+    <div class="qrow"><div class="qk w2 sp" onclick="qkP(9,9)">Tab</div><div class="qk" onclick="qkP(113,81)">Q</div><div class="qk" onclick="qkP(119,87)">W</div><div class="qk" onclick="qkP(101,69)">E</div><div class="qk" onclick="qkP(114,82)">R</div><div class="qk" onclick="qkP(116,84)">T</div><div class="qk" onclick="qkP(121,89)">Y</div><div class="qk" onclick="qkP(117,85)">U</div><div class="qk" onclick="qkP(105,73)">I</div><div class="qk" onclick="qkP(111,79)">O</div><div class="qk" onclick="qkP(112,80)">P</div><div class="qk sp" onclick="qkP(91,123)">[ {</div><div class="qk sp" onclick="qkP(93,125)">] }</div><div class="qk sp" onclick="qkP(92,124)">\ |</div></div>
+    <div class="qrow"><div class="qk w3 sp" onclick="qkCaps()" id="qk-caps">Caps Lock</div><div class="qk" onclick="qkP(97,65)">A</div><div class="qk" onclick="qkP(115,83)">S</div><div class="qk" onclick="qkP(100,68)">D</div><div class="qk" onclick="qkP(102,70)">F</div><div class="qk" onclick="qkP(103,71)">G</div><div class="qk" onclick="qkP(104,72)">H</div><div class="qk" onclick="qkP(106,74)">J</div><div class="qk" onclick="qkP(107,75)">K</div><div class="qk" onclick="qkP(108,76)">L</div><div class="qk sp" onclick="qkP(59,58)">; :</div><div class="qk sp" onclick="qkP(39,34)">' "</div><div class="qk w3 sp" onclick="qkEnter()">&#9166; Enter</div></div>
+    <div class="qrow"><div class="qk w3 sp" onclick="qkShift()" id="qk-sh1">&#8679; Shift</div><div class="qk" onclick="qkP(122,90)">Z</div><div class="qk" onclick="qkP(120,88)">X</div><div class="qk" onclick="qkP(99,67)">C</div><div class="qk" onclick="qkP(118,86)">V</div><div class="qk" onclick="qkP(98,66)">B</div><div class="qk" onclick="qkP(110,78)">N</div><div class="qk" onclick="qkP(109,77)">M</div><div class="qk sp" onclick="qkP(44,60)">, &lt;</div><div class="qk sp" onclick="qkP(46,62)">. &gt;</div><div class="qk sp" onclick="qkP(47,63)">/ ?</div><div class="qk w3 sp" onclick="qkShift()" id="qk-sh2">&#8679; Shift</div></div>
+    <div class="qrow"><div class="qk w2 sp" onclick="qkCtrl()" id="qk-ctrl">Ctrl</div><div class="qk w3 sp" onclick="qkCtrlShift()" id="qk-cs" style="font-size:9px">Ctrl+Shift</div><div class="qk sp" onclick="qkP(32,32)">Alt</div><div class="qk w5 sp" onclick="qkP(32,32)">Space</div><div class="qk sp" onclick="qkP(32,32)">Alt Gr</div><div class="qk sp" onclick="qkLeft()">&#8592;</div><div class="qk sp" onclick="qkUp2()">&#8593;</div><div class="qk sp" onclick="qkDown2()">&#8595;</div><div class="qk sp" onclick="qkRight()">&#8594;</div><div class="qk w2 sp" onclick="send()" style="background:var(--accent);color:#fff;font-size:10px">Send &#9166;</div></div>
+  </div>
+  <!-- Input area -->
+  <div class="input-area">
+    <div class="input-row">
+      <label class="btn btn-g btn-sm" style="cursor:pointer;display:flex;align-items:center" title="Attach file">
+        &#128206;
+        <input type="file" style="display:none" onchange="attachFile(this)">
+      </label>
+      <div class="ta-wrap">
+        <textarea id="ta" placeholder="Message Aurelia... (Surface Pen works directly here)" rows="1"></textarea>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="toggleDictation()" id="dict-btn" title="Dictate">&#127908;</button>
+      <button class="send-btn" id="send-btn" onclick="send()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="mode-bar">
+      <span class="mode-lbl">Input:</span>
+      <button class="btn btn-g btn-sm" onclick="setMode('type')" id="mode-type" style="font-size:10.5px">Type</button>
+      <button class="btn btn-g btn-sm" onclick="setMode('dictate')" id="mode-dict" style="font-size:10.5px">Dictate</button>
+      <button class="btn btn-g btn-sm" onclick="setMode('handwrite')" id="mode-hw" style="font-size:10.5px">Handwrite</button>
+      <button class="btn btn-g btn-sm" onclick="setMode('qwerty')" id="mode-qwerty" style="font-size:10.5px">QWERTY</button>
+      <span style="font-size:10px;color:var(--faint);margin-left:auto">Surface Pen works directly in the text box</span>
+    </div>
+    <div class="chips">
+      <div class="chip" id="ag-research" onclick="toggleAgent('research')">Research</div>
+      <div class="chip" id="ag-atomise" onclick="toggleAgent('atomise')">Atomise</div>
+      <div class="chip" id="ag-creator" onclick="toggleAgent('creator')">Creator</div>
+      <div class="chip" id="ag-crm" onclick="toggleAgent('crm')">CRM</div>
     </div>
   </div>
 </div>
-<div class="bottom">
-  <div class="input-row">
-    <div class="ta-wrap">
-      <textarea id="ta" placeholder="Message Aurelia..." rows="1"></textarea>
-    </div>
-    <button class="send" id="sb" onclick="send()">
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
+<!-- Context pane -->
+<div class="ctx">
+  <div class="ctx-sec">
+    <div class="ctx-lbl">Active Agents</div>
+    <div id="ctx-agents" style="font-size:12px;color:var(--muted)">None</div>
   </div>
-  <div class="chips">
-    <div class="chip" onclick="go('Summarise my week')">Summarise</div>
-    <div class="chip" onclick="go('Draft an email')">Email</div>
-    <div class="chip" onclick="go('Research AI agents')">Research</div>
-    <div class="chip" onclick="go('Create a LinkedIn post')">LinkedIn</div>
-    <div class="chip" onclick="go('Help me atomise this content into social posts')">Atomise</div>
+  <div class="ctx-sec">
+    <div class="ctx-lbl">Workspace</div>
+    <select class="sel" id="ws-sel" style="width:100%;font-size:11.5px">
+      <option value="">No workspace</option>
+      <option value="ip">Identity Partners</option>
+      <option value="personal">Personal</option>
+      <option value="research">Research</option>
+    </select>
+  </div>
+  <div class="ctx-sec">
+    <div class="ctx-lbl">Actions</div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <button class="btn btn-g btn-sm" onclick="exportChat()" style="text-align:left">Export Chat</button>
+      <button class="btn btn-g btn-sm" onclick="sendToDrafting()" style="text-align:left">Send to Drafting</button>
+      <button class="btn btn-g btn-sm" onclick="sendToAtomise()" style="text-align:left">Send to Atomise</button>
+      <button class="btn btn-g btn-sm" onclick="sendViaTelegram()" style="text-align:left">Send via Telegram</button>
+    </div>
+  </div>
+  <div class="ctx-sec">
+    <div class="ctx-lbl">Image Generation</div>
+    <input type="text" id="img-prompt" placeholder="Describe image..." style="width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;font-family:var(--font);margin-bottom:5px">
+    <button class="btn btn-p btn-sm" onclick="generateImage()" style="width:100%">Generate Image</button>
+    <div id="img-result" style="margin-top:6px"></div>
+  </div>
+  <div class="ctx-sec">
+    <div class="ctx-lbl">Comms Hub</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="sendViaTelegram()">TG</button>
+      <a href="/comms/index.html" class="btn btn-g btn-sm" style="text-decoration:none">Email</a>
+      <a href="/zoho-social/index.html" class="btn btn-g btn-sm" style="text-decoration:none">Zoho</a>
+    </div>
   </div>
 </div>
+</div>
+
 <script>
-var model = localStorage.getItem('talk_model') || 'cerebras/gemma-4-31b';
+var WORKER = 'https://aurelia-api.identitypartners.workers.dev';
+var BASE = 'https://aurelia.identitypartners.uk';
 var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
 localStorage.setItem('aurelia_device_token', tok);
-var busy = false;
-var history = [];
 
-document.getElementById('ms').value = model;
-var h = new Date().getHours();
-document.getElementById('gr').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+var threads = [], cur = null, agents = {}, busy = false, rrModels = new Set();
+var model = localStorage.getItem('talk_model') || 'cerebras/gemma-4-31b';
+var persona = localStorage.getItem('talk_persona') || 'default';
+var attached = null;
+var dictActive = false, dictRec = null;
+var hwCanvas = null, hwCtx = null, hwDrawing = false;
+var _sh = false, _caps = false, _ctrl = false, _cs = false;
 
-var ta = document.getElementById('ta');
-ta.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-});
-ta.addEventListener('input', function() {
-  ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
-});
+var PERSONAS = {
+  default: 'You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise.',
+  sardonic: 'You are a sardonic but brilliant butler AI. Helpful but with dry wit. Never sycophantic.',
+  research: 'You are a scholarly research associate. Cite sources, note contradictions, identify gaps.',
+  coach: 'You are an identity development coach. Warm, non-clinical, values-based, Ikigai-informed.',
+  devils: 'You are a devil's advocate. Challenge assumptions constructively. Steel-man opposing views.',
+  sage: 'You are a wise sage. Speak with depth, use metaphor, draw on philosophy and lived wisdom.'
+};
+
+function init() {
+  var h = new Date().getHours();
+  var g = document.getElementById('greeting');
+  if (g) g.textContent = 'Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening');
+  document.getElementById('model-sel').value = model;
+  document.getElementById('persona-sel').value = persona;
+  threads = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
+  renderThreads();
+  var pre = sessionStorage.getItem('aurelia_new_chat_query');
+  if (pre) { sessionStorage.removeItem('aurelia_new_chat_query'); newThread(); document.getElementById('ta').value = pre; send(); }
+  else if (threads.length > 0) loadThread(threads[threads.length-1].id);
+  else newThread();
+  var ta = document.getElementById('ta');
+  ta.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+  ta.addEventListener('input', function() { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
+  document.getElementById('s1').onclick = function() { go('Summarise my week and suggest priorities'); };
+  document.getElementById('s2').onclick = function() { go('Help me draft a professional email'); };
+  document.getElementById('s3').onclick = function() { go('Research the latest on AI agents'); };
+  document.getElementById('s4').onclick = function() { go('Create a LinkedIn post about identity development'); };
+}
 
 function setModel(v) { model = v; localStorage.setItem('talk_model', v); }
-
-function go(text) { ta.value = text; send(); }
+function setPersona(v) { persona = v; localStorage.setItem('talk_persona', v); }
+function go(text) { document.getElementById('ta').value = text; send(); }
 
 function send() {
+  var ta = document.getElementById('ta');
   var text = ta.value.trim();
+  if (attached) { text = '[File: ' + attached.name + '] ' + text; attached = null; }
   if (!text || busy) return;
-  ta.value = '';
-  ta.style.height = 'auto';
-
+  ta.value = ''; ta.style.height = 'auto';
+  if (!cur) newThread();
   var empty = document.getElementById('empty');
   if (empty) empty.style.display = 'none';
-
+  var userMsg = {role: 'user', content: text, ts: Date.now()};
+  cur.messages.push(userMsg);
+  if (cur.messages.length === 1) { cur.title = text.slice(0, 45) + (text.length > 45 ? '...' : ''); document.getElementById('chat-title').textContent = cur.title; }
   var msgs = document.getElementById('msgs');
-  history.push({role: 'user', content: text});
-
-  var uDiv = document.createElement('div');
-  uDiv.className = 'msg u';
-  var uAv = document.createElement('div'); uAv.className = 'av'; uAv.textContent = 'SJ';
-  var uBub = document.createElement('div'); uBub.className = 'bub'; uBub.textContent = text;
-  uDiv.appendChild(uAv); uDiv.appendChild(uBub);
-  msgs.appendChild(uDiv);
+  msgs.appendChild(makeMsg(userMsg));
   msgs.scrollTop = msgs.scrollHeight;
-
-  var loadDiv = document.createElement('div');
-  loadDiv.className = 'msg';
-  loadDiv.id = 'loading';
+  var loadDiv = document.createElement('div'); loadDiv.className = 'msg'; loadDiv.id = 'loading';
   var lAv = document.createElement('div'); lAv.className = 'av'; lAv.textContent = 'A';
   var lBub = document.createElement('div'); lBub.className = 'bub';
   var dots = document.createElement('div'); dots.className = 'dots';
   for (var i = 0; i < 3; i++) { var d = document.createElement('div'); d.className = 'dot'; dots.appendChild(d); }
   lBub.appendChild(dots); loadDiv.appendChild(lAv); loadDiv.appendChild(lBub);
-  msgs.appendChild(loadDiv);
-  msgs.scrollTop = msgs.scrollHeight;
-
+  msgs.appendChild(loadDiv); msgs.scrollTop = msgs.scrollHeight;
   busy = true;
-  var sb = document.getElementById('sb');
-  if (sb) sb.style.opacity = '0.4';
-
-  fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+  var sb = document.getElementById('send-btn'); if (sb) sb.style.opacity = '0.4';
+  var sys = PERSONAS[persona] || PERSONAS.default;
+  var activeAgentList = Object.keys(agents).filter(function(k) { return agents[k]; });
+  if (activeAgentList.length) sys += ' Active agents: ' + activeAgentList.join(', ') + '.';
+  sys += ' Date: ' + new Date().toLocaleDateString('en-GB');
+  fetch(WORKER + '/api/chat', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
-    body: JSON.stringify({
-      messages: history.slice(),
-      model: model,
-      system: 'You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise. Date: ' + new Date().toLocaleDateString('en-GB')
-    })
-  }).then(function(r) {
-    return r.json();
-  }).then(function(data) {
-    var loading = document.getElementById('loading');
-    if (loading) loading.remove();
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': BASE},
+    body: JSON.stringify({messages: cur.messages.map(function(m) { return {role: m.role, content: m.content}; }), model: model, system: sys})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    var loading = document.getElementById('loading'); if (loading) loading.remove();
     var content = data.content || data.message || 'Response received.';
-    history.push({role: 'assistant', content: content});
-    var aDiv = document.createElement('div'); aDiv.className = 'msg';
-    var aAv = document.createElement('div'); aAv.className = 'av'; aAv.textContent = 'A';
-    var aBub = document.createElement('div'); aBub.className = 'bub';
-    aBub.innerHTML = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/
-/g,'<br>');
-    var aMeta = document.createElement('div'); aMeta.className = 'meta';
-    aMeta.textContent = (data.model || model).split('/').pop();
-    var aBody = document.createElement('div');
-    aBody.appendChild(aBub); aBody.appendChild(aMeta);
-    aDiv.appendChild(aAv); aDiv.appendChild(aBody);
-    msgs.appendChild(aDiv);
-    msgs.scrollTop = msgs.scrollHeight;
+    var aiMsg = {role: 'assistant', content: content, model: data.model || model, ts: Date.now()};
+    cur.messages.push(aiMsg); cur.ts = Date.now();
+    msgs.appendChild(makeMsg(aiMsg)); msgs.scrollTop = msgs.scrollHeight;
+    saveThreads(); renderThreads();
+    checkImageGen(content);
   }).catch(function(err) {
-    var loading = document.getElementById('loading');
-    if (loading) loading.remove();
-    var errDiv = document.getElementById('err');
-    if (errDiv) { errDiv.style.display = 'block'; errDiv.textContent = 'Error: ' + err.message + '. Check API keys in Settings.'; }
-    history.pop();
-  }).finally(function() {
-    busy = false;
-    if (sb) sb.style.opacity = '1';
+    var loading = document.getElementById('loading'); if (loading) loading.remove();
+    var errBar = document.getElementById('err-bar');
+    if (errBar) { errBar.style.display = 'block'; errBar.textContent = 'Error: ' + err.message + '. Check API keys in Settings.'; }
+    cur.messages.pop(); saveThreads();
+  }).finally(function() { busy = false; if (sb) sb.style.opacity = '1'; });
+}
+
+function checkImageGen(text) {
+  var lower = text.toLowerCase();
+  if (lower.indexOf('generate an image') >= 0 || lower.indexOf('create an image') >= 0 || lower.indexOf('draw') >= 0) {
+    var match = text.match(/(?:generate|create|draw)(?:\s+an?)?\s+image\s+of\s+(.+?)(?:\.|$)/i);
+    if (match) { document.getElementById('img-prompt').value = match[1]; generateImage(); }
+  }
+}
+
+function makeMsg(m) {
+  var isUser = m.role === 'user';
+  var wrap = document.createElement('div'); wrap.className = 'msg' + (isUser ? ' u' : '');
+  var av = document.createElement('div'); av.className = 'av'; av.textContent = isUser ? 'SJ' : 'A';
+  var body = document.createElement('div'); body.className = 'mbody';
+  var bub = document.createElement('div'); bub.className = 'bub';
+  bub.innerHTML = fmtText(m.content);
+  body.appendChild(bub);
+  if (!isUser) {
+    var meta = document.createElement('div'); meta.className = 'meta';
+    meta.textContent = (m.model || '').split('/').pop();
+    body.appendChild(meta);
+    var acts = document.createElement('div'); acts.className = 'macts';
+    var copyBtn = document.createElement('div'); copyBtn.className = 'mact'; copyBtn.textContent = 'Copy';
+    copyBtn.onclick = (function(c) { return function() { navigator.clipboard.writeText(c); }; })(m.content);
+    var draftBtn = document.createElement('div'); draftBtn.className = 'mact'; draftBtn.textContent = 'Draft';
+    draftBtn.onclick = (function(c) { return function() { sessionStorage.setItem('aurelia_draft_content', c); window.location.href = '/drafting/index.html'; }; })(m.content);
+    var atomBtn = document.createElement('div'); atomBtn.className = 'mact'; atomBtn.textContent = 'Atomise';
+    atomBtn.onclick = (function(c) { return function() { sessionStorage.setItem('aurelia_atomise_content', c); window.location.href = '/atomise/index.html'; }; })(m.content);
+    acts.appendChild(copyBtn); acts.appendChild(draftBtn); acts.appendChild(atomBtn);
+    body.appendChild(acts);
+  }
+  wrap.appendChild(av); wrap.appendChild(body);
+  return wrap;
+}
+
+function fmtText(text) {
+  if (!text) return '';
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/
+/g,'<br>');
+}
+
+function newThread() {
+  var id = 'chat_' + Date.now();
+  cur = {id: id, title: 'New Conversation', messages: [], ts: Date.now()};
+  threads.push(cur); saveThreads(); renderThreads();
+  var msgs = document.getElementById('msgs'); msgs.innerHTML = '';
+  var empty = document.getElementById('empty');
+  if (!empty) {
+    empty = document.createElement('div'); empty.id = 'empty'; empty.className = 'empty';
+    empty.innerHTML = '<div class="empty-a">A</div><div class="empty-t">Begin a conversation</div><div class="empty-s">Aurelia routes to the best model for your task.</div>';
+  }
+  empty.style.display = 'flex'; msgs.appendChild(empty);
+  document.getElementById('chat-title').textContent = 'New Conversation';
+  document.getElementById('ta').focus();
+}
+
+function loadThread(id) {
+  cur = threads.find(function(t) { return t.id === id; });
+  if (!cur) return;
+  var msgs = document.getElementById('msgs'); msgs.innerHTML = '';
+  var empty = document.getElementById('empty'); if (empty) empty.style.display = 'none';
+  cur.messages.forEach(function(m) { msgs.appendChild(makeMsg(m)); });
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chat-title').textContent = cur.title;
+  document.querySelectorAll('.thread-item').forEach(function(el) { el.classList.toggle('active', el.dataset.id === id); });
+}
+
+function renderThreads() {
+  var list = document.getElementById('thread-list'); list.innerHTML = '';
+  if (!threads.length) { list.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--faint)">No threads yet</div>'; return; }
+  var sorted = threads.slice().reverse();
+  sorted.forEach(function(t) {
+    var div = document.createElement('div'); div.className = 'thread-item' + (cur && cur.id === t.id ? ' active' : ''); div.dataset.id = t.id;
+    div.onclick = function() { loadThread(t.id); };
+    var title = document.createElement('div'); title.className = 'thread-title'; title.textContent = t.title || 'Conversation';
+    var meta = document.createElement('div'); meta.className = 'thread-meta'; meta.textContent = (t.messages ? t.messages.length : 0) + ' messages';
+    div.appendChild(title); div.appendChild(meta); list.appendChild(div);
   });
 }
+
+function saveThreads() { localStorage.setItem('aurelia_chats', JSON.stringify(threads)); }
+
+function clearChat() { if (!cur) return; if (confirm('Clear this conversation?')) { cur.messages = []; saveThreads(); newThread(); } }
+
+function exportChat() {
+  if (!cur) return;
+  var text = cur.messages.map(function(m) { return '[' + m.role.toUpperCase() + ']
+' + m.content; }).join('
+
+---
+
+');
+  var blob = new Blob([text], {type: 'text/plain'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'aurelia-chat-' + Date.now() + '.txt'; a.click();
+}
+
+function sendToDrafting() { if (!cur) return; var last = cur.messages.filter(function(m) { return m.role === 'assistant'; }).pop(); if (last) { sessionStorage.setItem('aurelia_draft_content', last.content); window.location.href = '/drafting/index.html'; } }
+function sendToAtomise() { if (!cur) return; var last = cur.messages.filter(function(m) { return m.role === 'assistant'; }).pop(); if (last) { sessionStorage.setItem('aurelia_atomise_content', last.content); window.location.href = '/atomise/index.html'; } }
+
+function sendViaTelegram() {
+  if (!cur) return;
+  var last = cur.messages.filter(function(m) { return m.role === 'assistant'; }).pop();
+  if (!last) return;
+  fetch(WORKER + '/api/social/telegram/post', {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': BASE}, body: JSON.stringify({text: last.content.slice(0, 4096)})}).then(function(r) { return r.json(); }).then(function(d) { alert(d.success ? 'Sent to Telegram!' : 'Error: ' + d.error); }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function toggleAgent(name) {
+  agents[name] = !agents[name];
+  var chip = document.getElementById('ag-' + name); if (chip) chip.classList.toggle('on', agents[name]);
+  var active = Object.keys(agents).filter(function(k) { return agents[k]; });
+  var el = document.getElementById('ctx-agents'); if (el) el.textContent = active.length ? active.join(', ') : 'None';
+}
+
+function attachFile(input) { attached = input.files[0]; if (attached) alert('Attached: ' + attached.name); }
+
+function generateImage() {
+  var prompt = document.getElementById('img-prompt').value.trim();
+  if (!prompt) return;
+  var url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=512&height=512&nologo=true';
+  var result = document.getElementById('img-result');
+  if (result) { result.innerHTML = ''; var img = document.createElement('img'); img.src = url; img.style.cssText = 'width:100%;border-radius:8px;border:1px solid var(--border)'; result.appendChild(img); }
+}
+
+function toggleRR() {
+  var panel = document.getElementById('rr-panel');
+  var btn = document.getElementById('rr-btn');
+  var visible = panel.style.display !== 'none' && panel.style.display !== '';
+  panel.style.display = visible ? 'none' : 'block';
+  if (btn) btn.classList.toggle('btn-p', !visible);
+}
+
+function toggleRRModel(chip) {
+  var m = chip.dataset.m;
+  if (rrModels.has(m)) { rrModels.delete(m); chip.classList.remove('on'); }
+  else { rrModels.add(m); chip.classList.add('on'); }
+}
+
+async function sendRR() {
+  if (!rrModels.size) { alert('Select at least one model'); return; }
+  var ta = document.getElementById('ta');
+  var text = ta.value.trim();
+  if (!text) { alert('Enter a message first'); return; }
+  ta.value = '';
+  if (!cur) newThread();
+  var empty = document.getElementById('empty'); if (empty) empty.style.display = 'none';
+  var userMsg = {role: 'user', content: '[Round Robin] ' + text, ts: Date.now()};
+  cur.messages.push(userMsg);
+  var msgs = document.getElementById('msgs');
+  msgs.appendChild(makeMsg(userMsg)); msgs.scrollTop = msgs.scrollHeight;
+  var sys = PERSONAS[persona] || PERSONAS.default;
+  var modelList = Array.from(rrModels);
+  for (var i = 0; i < modelList.length; i++) {
+    var m = modelList[i];
+    try {
+      var res = await fetch(WORKER + '/api/chat', {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': BASE}, body: JSON.stringify({messages: [{role: 'user', content: text}], model: m, system: sys})});
+      var data = await res.json();
+      var aiMsg = {role: 'assistant', content: '[' + m.split('/').pop() + ']
+' + (data.content || 'No response'), model: m, ts: Date.now()};
+      cur.messages.push(aiMsg);
+      msgs.appendChild(makeMsg(aiMsg)); msgs.scrollTop = msgs.scrollHeight;
+    } catch(e) {
+      var errMsg = {role: 'assistant', content: '[' + m.split('/').pop() + '] Error: ' + e.message, model: m, ts: Date.now()};
+      cur.messages.push(errMsg);
+      msgs.appendChild(makeMsg(errMsg));
+    }
+  }
+  saveThreads(); renderThreads();
+}
+
+function setMode(mode) {
+  var hw = document.getElementById('hw-panel');
+  var qw = document.getElementById('qwerty-panel');
+  var modes = ['type', 'dictate', 'handwrite', 'qwerty'];
+  modes.forEach(function(m) { var btn = document.getElementById('mode-' + m); if (btn) btn.classList.remove('btn-p'); });
+  var activeBtn = document.getElementById('mode-' + mode); if (activeBtn) activeBtn.classList.add('btn-p');
+  if (hw) hw.style.display = mode === 'handwrite' ? 'block' : 'none';
+  if (qw) qw.style.display = mode === 'qwerty' ? 'block' : 'none';
+  if (mode === 'dictate') startDictation();
+  else stopDictation();
+  if (mode === 'handwrite') initHW();
+  if (mode === 'type') document.getElementById('ta').focus();
+}
+
+function startDictation() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Speech recognition not supported'); return; }
+  var btn = document.getElementById('dict-btn');
+  dictRec = new SR(); dictRec.continuous = true; dictRec.interimResults = true; dictRec.lang = 'en-GB';
+  dictRec.onresult = function(e) {
+    var final = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript; }
+    if (final) { var ta = document.getElementById('ta'); ta.value += (ta.value ? ' ' : '') + final; ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; }
+  };
+  dictRec.onend = function() { if (dictActive) dictRec.start(); };
+  dictActive = true; dictRec.start();
+  if (btn) btn.style.background = '#ef4444';
+}
+
+function stopDictation() {
+  dictActive = false; if (dictRec) { dictRec.stop(); dictRec = null; }
+  var btn = document.getElementById('dict-btn'); if (btn) btn.style.background = '';
+}
+
+function toggleDictation() { if (dictActive) { stopDictation(); setMode('type'); } else { setMode('dictate'); } }
+
+function initHW() {
+  var canvas = document.getElementById('hw-canvas');
+  if (!canvas || hwCanvas === canvas) return;
+  hwCanvas = canvas; hwCanvas.width = hwCanvas.offsetWidth || 600; hwCanvas.height = 140;
+  hwCtx = hwCanvas.getContext('2d'); hwCtx.strokeStyle = '#1c1917'; hwCtx.lineWidth = 2; hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round';
+  function getPos(e) { var rect = hwCanvas.getBoundingClientRect(); var src = e.touches ? e.touches[0] : e; return {x: src.clientX - rect.left, y: src.clientY - rect.top}; }
+  hwCanvas.onpointerdown = function(e) { hwDrawing = true; var p = getPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); };
+  hwCanvas.onpointermove = function(e) { if (!hwDrawing) return; var p = getPos(e); hwCtx.lineTo(p.x, p.y); hwCtx.stroke(); e.preventDefault(); };
+  hwCanvas.onpointerup = function() { hwDrawing = false; };
+  hwCanvas.onpointerleave = function() { hwDrawing = false; };
+}
+
+function clearHW() { if (hwCtx && hwCanvas) hwCtx.clearRect(0, 0, hwCanvas.width, hwCanvas.height); }
+
+function recogniseHW() {
+  if (!hwCanvas) return;
+  var dataUrl = hwCanvas.toDataURL('image/png');
+  fetch(WORKER + '/api/ocr', {method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': BASE}, body: JSON.stringify({image: dataUrl})}).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.text && d.text.trim()) { var ta = document.getElementById('ta'); ta.value += (ta.value ? ' ' : '') + d.text.trim(); clearHW(); }
+    else { alert('Could not recognise — try writing more clearly'); }
+  }).catch(function(e) { alert('OCR error: ' + e.message); });
+}
+
+function qkP(lo, hi) { var ta = document.getElementById('ta'); if (!ta) return; var ch = String.fromCharCode((_sh||_caps) ? hi : lo); var s = ta.selectionStart, e = ta.selectionEnd; ta.value = ta.value.slice(0,s) + ch + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + ch.length; ta.focus(); if (_sh && !_caps) { _sh = false; qkU(); } ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; }
+function qkBksp() { var ta = document.getElementById('ta'); if (!ta) return; var s = ta.selectionStart, e = ta.selectionEnd; if (s===e&&s>0) { ta.value = ta.value.slice(0,s-1)+ta.value.slice(s); ta.selectionStart=ta.selectionEnd=s-1; } else if (s!==e) { ta.value=ta.value.slice(0,s)+ta.value.slice(e); ta.selectionStart=ta.selectionEnd=s; } ta.focus(); }
+function qkEnter() { if (_sh||_ctrl) { qkP(10,10); } else { send(); } }
+function qkShift() { _sh=!_sh; qkU(); }
+function qkCaps() { _caps=!_caps; qkU(); }
+function qkCtrl() { _ctrl=!_ctrl; qkU(); }
+function qkCtrlShift() { _cs=!_cs; _sh=_cs; _ctrl=_cs; qkU(); }
+function qkLeft() { var ta=document.getElementById('ta'); if(ta&&ta.selectionStart>0){ta.selectionStart=ta.selectionEnd=ta.selectionStart-1;ta.focus();} }
+function qkRight() { var ta=document.getElementById('ta'); if(ta){ta.selectionStart=ta.selectionEnd=ta.selectionStart+1;ta.focus();} }
+function qkUp2() { var ta=document.getElementById('ta'); if(ta){var p=ta.value.lastIndexOf('\n',ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();} }
+function qkDown2() { var ta=document.getElementById('ta'); if(ta){var p=ta.value.indexOf('\n',ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();} }
+function qkU() { var s1=document.getElementById('qk-sh1');if(s1)s1.classList.toggle('mon',_sh);var s2=document.getElementById('qk-sh2');if(s2)s2.classList.toggle('mon',_sh);var cp=document.getElementById('qk-caps');if(cp)cp.classList.toggle('mon',_caps);var ct=document.getElementById('qk-ctrl');if(ct)ct.classList.toggle('mon',_ctrl);var cs=document.getElementById('qk-cs');if(cs)cs.classList.toggle('mon',_cs); }
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
