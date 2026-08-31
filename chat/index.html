@@ -602,27 +602,27 @@ function getUserAvatar(name) {
 function renderAvatar(av, size) {
   size = size || 32;
   const title = av.title || av.label || '';
-  const baseStyle = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.12);overflow:hidden;display:flex;align-items:center;justify-content:center;`;
+  const baseStyle = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.12);overflow:hidden;display:flex;align-items:center;justify-content:center;';
 
   if (av.img) {
     // Image-based avatar — load with fallback to initials/emoji
     const fallback = av.initials || av.emoji || '?';
-    const fallbackStyle = `background:${av.bg};color:${av.color};font-size:${size <= 28 ? '12px' : '15px'};font-weight:600;`;
-    return `<div style="${baseStyle}background:${av.bg}" title="${title}">
-      <img src="${av.img}" alt="${title}" 
+    const fallbackStyle = 'background:' + av.bg + ';color:' + av.color + ';font-size:' + size <= 28 ? \'12px\' : \'15px\' + ';font-weight:600;';
+    return '<div style="' + baseStyle + 'background:' + av.bg + '" title="' + title + '">
+      <img src="' + av.img + '" alt="' + title + '" 
         style="width:100%;height:100%;object-fit:cover;border-radius:50%"
-        onerror="this.style.display='none';this.nextSibling.style.display='flex'"
+        onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'"
         loading="lazy">
-      <div style="${baseStyle}${fallbackStyle}display:none;position:absolute">${fallback}</div>
-    </div>`;
+      <div style="' + baseStyle + '' + fallbackStyle + 'display:none;position:absolute">' + fallback + '</div>
+    </div>';
   } else if (av.emoji) {
     const fontSize = size <= 28 ? '14px' : size <= 36 ? '17px' : '21px';
-    return `<div style="${baseStyle}background:${av.bg};font-size:${fontSize}" title="${title}">${av.emoji}</div>`;
+    return '<div style="' + baseStyle + 'background:' + av.bg + ';font-size:' + fontSize + '" title="' + title + '">' + av.emoji + '</div>';
   } else {
     // Initials
     const fontSize = size <= 28 ? '12px' : size <= 36 ? '14px' : '17px';
-    const fontStyle = av.font === 'serif' ? `font-family:var(--font-serif);font-weight:500` : `font-weight:600`;
-    return `<div style="${baseStyle}background:${av.bg};color:${av.color};font-size:${fontSize};${fontStyle}" title="${title}">${av.initials}</div>`;
+    const fontStyle = av.font === 'serif' ? 'font-family:var(--font-serif);font-weight:500' : 'font-weight:600';
+    return '<div style="' + baseStyle + 'background:' + av.bg + ';color:' + av.color + ';font-size:' + fontSize + ';' + fontStyle + '" title="' + title + '">' + av.initials + '</div>';
   }
 }
 
@@ -633,27 +633,27 @@ function openPersonaSheet() {
   const sheet = document.createElement('div');
   sheet.id = 'persona-sheet';
   sheet.style.cssText = 'position:fixed;bottom:80px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;z-index:200;box-shadow:var(--shadow-lg);min-width:220px;max-height:400px;overflow-y:auto';
-  sheet.innerHTML = `
+  sheet.innerHTML = '
     <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Persona</div>
     <div style="display:flex;flex-direction:column;gap:5px">
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${!activePersona?'var(--bg-2)':''};" onclick="setPersona(null)">
-        ${renderAvatar(AVATARS.models.ai, 28)}
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:' + !activePersona?\'var(--bg-2)\':\'\' + ';" onclick="setPersona(null)">
+        ' + renderAvatar(AVATARS.models.ai, 28) + '
         <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">Default (Model Avatar)</div></div>
       </div>
-      ${Object.entries(AVATARS.personas).map(([id, p]) => `
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${activePersona===id?'var(--bg-2)':''};" onclick="setPersona('${id}')">
-          ${renderAvatar(p, 28)}
-          <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">${p.label}</div><div style="font-size:10.5px;color:var(--text-faint)">${p.title}</div></div>
-        </div>`).join('')}
+      ' + Object.entries(AVATARS.personas).map(([id, p]) => '
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${activePersona===id?'var(--bg-2)':'' + ';" onclick="setPersona('' + id + '')">
+          ' + renderAvatar(p, 28) + '
+          <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">' + p.label + '</div><div style="font-size:10.5px;color:var(--text-faint)">' + p.title + '</div></div>
+        </div>').join(\'\')}
     </div>
     <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 8px">Mode</div>
     <div style="display:flex;flex-wrap:wrap;gap:5px">
-      ${Object.entries(AVATARS.modes).map(([id, m]) => `
-        <div style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--radius-pill);cursor:pointer;border:1px solid ${activeMode===id?'var(--accent)':'var(--border)'};background:${activeMode===id?'var(--accent3)':'var(--bg-2)'};" onclick="setMode('${id}')">
-          <span style="font-size:13px">${m.emoji}</span>
-          <span style="font-size:11px;color:${activeMode===id?'var(--accent)':'var(--text-muted)'}">${m.label}</span>
-        </div>`).join('')}
-    </div>`;
+      ' + Object.entries(AVATARS.modes).map(([id, m]) => '
+        <div style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--radius-pill);cursor:pointer;border:1px solid ${activeMode===id?'var(--accent)':'var(--border)' + ';background:' + activeMode===id?'var(--accent3)':'var(--bg-2)' + ';" onclick="setMode('' + id + '')">
+          <span style="font-size:13px">' + m.emoji + '</span>
+          <span style="font-size:11px;color:' + activeMode===id?'var(--accent)':'var(--text-muted)' + '">' + m.label + '</span>
+        </div>').join(\'\')}
+    </div>';
   document.body.appendChild(sheet);
   document.addEventListener('click', function closeSheet(e) {
     if (!sheet.contains(e.target) && !e.target.closest('[onclick*="openPersonaSheet"]')) {
@@ -726,10 +726,10 @@ function makeMsgWithAvatar(text, isUser, modelName) {
     const meta = document.createElement('div');
     meta.className = 'message-meta';
     const modelAv = getModelAvatar(modelName);
-    meta.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px">${modelAv.emoji || '✦'} ${modelName.split('/').pop()}</span>`;
+    meta.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px">' + modelAv.emoji || \'✦\' + ' ' + modelName.split(\'/\').pop() + '</span>';
     if (activePersona) {
       const p = AVATARS.personas[activePersona];
-      meta.innerHTML += ` <span style="opacity:0.6">· ${p.emoji} ${p.label}</span>`;
+      meta.innerHTML += ' <span style="opacity:0.6">· ' + p.emoji + ' ' + p.label + '</span>';
     }
     inner.appendChild(meta);
   }
@@ -1010,7 +1010,7 @@ function _qkU(){var s1=document.getElementById("qk-sh1");if(s1)s1.classList.togg
 .qk.mon{background:var(--accent,#0f3b3a);color:#fff;}
 .qrow{display:flex;justify-content:center;margin-bottom:1.5px;}
 </style>
-<div class="qrow"><div class="qk sp" onclick="qkP(96,126)">` ~</div><div class="qk" onclick="qkP(49,33)">1 !</div><div class="qk" onclick="qkP(50,64)">2 @</div><div class="qk" onclick="qkP(51,35)">3 #</div><div class="qk" onclick="qkP(52,36)">4 $</div><div class="qk" onclick="qkP(53,37)">5 %</div><div class="qk" onclick="qkP(54,94)">6 ^</div><div class="qk" onclick="qkP(55,38)">7 &amp;</div><div class="qk" onclick="qkP(56,42)">8 *</div><div class="qk" onclick="qkP(57,40)">9 (</div><div class="qk" onclick="qkP(48,41)">0 )</div><div class="qk sp" onclick="qkP(45,95)">- _</div><div class="qk sp" onclick="qkP(61,43)">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
+<div class="qrow"><div class="qk sp" onclick="qkP(96,126)">' ~</div><div class="qk" onclick="qkP(49,33)">1 !</div><div class="qk" onclick="qkP(50,64)">2 @</div><div class="qk" onclick="qkP(51,35)">3 #</div><div class="qk" onclick="qkP(52,36)">4 $</div><div class="qk" onclick="qkP(53,37)">5 %</div><div class="qk" onclick="qkP(54,94)">6 ^</div><div class="qk" onclick="qkP(55,38)">7 &amp;</div><div class="qk" onclick="qkP(56,42)">8 *</div><div class="qk" onclick="qkP(57,40)">9 (</div><div class="qk" onclick="qkP(48,41)">0 )</div><div class="qk sp" onclick="qkP(45,95)">- _</div><div class="qk sp" onclick="qkP(61,43)">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
 <div class="qrow"><div class="qk w2 sp" onclick="qkP(9,9)">Tab</div><div class="qk" onclick="qkP(113,81)">Q</div><div class="qk" onclick="qkP(119,87)">W</div><div class="qk" onclick="qkP(101,69)">E</div><div class="qk" onclick="qkP(114,82)">R</div><div class="qk" onclick="qkP(116,84)">T</div><div class="qk" onclick="qkP(121,89)">Y</div><div class="qk" onclick="qkP(117,85)">U</div><div class="qk" onclick="qkP(105,73)">I</div><div class="qk" onclick="qkP(111,79)">O</div><div class="qk" onclick="qkP(112,80)">P</div><div class="qk sp" onclick="qkP(91,123)">[ {</div><div class="qk sp" onclick="qkP(93,125)">] }</div><div class="qk sp" onclick="qkP(92,124)">\ |</div></div>
 <div class="qrow"><div class="qk w3 sp" onclick="qkCaps()" id="qk-caps">Caps Lock</div><div class="qk" onclick="qkP(97,65)">A</div><div class="qk" onclick="qkP(115,83)">S</div><div class="qk" onclick="qkP(100,68)">D</div><div class="qk" onclick="qkP(102,70)">F</div><div class="qk" onclick="qkP(103,71)">G</div><div class="qk" onclick="qkP(104,72)">H</div><div class="qk" onclick="qkP(106,74)">J</div><div class="qk" onclick="qkP(107,75)">K</div><div class="qk" onclick="qkP(108,76)">L</div><div class="qk sp" onclick="qkP(59,58)">; :</div><div class="qk sp" onclick="qkP(39,34)">' "</div><div class="qk w3 sp" onclick="qkEnter()">&#9166; Enter</div></div>
 <div class="qrow"><div class="qk w3 sp" onclick="qkShift()" id="qk-sh1">&#8679; Shift</div><div class="qk" onclick="qkP(122,90)">Z</div><div class="qk" onclick="qkP(120,88)">X</div><div class="qk" onclick="qkP(99,67)">C</div><div class="qk" onclick="qkP(118,86)">V</div><div class="qk" onclick="qkP(98,66)">B</div><div class="qk" onclick="qkP(110,78)">N</div><div class="qk" onclick="qkP(109,77)">M</div><div class="qk sp" onclick="qkP(44,60)">, &lt;</div><div class="qk sp" onclick="qkP(46,62)">. &gt;</div><div class="qk sp" onclick="qkP(47,63)">/ ?</div><div class="qk w3 sp" onclick="qkShift()" id="qk-sh2">&#8679; Shift</div></div>
