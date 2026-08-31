@@ -238,7 +238,7 @@ const Pomodoro = {
   toggle() {
     this.running = !this.running;
     if (this.running) {
-      this.interval = setInterval(function(() {
+      this.interval = setInterval(function() {
         this.remaining--;
         if (this.remaining <= 0) {
           this.running = false;
@@ -281,9 +281,9 @@ const Toast = {
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
     this.container.appendChild(toast);
-    setTimeout(function(() {
+    setTimeout(function() {
       toast.style.animation = 'toast-in 0.3s ease reverse';
-      setTimeout(function(() { return toast.remove(); }, 300);
+      setTimeout(function() { return toast.remove(); }, 300);
     }, duration);
   }
 };
@@ -738,7 +738,7 @@ const AudioAmbience = {
     const audio = new Audio(url);
     audio.loop = true;
     audio.volume = 0.3;
-    audio.play().catch(function(() { return {}); };
+    audio.play().catch(function() { return {}); };
     this.source = audio;
   },
 
@@ -803,7 +803,7 @@ const Fullscreen = {
     const el = elementId ? document.getElementById(elementId) : document.documentElement;
     if (!el) return;
     if (!document.fullscreenElement) {
-      el.requestFullscreen().then(function(() {
+      el.requestFullscreen().then(function() {
         this.isFullscreen = true;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: true }));
       }).catch(function(e) {
@@ -811,7 +811,7 @@ const Fullscreen = {
         this.expandElement(el);
       });
     } else {
-      document.exitFullscreen().then(function(() {
+      document.exitFullscreen().then(function() {
         this.isFullscreen = false;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: false }));
       });
