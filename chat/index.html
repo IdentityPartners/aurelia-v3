@@ -130,7 +130,7 @@
         <div class="chat-input-area">
           <div class="input-row">
             <div class="input-wrap">
-              <textarea id="chat-textarea" placeholder="Message Aurelia..." rows="1"></textarea>
+              <textarea id="chat-textarea" placeholder="Message Aurelia... (type, speak, or use Surface Pen directly in this box)" rows="3" style="min-height:60px"></textarea>
             </div>
             <button class="send-btn" id="send-btn" onclick="doSend()">
               <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -147,7 +147,7 @@
 
       <!-- Input mode bar: Type | Dictate | Handwrite | QWERTY -->
       <div style="background:var(--surface);border-top:1px solid var(--border);padding:4px 14px;display:flex;align-items:center;gap:6px;flex-shrink:0">
-        <span style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-right:4px">Input:</span>
+        <span style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-right:4px">Input:</span><span style="font-size:9.5px;color:var(--faint,#a8a29e);margin-right:8px">(Surface Pen works directly in the text box above)</span>
         <button class="btn btn-ghost btn-sm" id="mode-type-btn" onclick="setInputMode('type')" style="font-size:11px">Type</button>
         <button class="btn btn-ghost btn-sm" id="mode-dict-btn" onclick="setInputMode('dictate')" style="font-size:11px">Dictate</button>
         <button class="btn btn-ghost btn-sm" id="mode-hw-btn" onclick="setInputMode('handwrite')" style="font-size:11px">Handwrite</button>
@@ -173,7 +173,7 @@
       </div>
 
       <!-- QWERTY keyboard -->
-      <div id="qwerty-panel" style="display:none;background:var(--bg-2,#f0e9e0);border-top:1px solid var(--border);padding:5px 6px;flex-shrink:0;user-select:none">
+      <div id="qwerty-panel" style="display:block;background:var(--bg-2,#f0e9e0);border-top:1px solid var(--border);padding:5px 6px;flex-shrink:0;user-select:none">
         <style>.qk{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:30px;padding:0 4px;margin:1.5px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11.5px;font-weight:500;color:var(--ink);cursor:pointer;font-family:var(--font,Inter);transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.07);}.qk:active{background:var(--bg-3,#e8ddd4);transform:scale(0.93);}.qk.w2{min-width:44px;}.qk.w3{min-width:60px;}.qk.w4{min-width:80px;}.qk.w5{min-width:130px;}.qk.sp{background:var(--bg-3,#e8ddd4);font-size:10px;color:var(--muted,#78716c);}.qk.mon{background:var(--accent,#0f3b3a);color:#fff;}.qrow{display:flex;justify-content:center;margin-bottom:1.5px;}</style>
         <div class="qrow"><div class="qk sp" onclick="qkP(96,126)">` ~</div><div class="qk" onclick="qkP(49,33)">1 !</div><div class="qk" onclick="qkP(50,64)">2 @</div><div class="qk" onclick="qkP(51,35)">3 #</div><div class="qk" onclick="qkP(52,36)">4 $</div><div class="qk" onclick="qkP(53,37)">5 %</div><div class="qk" onclick="qkP(54,94)">6 ^</div><div class="qk" onclick="qkP(55,38)">7 &amp;</div><div class="qk" onclick="qkP(56,42)">8 *</div><div class="qk" onclick="qkP(57,40)">9 (</div><div class="qk" onclick="qkP(48,41)">0 )</div><div class="qk sp" onclick="qkP(45,95)">- _</div><div class="qk sp" onclick="qkP(61,43)">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
         <div class="qrow"><div class="qk w2 sp" onclick="qkP(9,9)">Tab</div><div class="qk" onclick="qkP(113,81)">Q</div><div class="qk" onclick="qkP(119,87)">W</div><div class="qk" onclick="qkP(101,69)">E</div><div class="qk" onclick="qkP(114,82)">R</div><div class="qk" onclick="qkP(116,84)">T</div><div class="qk" onclick="qkP(121,89)">Y</div><div class="qk" onclick="qkP(117,85)">U</div><div class="qk" onclick="qkP(105,73)">I</div><div class="qk" onclick="qkP(111,79)">O</div><div class="qk" onclick="qkP(112,80)">P</div><div class="qk sp" onclick="qkP(91,123)">[ {</div><div class="qk sp" onclick="qkP(93,125)">] }</div><div class="qk sp" onclick="qkP(92,124)">\ |</div></div>
