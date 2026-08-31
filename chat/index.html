@@ -1,1039 +1,492 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="no-store, no-cache, must-revalidate" http-equiv="Cache-Control"/>
-<title>Aurelia — Chat</title>
-<link href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'&gt;&lt;rect width='32' height='32' rx='4' fill='%230f3b3a'/&gt;&lt;text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23faf8f5'&gt;A&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
-<link href="/shared/aurelia.css" rel="stylesheet"/>
-<style>
-    .chat-shell { display:flex; height:100vh; overflow:hidden; }
-    .thread-pane { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; transition:width 0.25s ease; overflow:hidden; }
-    .thread-pane.collapsed { width:0; border-right:none; }
-    .thread-pane-header { padding:10px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-    .thread-pane-title { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-faint); white-space:nowrap; }
-    .thread-list { flex:1; overflow-y:auto; padding:6px; }
-    .thread-item { padding:9px 10px; border-radius:var(--radius); cursor:pointer; transition:all var(--transition); margin-bottom:2px; border:1px solid transparent; }
-    .thread-item:hover { background:var(--bg-2); }
-    .thread-item.active { background:var(--bg-2); border-color:var(--border); }
-    .thread-item-title { font-size:12px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .thread-item-meta { font-size:10px; color:var(--text-faint); margin-top:2px; display:flex; gap:6px; }
-    .chat-main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); min-width:0; }
-    .chat-topbar { height:var(--topbar-h); background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 14px; gap:8px; flex-shrink:0; }
-    .chat-messages { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; }
-    .chat-input-area { padding:12px 16px; border-top:1px solid var(--border); background:var(--surface); flex-shrink:0; }
-    .chat-input-wrap { background:var(--bg-2); border:1px solid var(--border-strong); border-radius:var(--radius-xl); padding:12px 16px; transition:border-color var(--transition); }
-    .chat-input-wrap:focus-within { border-color:var(--ip-deep-teal,#0f3b3a); box-shadow:0 0 0 3px rgba(15,59,58,0.08); }
-    .chat-input-wrap textarea { width:100%; background:none; border:none; outline:none; color:var(--text-primary); font-size:15px; resize:none; min-height:72px; max-height:240px; line-height:1.7; font-family:var(--font-sans); }
-    .chat-input-wrap textarea::placeholder { color:var(--text-faint); }
-    .context-pane { width:260px; flex-shrink:0; background:var(--surface); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; padding:14px; transition:width 0.25s ease; }
-    .context-pane.collapsed { width:0; border-left:none; padding:0; overflow:hidden; }
-    .context-section { margin-bottom:18px; }
-    .context-section-title { font-size:9.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px; }
-    .agent-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:var(--radius-pill); background:var(--bg-2); border:1px solid var(--border); font-size:11px; color:var(--text-muted); cursor:pointer; transition:all var(--transition); margin:2px; }
-    .agent-chip:hover { border-color:var(--ink-5); color:var(--ink); }
-    .agent-chip.active { background:var(--bg-3); border-color:var(--ink-5); color:var(--ink); }
-    .msg-action-btn { background:none; border:1px solid var(--border); color:var(--text-faint); border-radius:var(--radius-sm); padding:2px 7px; font-size:10.5px; cursor:pointer; transition:all var(--transition); }
-    .msg-action-btn:hover { border-color:var(--ink-5); color:var(--ink); }
-    @media(max-width:1100px) { .context-pane { display:none; } }
-    @media(max-width:700px) { .thread-pane.collapsed { width:0; } }
-    .qk { height:28px; min-width:26px; border-radius:4px; border:1px solid var(--border); background:var(--surface); font-size:12px; cursor:pointer; color:var(--ink); font-family:var(--font,Inter); transition:background 0.1s; padding:0 4px; }
-    .qk:hover { background:var(--bg-3,#e8ddd4); }
-    .qk:active { background:var(--accent3,rgba(15,59,58,0.1)); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Aurelia - Chat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
+  <link rel="stylesheet" href="/shared/aurelia.css">
+  <style>
+    .chat-shell{display:flex;height:100vh;overflow:hidden}
+    .thread-pane{width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .thread-pane-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .thread-list{flex:1;overflow-y:auto;padding:6px}
+    .thread-item{padding:10px 12px;border-radius:var(--radius,8px);cursor:pointer;margin-bottom:2px;border:1px solid transparent;transition:all .12s}
+    .thread-item:hover{background:var(--bg-2,#f0e9e0)}
+    .thread-item.active{background:var(--bg-2,#f0e9e0);border-color:var(--border)}
+    .thread-title{font-size:12.5px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .thread-meta{font-size:10.5px;color:var(--faint,#a8a29e);margin-top:2px}
+    .chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+    .chat-topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+    .chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+    .msg{display:flex;gap:8px;max-width:85%}
+    .msg.user{align-self:flex-end;flex-direction:row-reverse}
+    .msg-av{width:30px;height:30px;border-radius:50%;background:var(--accent,#0f3b3a);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;margin-top:2px;font-family:var(--font-serif,Georgia)}
+    .msg.user .msg-av{background:var(--bg-3,#e8ddd4);color:var(--ink)}
+    .msg-bubble{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;line-height:1.65;color:var(--ink);box-shadow:0 1px 4px rgba(28,25,23,0.06)}
+    .msg.user .msg-bubble{background:var(--accent,#0f3b3a);color:#fff;border-color:var(--accent,#0f3b3a)}
+    .msg-meta{font-size:10px;color:var(--faint,#a8a29e);margin-top:3px}
+    .typing-wrap{display:flex;gap:4px;align-items:center;padding:10px 14px}
+    .td{width:6px;height:6px;border-radius:50%;background:var(--faint,#a8a29e);animation:td 1.2s infinite}
+    .td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+    @keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+    .chat-input-area{background:var(--surface);border-top:1px solid var(--border);padding:12px 14px;flex-shrink:0}
+    .input-row{display:flex;align-items:flex-end;gap:8px}
+    .input-wrap{flex:1;background:var(--bg-2,#f0e9e0);border:1.5px solid var(--border);border-radius:20px;padding:10px 14px;transition:border-color .15s}
+    .input-wrap:focus-within{border-color:var(--accent,#0f3b3a)}
+    .input-wrap textarea{width:100%;background:none;border:none;outline:none;font-family:var(--font,Inter);font-size:14px;line-height:1.5;color:var(--ink);resize:none;max-height:120px;padding:0}
+    .input-wrap textarea::placeholder{color:var(--faint,#a8a29e)}
+    .send-btn{width:40px;height:40px;border-radius:50%;background:var(--accent,#0f3b3a);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:transform .12s}
+    .send-btn:active{transform:scale(0.88)}
+    .send-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
+    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:10px}
+    .empty-mark{font-family:var(--font-serif,Georgia);font-size:52px;color:var(--accent,#0f3b3a);opacity:.15;line-height:1}
+    .empty-title{font-family:var(--font-serif,Georgia);font-size:20px;font-weight:500;color:var(--ink)}
+    .empty-sub{font-size:13px;color:var(--faint,#a8a29e);line-height:1.6;max-width:260px}
+    .starter{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--ink2,#44403c);cursor:pointer;text-align:left;font-family:var(--font,Inter);transition:all .12s;box-shadow:0 1px 3px rgba(28,25,23,0.05)}
+    .starter:active{background:var(--bg-2,#f0e9e0)}
+    .starters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;margin-top:10px}
+    .context-pane{width:260px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);padding:14px;overflow-y:auto}
+    .ctx-sec{margin-bottom:18px}
+    .ctx-label{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:8px}
+    @media(max-width:1100px){.context-pane{display:none}}
+    @media(max-width:700px){.thread-pane{display:none}}
   </style>
-<!-- fix-v2 -->
-<!-- chat-20260830142608 -->
 </head>
 <body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-mark">A</div><span class="logo-text">Aurelia</span></div>
+    <div class="sidebar-nav">
+      <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
+      <a href="/chat/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
+      <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
+      <div class="nav-section-label">Create</div>
+      <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/atomise/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Atomise</span></a>
+      <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
+      <div class="nav-section-label">Business</div>
+      <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
+      <a href="/monetisation/platforms.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
+      <a href="/comms/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="nav-label">Comms Centre</span></a>
+      <div class="nav-section-label">Intelligence</div>
+      <a href="/agenti-city/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span class="nav-label">Agenti City</span></a>
+      <a href="/orchestrator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Orchestrator</span></a>
+      <div class="nav-section-label">System</div>
+      <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nav-label">Settings</span></a>
+      <a href="/dev-team/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Dev Team</span></a>
+    </div>
+    <div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg><span>Collapse</span></button></div>
+  </nav>
+
+  <div class="main-content" id="main-content">
+    <div class="chat-shell">
+
+      <!-- Thread list -->
+      <div class="thread-pane">
+        <div class="thread-pane-hdr">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e)">Threads</span>
+          <button class="btn btn-primary btn-sm" onclick="newThread()">+ New</button>
+        </div>
+        <div class="thread-list" id="thread-list"></div>
+      </div>
+
+      <!-- Chat main -->
+      <div class="chat-main">
+        <div class="chat-topbar">
+          <div style="flex:1">
+            <div style="font-family:var(--font-serif,Georgia);font-size:15px;font-weight:500;color:var(--ink)" id="chat-title">New Conversation</div>
+            <div style="font-size:10.5px;color:var(--faint,#a8a29e)" id="chat-subtitle">Gemma 4 31B via Cerebras</div>
+          </div>
+          <select id="model-select" class="input" style="max-width:180px;font-size:11.5px;padding:4px 8px" onchange="changeModel(this.value)">
+            <option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras)</option>
+            <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
+            <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
+            <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
+            <option value="mistral/mistral-large-latest">Mistral Large 3</option>
+            <option value="sambanova/Gemma-4-31B-IT">Gemma 4 31B (SambaNova)</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="clearChat()">Clear</button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-mark">A</div>
+            <div class="empty-title">Begin a conversation</div>
+            <div class="empty-sub">Aurelia routes to the best model for your task.</div>
+            <div class="starters">
+              <div class="starter" onclick="setPrompt('Summarise my week and suggest priorities')">Summarise my week</div>
+              <div class="starter" onclick="setPrompt('Help me draft a professional email')">Draft an email</div>
+              <div class="starter" onclick="setPrompt('Research the latest on AI agents')">Research AI agents</div>
+              <div class="starter" onclick="setPrompt('Create a LinkedIn post about identity development')">LinkedIn post</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div class="input-row">
+            <div class="input-wrap">
+              <textarea id="chat-textarea" placeholder="Message Aurelia..." rows="1"></textarea>
+            </div>
+            <button class="send-btn" id="send-btn" onclick="doSend()">
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none">
+            <button class="btn btn-ghost btn-sm" id="agent-research" onclick="toggleAgent('research')">Research</button>
+            <button class="btn btn-ghost btn-sm" id="agent-atomise" onclick="toggleAgent('atomise')">Atomise</button>
+            <button class="btn btn-ghost btn-sm" id="agent-creator" onclick="toggleAgent('creator')">Creator</button>
+            <label class="btn btn-ghost btn-sm" style="cursor:pointer">Attach<input type="file" style="display:none" onchange="attachFile(this)"></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Context pane -->
+      <div class="context-pane">
+        <div class="ctx-sec">
+          <div class="ctx-label">Active Agents</div>
+          <div id="active-agents" style="font-size:12px;color:var(--muted,#78716c)">None active</div>
+        </div>
+        <div class="ctx-sec">
+          <div class="ctx-label">Workspace</div>
+          <select class="input" id="workspace-select" style="font-size:12px"><option value="">No workspace</option></select>
+        </div>
+        <div class="ctx-sec">
+          <div class="ctx-label">Actions</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <button class="btn btn-ghost btn-sm" onclick="exportChat()">Export Chat</button>
+            <button class="btn btn-ghost btn-sm" onclick="sendToDrafting()">Send to Drafting</button>
+            <button class="btn btn-ghost btn-sm" onclick="sendToAtomise()">Send to Atomise</button>
+          </div>
+        </div>
+        <div class="ctx-sec">
+          <div class="ctx-label">Comms Hub</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" onclick="sendViaTelegram()">TG</button>
+            <button class="btn btn-ghost btn-sm" onclick="window.open('/comms/','_blank')">Email</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/shared/aurelia.js"></script>
 <script>
-// ── Markdown renderer ─────────────────────────────────────────────────────
-function renderMd(text) {
-  if (!text) return '';
-  var s = text;
-  // 1. Escape HTML
-  s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // 2. Code blocks (triple-backtick fenced)
-  var tripleBack = new RegExp('([\x60]{3})(\\w*)?\\n?([\\s\\S]*?)([\x60]{3})', 'g');
-  s = s.replace(tripleBack, function(m, o, lang, code) {
-    var l = lang ? '<div style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);padding:6px 12px 0;font-family:var(--font)">' + lang + '</div>' : '';
-    return l + '<pre style="background:var(--bg-3,#e8ddd4);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--font-mono,monospace);font-size:12px;overflow-x:auto;margin:6px 0;white-space:pre-wrap">' + code.trim() + '</pre>';
+var threads = [];
+var currentThread = null;
+var activeAgents = {};
+var isStreaming = false;
+var currentModel = 'cerebras/gemma-4-31b';
+var attachedFile = null;
+
+function init() {
+  threads = JSON.parse(localStorage.getItem('aurelia_chats') || '[]');
+  renderThreadList();
+  var preQuery = sessionStorage.getItem('aurelia_new_chat_query');
+  if (preQuery) {
+    sessionStorage.removeItem('aurelia_new_chat_query');
+    newThread();
+    document.getElementById('chat-textarea').value = preQuery;
+    doSend();
+  } else if (threads.length > 0) {
+    loadThread(threads[threads.length - 1].id);
+  } else {
+    newThread();
+  }
+  var ta = document.getElementById('chat-textarea');
+  if (ta) {
+    ta.addEventListener('input', function() {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+    });
+    ta.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        doSend();
+      }
+    });
+  }
+  var ws = WorkspaceManager.workspaces;
+  var sel = document.getElementById('workspace-select');
+  ws.forEach(function(w) {
+    var o = document.createElement('option');
+    o.value = w.id;
+    o.textContent = w.name;
+    sel.appendChild(o);
   });
-  // 3. Inline code (single backtick)
-  var singleBack = new RegExp('[\x60]([^\x60]+)[\x60]', 'g');
-  s = s.replace(singleBack, '<code style="background:var(--bg-3,#e8ddd4);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-family:var(--font-mono,monospace);font-size:12px">$1</code>');
-  // 4. Bold
-  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  // 5. Italic
-  s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  // 6. Headers
-  s = s.replace(/^### (.+)$/gm, '<h3 style="font-size:14px;font-weight:600;margin:10px 0 4px">$1</h3>');
-  s = s.replace(/^## (.+)$/gm, '<h2 style="font-size:16px;font-weight:600;margin:12px 0 6px">$1</h2>');
-  s = s.replace(/^# (.+)$/gm, '<h1 style="font-size:18px;font-weight:600;margin:14px 0 8px">$1</h1>');
-  // 7. Bullet lists
-  s = s.replace(/^[\-\*] (.+)$/gm, '<li style="margin:2px 0;padding-left:4px">$1</li>');
-  s = s.replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul style="padding-left:20px;margin:6px 0">$&</ul>');
-  // 8. Numbered lists
-  s = s.replace(/^\d+\. (.+)$/gm, '<li style="margin:2px 0;padding-left:4px">$1</li>');
-  // 9. Horizontal rule
-  s = s.replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">');
-  // 10. Line breaks
-  s = s.replace(/\n\n/g, '</p><p style="margin:8px 0">');
-  s = s.replace(/\n/g, '<br>');
-  return '<p style="margin:0">' + s + '</p>';
 }
 
-
-// ── Get current model ─────────────────────────────────────────────────────
-function getCurrentModel() {
-  // Try localStorage first (set by model picker)
-  var saved = localStorage.getItem('aurelia_model');
-  if (saved) return saved;
-  // Try ModelRouter (loaded by shared JS)
-  if (window.ModelRouter && ModelRouter.current) return ModelRouter.current;
-  // Default — use a capable model
-  return 'groq/openai/gpt-oss-20b';
-}
-
-// ── Round Robin state ─────────────────────────────────────────────────────
-var rrModels = ['groq/openai/gpt-oss-20b','sambanova/Gemma-4-31B-IT','gemini/gemini-2.5-flash'];
-var rrActive = false;
-
-// ── Attached file ─────────────────────────────────────────────────────────
-var attachedFileContent = null;
-var attachedFileName = null;
-
-function handleFileAttach(input) {
-  var file = input.files[0];
-  if (!file) return;
-  attachedFileName = file.name;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    if (file.type.startsWith('image/')) {
-      attachedFileContent = '[Image attached: ' + file.name + ']';
-    } else {
-      attachedFileContent = '[File: ' + file.name + ']\n' + (e.target.result || '').slice(0, 8000);
-    }
-    var preview = document.getElementById('file-attach-preview');
-    if (preview) { preview.textContent = '📎 ' + file.name; preview.style.display = 'inline-flex'; }
-  };
-  if (file.type.startsWith('image/')) reader.readAsDataURL(file);
-  else reader.readAsText(file);
-}
-
-function clearAttach() {
-  attachedFileContent = null; attachedFileName = null;
-  var preview = document.getElementById('file-attach-preview');
-  if (preview) preview.style.display = 'none';
-  var input = document.getElementById('file-input');
-  if (input) input.value = '';
-}
-
-// ── Image generation ──────────────────────────────────────────────────────
-function generateImage() {
+function doSend() {
   var ta = document.getElementById('chat-textarea');
-  var prompt = ta ? ta.value.trim() : '';
-  if (!prompt) { prompt = window.prompt('Describe the image to generate:'); }
-  if (!prompt) return;
-  var mc = document.getElementById('chat-messages');
-  var em = document.getElementById('chat-empty');
-  if (em) em.style.display = 'none';
-  if (mc) {
-    var el = document.createElement('div');
-    el.className = 'message fade-in';
-    var av = document.createElement('div'); av.className = 'message-avatar'; av.textContent = 'A';
-    var inner = document.createElement('div');
-    var bub = document.createElement('div'); bub.className = 'message-bubble';
-    bub.textContent = 'Generating image: ' + prompt + '…';
-    inner.appendChild(bub); el.appendChild(av); el.appendChild(inner); mc.appendChild(el);
-    mc.scrollTop = mc.scrollHeight;
-    // Use Pollinations free image generation
-    var imgUrl = 'https://gen.pollinations.ai/image/' + encodeURIComponent(prompt) + '?model=flux&width=1024&height=1024&nologo=true&seed=' + Date.now();
-    var img = document.createElement('img');
-    img.src = imgUrl;
-    img.style.cssText = 'max-width:100%;border-radius:8px;margin-top:8px;display:block';
-    img.onload = function() { bub.textContent = 'Generated: ' + prompt; bub.appendChild(img); mc.scrollTop = mc.scrollHeight; };
-    img.onerror = function() { bub.textContent = 'Image generation failed. Try again.'; };
+  var text = ta ? ta.value.trim() : '';
+  if (attachedFile) {
+    text = '[File: ' + attachedFile.name + '] ' + text;
+    attachedFile = null;
   }
-}
-
-// ── Main send function ─────────
-  function qk(char) {
-    var ta = document.getElementById("chat-textarea");
-    if (!ta) return;
-    if (char === String.fromCharCode(8232)) {
-      // Line break — just add newline
-      ta.value += "\n";
-    } else {
-      ta.value += char;
-    }
-    if (typeof autoResize === "function") autoResize(ta);
-    var cc = document.getElementById("char-count");
-    if (cc) cc.textContent = ta.value.length;
-    ta.focus();
-  }
-  function qkDel() {
-    var ta = document.getElementById("chat-textarea");
-    if (!ta) return;
-    ta.value = ta.value.slice(0, -1);
-    if (typeof autoResize === "function") autoResize(ta);
-    var cc = document.getElementById("char-count");
-    if (cc) cc.textContent = ta.value.length;
-  }
-  
-  async function generateImageFromText(subject) {
-    var mc = document.getElementById("chat-messages");
-    var em = document.getElementById("chat-empty");
-    if (em) em.style.display = "none";
-    
-    // Show user message
-    if (mc) {
-      var userEl = document.createElement("div");
-      userEl.className = "message user fade-in";
-      var userAv = document.createElement("div"); userAv.className = "message-avatar"; userAv.textContent = "SJ";
-      var userBub = document.createElement("div"); userBub.className = "message-bubble"; userBub.textContent = "Generate an image of: " + subject;
-      userEl.appendChild(userAv); userEl.appendChild(userBub);
-      mc.appendChild(userEl); mc.scrollTop = mc.scrollHeight;
-    }
-    
-    // Show loading
-    var loadEl = document.createElement("div");
-    loadEl.className = "message fade-in"; loadEl.id = "img-loading";
-    var loadAv = document.createElement("div"); loadAv.className = "message-avatar"; loadAv.textContent = "A";
-    var loadBub = document.createElement("div"); loadBub.className = "message-bubble"; loadBub.textContent = "Generating image...";
-    loadEl.appendChild(loadAv); loadEl.appendChild(loadBub);
-    if (mc) { mc.appendChild(loadEl); mc.scrollTop = mc.scrollHeight; }
-    
-    // Generate via Pollinations (free, no key needed)
-    var encodedSubject = encodeURIComponent(subject + ", professional, high quality, Identity Partners aesthetic");
-    var imgUrl = "https://image.pollinations.ai/prompt/" + encodedSubject + "?width=1024&height=1024&nologo=true&enhance=true";
-    
-    var loadingEl = document.getElementById("img-loading");
-    if (loadingEl) loadingEl.remove();
-    
-    var aiEl = document.createElement("div");
-    aiEl.className = "message fade-in";
-    var aiAv = document.createElement("div"); aiAv.className = "message-avatar"; aiAv.textContent = "A";
-    var aiBub = document.createElement("div"); aiBub.className = "message-bubble";
-    
-    var img = document.createElement("img");
-    img.src = imgUrl;
-    img.style.cssText = "max-width:100%;border-radius:8px;display:block;margin-bottom:8px";
-    img.alt = subject;
-    
-    var imgMeta = document.createElement("div");
-    imgMeta.style.cssText = "font-size:11px;color:var(--text-faint)";
-    imgMeta.textContent = "Generated: " + subject;
-    
-    var downloadBtn = document.createElement("a");
-    downloadBtn.href = imgUrl;
-    downloadBtn.download = subject.replace(/\s+/g,"-").toLowerCase() + ".png";
-    downloadBtn.className = "btn btn-ghost btn-sm";
-    downloadBtn.style.marginTop = "6px";
-    downloadBtn.textContent = "Download";
-    downloadBtn.target = "_blank";
-    
-    aiBub.appendChild(img);
-    aiBub.appendChild(imgMeta);
-    aiBub.appendChild(downloadBtn);
-    aiEl.appendChild(aiAv); aiEl.appendChild(aiBub);
-    if (mc) { mc.appendChild(aiEl); mc.scrollTop = mc.scrollHeight; }
-  }
-  function doSend() {
-  var ta = document.getElementById('chat-textarea');
-  if (!ta) return;
-  var t = ta.value.trim();
-  // Auto-detect image generation request
-  var imageKeywords = /generate.{0,30}image|create.{0,30}image|draw.{0,30}image|make.{0,30}image|show.{0,30}image|visualise|visualize|picture of|photo of|illustration of/i;
-  if (imageKeywords.test(t)) {
-    // Extract the subject after "image of" or similar
-    var imgSubject = t.replace(/.*(?:image|picture|photo|illustration|drawing)\s+(?:of\s+)?/i, '').trim() || t;
-    generateImageFromText(imgSubject);
-    ta.value = '';
-    ta.style.height = 'auto';
-    return;
-  }
-  if (attachedFileContent) t = attachedFileContent + '\n\n' + t;
-  if (!t) return;
+  if (!text || isStreaming) return;
   ta.value = '';
   ta.style.height = 'auto';
-  clearAttach();
 
-  var tok = localStorage.getItem('aurelia_device_token');
-  if (!tok) { tok = 'dt_' + Date.now(); localStorage.setItem('aurelia_device_token', tok); }
+  if (!currentThread) newThread();
+
+  var empty = document.getElementById('empty-state');
+  if (empty) empty.style.display = 'none';
+
+  var userMsg = {role: 'user', content: text, ts: Date.now()};
+  currentThread.messages.push(userMsg);
+  if (currentThread.messages.length === 1) {
+    currentThread.title = text.slice(0, 45) + (text.length > 45 ? '...' : '');
+    document.getElementById('chat-title').textContent = currentThread.title;
+  }
+
   var mc = document.getElementById('chat-messages');
-  var em = document.getElementById('chat-empty');
-  if (em) em.style.display = 'none';
+  mc.appendChild(makeMsg(userMsg));
+  mc.scrollTop = mc.scrollHeight;
 
-  // User message with avatar
-  if (mc) {
-    var u = (window._makeMsgWithAvatar) ? window._makeMsgWithAvatar(t, true, null) : (function(){
-      var el=document.createElement('div');el.className='message user fade-in';
-      var av=document.createElement('div');av.className='message-avatar';av.textContent='SJ';
-      var inner=document.createElement('div');var bub=document.createElement('div');bub.className='message-bubble';bub.textContent=t;
-      inner.appendChild(bub);el.appendChild(av);el.appendChild(inner);return el;
-    })();
-    mc.appendChild(u); mc.scrollTop = mc.scrollHeight;
+  var typingDiv = document.createElement('div');
+  typingDiv.className = 'msg';
+  typingDiv.id = 'typing-indicator';
+  var typingAv = document.createElement('div');
+  typingAv.className = 'msg-av';
+  typingAv.textContent = 'A';
+  var typingBubble = document.createElement('div');
+  typingBubble.className = 'msg-bubble';
+  var typingWrap = document.createElement('div');
+  typingWrap.className = 'typing-wrap';
+  for (var i = 0; i < 3; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'td';
+    typingWrap.appendChild(dot);
   }
+  typingBubble.appendChild(typingWrap);
+  typingDiv.appendChild(typingAv);
+  typingDiv.appendChild(typingBubble);
+  mc.appendChild(typingDiv);
+  mc.scrollTop = mc.scrollHeight;
 
-  // Typing indicator
-  var tid = 'ty' + Date.now();
-  if (mc) {
-    var ty = document.createElement('div'); ty.className = 'message fade-in'; ty.id = tid;
-    var tyAv = document.createElement('div'); tyAv.className = 'message-avatar'; tyAv.textContent = 'A';
-    var tyBub = document.createElement('div'); tyBub.className = 'message-bubble';
-    var tyInd = document.createElement('div'); tyInd.className = 'typing-indicator';
-    for (var i = 0; i < 3; i++) { var d = document.createElement('div'); d.className = 'typing-dot'; tyInd.appendChild(d); }
-    tyBub.appendChild(tyInd); ty.appendChild(tyAv); ty.appendChild(tyBub);
-    mc.appendChild(ty); mc.scrollTop = mc.scrollHeight;
-  }
+  isStreaming = true;
+  var btn = document.getElementById('send-btn');
+  if (btn) btn.style.opacity = '0.5';
 
-  var model = getCurrentModel();
-  var sys = 'You are Aurelia, the AI assistant for Identity Partners — a professional listening, coaching, and identity development practice in the UK. ' +
-      'You are warm, precise, and professional. You do NOT say "Hi there!" or use casual greetings. ' +
-      'You use rich markdown formatting: **bold** for key terms, *italics* for emphasis, # headings for structure, bullet points for lists, tables for comparisons. ' +
-      'You are knowledgeable about identity development, neurodivergent adults, sobriety support, life transitions, and professional listening. ' +
-      'Current date: ' + new Date().toLocaleDateString('en-GB') + '. ' +
-      'Active model: ' + getCurrentModel().split('/').pop() + '.'
+  var tok = localStorage.getItem('aurelia_device_token') || 'dt_chat';
+  var sys = 'You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise. Date: ' + new Date().toLocaleDateString('en-GB');
+  var msgs = currentThread.messages.map(function(m) { return {role: m.role, content: m.content}; });
 
-  // Round Robin mode
-  if (rrActive) {
-    var calls = rrModels.map(function(m) {
-      return fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
-        body: JSON.stringify({messages: (currentThread && currentThread.messages ? currentThread.messages.map(function(m) { return {role: m.role, content: m.content}; }) : [{role: 'user', content: t}]), model: m, system: sys})
-      }).then(function(r) { return r.json(); }).then(function(d) { return {model: m, content: d.content || ''}; }).catch(function(e) { return {model: m, content: 'Error: ' + e.message}; });
-    });
-    Promise.all(calls).then(function(results) {
-      var el = document.getElementById(tid); if (el) el.remove();
-      results.forEach(function(r) {
-        if (mc) {
-          var a = document.createElement('div'); a.className = 'message fade-in';
-          var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
-          var aInner = document.createElement('div');
-          var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.innerHTML = renderMd(r.content);
-          var aMeta = document.createElement('div'); aMeta.className = 'message-meta'; aMeta.textContent = r.model.split('/').pop();
-          aInner.appendChild(aBub); aInner.appendChild(aMeta); a.appendChild(aAv); a.appendChild(aInner);
-          mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
-        }
-      });
-    });
-    return;
-  }
-
-  // Single model
   fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
-    body: JSON.stringify({messages: [{role: 'user', content: t}], model: model, system: sys})
-  }).then(function(r) { return r.json(); }).then(function(d) {
-    var el = document.getElementById(tid); if (el) el.remove();
-    if (mc) {
-      var modelUsed = d.model || model;
-      var a = (window._makeMsgWithAvatar) ? window._makeMsgWithAvatar(d.content || 'Response received.', false, modelUsed) : (function(){
-        var el2=document.createElement('div');el2.className='message fade-in';
-        var av=document.createElement('div');av.className='message-avatar';av.textContent='A';
-        var inner=document.createElement('div');var bub=document.createElement('div');bub.className='message-bubble';bub.innerHTML=renderMd(d.content||'Response received.');
-        var meta=document.createElement('div');meta.className='message-meta';meta.textContent=modelUsed.split('/').pop();
-        inner.appendChild(bub);inner.appendChild(meta);el2.appendChild(av);el2.appendChild(inner);return el2;
-      })();
-      mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
-    }
-  }).catch(function(e) {
-    var el = document.getElementById(tid); if (el) el.remove();
-    if (mc) {
-      var a = document.createElement('div'); a.className = 'message fade-in';
-      var aAv = document.createElement('div'); aAv.className = 'message-avatar'; aAv.textContent = 'A';
-      var aInner = document.createElement('div');
-      var aBub = document.createElement('div'); aBub.className = 'message-bubble'; aBub.textContent = 'Error: ' + e.message;
-      aInner.appendChild(aBub); a.appendChild(aAv); a.appendChild(aInner);
-      mc.appendChild(a); mc.scrollTop = mc.scrollHeight;
-    }
-  });
-}c.scrollTop = mc.scrollHeight;
-    }
+    body: JSON.stringify({messages: msgs, model: currentModel, system: sys})
+  }).then(function(r) {
+    return r.json();
+  }).then(function(data) {
+    var typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+    var content = data.content || data.message || 'Response received.';
+    var aiMsg = {role: 'assistant', content: content, model: data.model || currentModel, ts: Date.now()};
+    currentThread.messages.push(aiMsg);
+    currentThread.ts = Date.now();
+    mc.appendChild(makeMsg(aiMsg));
+    mc.scrollTop = mc.scrollHeight;
+    saveThreads();
+    renderThreadList();
+  }).catch(function(err) {
+    var typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+    var errMsg = {role: 'assistant', content: 'Error: ' + err.message + '. Check Settings to configure API keys.', model: 'error', ts: Date.now()};
+    currentThread.messages.push(errMsg);
+    mc.appendChild(makeMsg(errMsg));
+    mc.scrollTop = mc.scrollHeight;
+    saveThreads();
+  }).finally(function() {
+    isStreaming = false;
+    if (btn) btn.style.opacity = '1';
   });
 }
 
-function toggleRR() {
-  rrActive = !rrActive;
-  var btn = document.getElementById('rr-toggle-btn');
-  if (btn) {
-    btn.style.background = rrActive ? 'var(--accent3)' : '';
-    btn.style.borderColor = rrActive ? 'var(--accent)' : '';
-    btn.style.color = rrActive ? 'var(--accent)' : '';
-    btn.textContent = rrActive ? '⟳ Round Robin ON' : '⟳ Round Robin';
+function makeMsg(m) {
+  var isUser = m.role === 'user';
+  var wrap = document.createElement('div');
+  wrap.className = 'msg' + (isUser ? ' user' : '');
+  var av = document.createElement('div');
+  av.className = 'msg-av';
+  av.textContent = isUser ? 'SJ' : 'A';
+  var body = document.createElement('div');
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = formatText(m.content);
+  body.appendChild(bubble);
+  if (!isUser && m.model) {
+    var meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.textContent = m.model.split('/').pop();
+    body.appendChild(meta);
   }
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey && document.activeElement && document.activeElement.id === 'chat-textarea') {
-    e.preventDefault(); doSend();
-  }
-});
-</script>
-<script>
-// ═══════════════════════════════════════════════════════════════════════════
-// AURELIA AVATAR SYSTEM
-// Users · Model Families · Modes · Personas
-// ═══════════════════════════════════════════════════════════════════════════
-
-const POLLEN = 'https://gen.pollinations.ai/image';
-
-const AVATARS = {
-
-  // ── USER AVATARS ──────────────────────────────────────────────────────────
-  users: {
-    'SJ': {
-      img: POLLEN + '/' + encodeURIComponent('professional man portrait, warm teal background, Identity Partners, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=42',
-      initials: 'SJ', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif',
-      title: 'SJ — Identity Partners'
-    },
-    'Olivia': {
-      img: POLLEN + '/' + encodeURIComponent('professional woman portrait, soft pink background, warm smile, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=77',
-      initials: 'OL', bg: '#fce4ec', color: '#880e4f', font: 'serif',
-      title: 'Olivia'
-    },
-    'Nicholas': {
-      img: POLLEN + '/' + encodeURIComponent('professional man portrait, forest green background, confident, elegant, minimal, circle crop') + '?model=flux&width=64&height=64&nologo=true&seed=99',
-      initials: 'NJ', bg: '#e8f5e9', color: '#1b5e20', font: 'serif',
-      title: 'Nicholas'
-    },
-  },
-
-  // ── MODEL FAMILY AVATARS ──────────────────────────────────────────────────
-  models: {
-    // Gemma — elegant woman with teal gem (Google's gem)
-    'gemma': {
-      img: 'https://cdn.pixabay.com/photo/2021/01/19/08/23/woman-5930445_1280.png',
-      label: 'Gemma', bg: '#e8f4f4', color: '#0f3b3a',
-      title: 'Gemma · Google DeepMind'
-    },
-    // Kimi — moon goddess woman (Moonshot AI)
-    'kimi': {
-      img: 'https://images.nightcafe.studio/jobs/tJEak0jC1Zom2H1r2AbR/tJEak0jC1Zom2H1r2AbR--0--ro212.jpg',
-      label: 'Kimi', bg: '#e8eaf6', color: '#283593',
-      title: 'Kimi · Moonshot AI'
-    },
-    // DeepSeek — whale (their actual logo)
-    'deepseek': {
-      img: 'https://pngpix.com/images/file/cartoon-humpback-whale-character-png-06212024-gx5i1awb0ktm7hk8.png',
-      label: 'DeepSeek', bg: '#e3f2fd', color: '#0d47a1',
-      title: 'DeepSeek · Whale'
-    },
-    // Mistral — court jester (wild French wind)
-    'mistral': {
-      img: 'https://media.craiyon.com/2025-05-16/hgMVcdUBQKSCrmzSLMVDNA.webp',
-      label: 'Mistral', bg: '#fff8e1', color: '#e65100',
-      title: 'Mistral · Le Vent'
-    },
-    // Groq — lightning bolt mascot
-    'groq': {
-      img: 'https://assets-global.website-files.com/62acd253ab1488d884ac546a/62cb21a933c6502e98c4f23f_design-mascot-lightning_f.png',
-      label: 'Groq', bg: '#fff3e0', color: '#bf360c',
-      title: 'Groq · LPU Speed'
-    },
-    // Cerebras — brain/robot (wafer-scale chip)
-    'cerebras': {
-      img: 'https://as2.ftcdn.net/v2/jpg/05/97/51/13/1000_F_597511354_TaKKJjzvNQK3ao0sS8vgH3vAQuhbcbit.jpg',
-      label: 'Cerebras', bg: '#fce4ec', color: '#880e4f',
-      title: 'Cerebras · Wafer-Scale'
-    },
-    // GPT-OSS — open book character
-    'gpt-oss': {
-      img: POLLEN + '/' + encodeURIComponent('open book character mascot, purple background, friendly, cartoon, minimal') + '?model=flux&width=64&height=64&nologo=true&seed=55',
-      label: 'GPT-OSS', bg: '#f3e5f5', color: '#4a148c',
-      title: 'GPT-OSS · Open Source'
-    },
-    // Gemini — twin stars / constellation woman
-    'gemini': {
-      img: POLLEN + '/' + encodeURIComponent('gemini twins constellation character, green stars, minimal illustration, circle') + '?model=flux&width=64&height=64&nologo=true&seed=33',
-      label: 'Gemini', bg: '#e8f5e9', color: '#1b5e20',
-      title: 'Gemini · Google'
-    },
-    // Claude — wise owl (Anthropic)
-    'claude': {
-      img: 'https://as2.ftcdn.net/jpg/01/59/68/47/1000_F_159684724_Exjgd7zYDGehAPlYKSPHaR4wa8xx6a1B.jpg',
-      label: 'Claude', bg: '#fff8e1', color: '#5d4037',
-      title: 'Claude · Anthropic'
-    },
-    // Grok — telescope / astronomer
-    'grok': {
-      img: POLLEN + '/' + encodeURIComponent('astronomer with telescope, navy blue background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=88',
-      label: 'Grok', bg: '#e8eaf6', color: '#1a237e',
-      title: 'Grok · xAI'
-    },
-    // Nemotron — humanoid robot (NVIDIA)
-    'nemotron': {
-      img: 'https://pics.craiyon.com/2024-03-20/iv7tat8SRQCLqiecCIWtsg.webp',
-      label: 'Nemotron', bg: '#e0f2f1', color: '#004d40',
-      title: 'Nemotron · NVIDIA'
-    },
-    // Mixtral — jester with many hats (MoE)
-    'mixtral': {
-      img: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0dde8d14-b8c6-4523-bcad-419138b1adb9/dguejtm-9d3fbb59-292b-45f2-bc1e-ab858eeafb5f.png/v1/fill/w_706,h_1132/court_jester__comm__by_juneaupaws_dguejtm-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MzQzNSIsInBhdGgiOiJcL2ZcLzBkZGU4ZDE0LWI4YzYtNDUyMy1iY2FkLTQxOTEzOGIxYWRiOVwvZGd1ZWp0bS05ZDNmYmI1OS0yOTJiLTQ1ZjItYmMxZS1hYjg1OGVlYWZiNWYucG5nIiwid2lkdGgiOiI8PTIxNDIifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.wppoHCUoGU_9EH_ojqBREhL_VA-Goyd1WIjXQVKEbsw',
-      label: 'Mixtral', bg: '#fce4ec', color: '#880e4f',
-      title: 'Mixtral · MoE'
-    },
-    // Qwen — Chinese dragon
-    'qwen': {
-      img: POLLEN + '/' + encodeURIComponent('cute chinese dragon cartoon, orange background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=66',
-      label: 'Qwen', bg: '#fff3e0', color: '#e65100',
-      title: 'Qwen · Alibaba'
-    },
-    // Llama — cute llama (Meta)
-    'llama': {
-      img: 'https://cdn.pixabay.com/photo/2026/01/23/13/10/baby-alpaca-illustration-10084421_1280.png',
-      label: 'Llama', bg: '#f3e5f5', color: '#6a1b9a',
-      title: 'Llama · Meta'
-    },
-    // Puter — cloud character
-    'puter': {
-      img: POLLEN + '/' + encodeURIComponent('friendly cloud character, light blue background, minimal cartoon, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=11',
-      label: 'Puter', bg: '#e3f2fd', color: '#0277bd',
-      title: 'Puter · User-Pays'
-    },
-    // Pollinations — flower character
-    'pollinations': {
-      img: POLLEN + '/' + encodeURIComponent('blooming flower character face, pink background, minimal illustration, circle avatar') + '?model=flux&width=64&height=64&nologo=true&seed=22',
-      label: 'Pollinations', bg: '#fce4ec', color: '#c62828',
-      title: 'Pollinations · Free'
-    },
-    // Default AI — Aurelia mark
-    'ai': {
-      img: null, initials: 'A', bg: '#0f3b3a', color: '#f7f3e9', font: 'serif',
-      title: 'Aurelia AI'
-    },
-  },
-
-  // ── MODE AVATARS ──────────────────────────────────────────────────────────
-  modes: {
-    'chat':       { emoji: '💬', label: 'Chat', bg: '#e8f4f4', color: '#0f3b3a' },
-    'research':   { emoji: '🔍', label: 'Research', bg: '#e3f2fd', color: '#0d47a1' },
-    'reasoning':  { emoji: '🧩', label: 'Reasoning', bg: '#f3e5f5', color: '#4a148c' },
-    'creative':   { emoji: '✨', label: 'Creative', bg: '#fff8e1', color: '#e65100' },
-    'drafting':   { emoji: '✍️', label: 'Drafting', bg: '#e8f5e9', color: '#1b5e20' },
-    'critical':   { emoji: '⚖️', label: 'Critical', bg: '#fce4ec', color: '#880e4f' },
-    'thoughtful': { emoji: '🤔', label: 'Thoughtful', bg: '#e8eaf6', color: '#283593' },
-    'synthesis':  { emoji: '🔮', label: 'Synthesis', bg: '#f3e5f5', color: '#6a1b9a' },
-  },
-
-  // ── PERSONA AVATARS ───────────────────────────────────────────────────────
-  personas: {
-    'butler': {
-      img: POLLEN + '/' + encodeURIComponent('sardonic british butler portrait, dark background, top hat, dry wit expression, elegant illustration') + '?model=flux&width=64&height=64&nologo=true&seed=101',
-      label: 'Sardonic Butler', bg: '#1c1917', color: '#f7f3e9',
-      title: 'Reginald — Sardonic Butler'
-    },
-    'researcher': {
-      img: POLLEN + '/' + encodeURIComponent('scientist researcher portrait, blue lab coat, microscope, professional illustration, circle') + '?model=flux&width=64&height=64&nologo=true&seed=102',
-      label: 'Research Associate', bg: '#e3f2fd', color: '#0d47a1',
-      title: 'Dr. Chen — Research Associate'
-    },
-    'pa': {
-      img: POLLEN + '/' + encodeURIComponent('tired but efficient personal assistant woman, clipboard, warm office background, illustration') + '?model=flux&width=64&height=64&nologo=true&seed=103',
-      label: 'Long-Suffering PA', bg: '#fff8e1', color: '#5d4037',
-      title: 'Margaret — Long-Suffering PA'
-    },
-    'coach': {
-      img: POLLEN + '/' + encodeURIComponent('warm identity coach woman portrait, green nature background, compassionate expression, illustration') + '?model=flux&width=64&height=64&nologo=true&seed=104',
-      label: 'Identity Coach', bg: '#e8f5e9', color: '#1b5e20',
-      title: 'Aurelia — Identity Coach'
-    },
-    'critic': {
-      img: POLLEN + '/' + encodeURIComponent('devil advocate character, dramatic red background, challenging expression, theatrical illustration') + '?model=flux&width=64&height=64&nologo=true&seed=105',
-      label: "Devil's Advocate", bg: '#fce4ec', color: '#880e4f',
-      title: "Mephistopheles — Devil's Advocate"
-    },
-    'sage': {
-      img: 'https://cdna.artstation.com/p/assets/images/images/078/342/792/large/nando-5-1.jpg?1721836577',
-      label: 'Wise Sage', bg: '#fff8e1', color: '#5d4037',
-      title: 'The Sage — Ancient Wisdom'
-    },
-    'strategist': {
-      img: POLLEN + '/' + encodeURIComponent('chess grandmaster strategist portrait, navy background, focused expression, minimal illustration') + '?model=flux&width=64&height=64&nologo=true&seed=106',
-      label: 'Strategist', bg: '#e8eaf6', color: '#283593',
-      title: 'The Strategist — Long Game'
-    },
-    'poet': {
-      img: POLLEN + '/' + encodeURIComponent('romantic poet portrait, rose garden background, dreamy expression, watercolor illustration') + '?model=flux&width=64&height=64&nologo=true&seed=107',
-      label: 'Poet', bg: '#fce4ec', color: '#880e4f',
-      title: 'The Poet — Beautiful Words'
-    },
-  },
-};
-
-
-// Current active persona (null = use model avatar)
-let activePersona = null;
-let activeMode = 'chat';
-
-// ── Get avatar for a model ID ─────────────────────────────────────────────
-function getModelAvatar(modelId) {
-  if (!modelId) return AVATARS.models.ai;
-  const m = modelId.toLowerCase();
-  // Check model families in order
-  if (m.includes('gemma')) return AVATARS.models.gemma;
-  if (m.includes('kimi') || m.includes('moonshot')) return AVATARS.models.kimi;
-  if (m.includes('deepseek')) return AVATARS.models.deepseek;
-  if (m.includes('mistral') || m.includes('magistral') || m.includes('ministral')) return AVATARS.models.mistral;
-  if (m.includes('mixtral')) return AVATARS.models.mixtral;
-  if (m.includes('groq') && !m.includes('gpt-oss')) return AVATARS.models.groq;
-  if (m.includes('cerebras')) return AVATARS.models.cerebras;
-  if (m.includes('gpt-oss') || m.includes('gpt_oss')) return AVATARS.models['gpt-oss'];
-  if (m.includes('gemini')) return AVATARS.models.gemini;
-  if (m.includes('claude')) return AVATARS.models.claude;
-  if (m.includes('grok')) return AVATARS.models.grok;
-  if (m.includes('nemotron')) return AVATARS.models.nemotron;
-  if (m.includes('qwen')) return AVATARS.models.qwen;
-  if (m.includes('llama')) return AVATARS.models.llama;
-  if (m.includes('puter')) return AVATARS.models.puter;
-  if (m.includes('pollinations')) return AVATARS.models.pollinations;
-  return AVATARS.models.ai;
-}
-
-// ── Get user avatar ───────────────────────────────────────────────────────
-function getUserAvatar(name) {
-  return AVATARS.users[name] || AVATARS.users['SJ'];
-}
-
-// ── Render avatar HTML ────────────────────────────────────────────────────
-function renderAvatar(av, size) {
-  size = size || 32;
-  const title = av.title || av.label || '';
-  const baseStyle = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;flex-shrink:0;cursor:default;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.12);overflow:hidden;display:flex;align-items:center;justify-content:center;';
-
-  if (av.img) {
-    // Image-based avatar — load with fallback to initials/emoji
-    const fallback = av.initials || av.emoji || '?';
-    const fallbackStyle = 'background:' + av.bg + ';color:' + av.color + ';font-size:' + size <= 28 ? \'12px\' : \'15px\' + ';font-weight:600;';
-    return '<div style="' + baseStyle + 'background:' + av.bg + '" title="' + title + '">
-      <img src="' + av.img + '" alt="' + title + '" 
-        style="width:100%;height:100%;object-fit:cover;border-radius:50%"
-        onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'"
-        loading="lazy">
-      <div style="' + baseStyle + '' + fallbackStyle + 'display:none;position:absolute">' + fallback + '</div>
-    </div>';
-  } else if (av.emoji) {
-    const fontSize = size <= 28 ? '14px' : size <= 36 ? '17px' : '21px';
-    return '<div style="' + baseStyle + 'background:' + av.bg + ';font-size:' + fontSize + '" title="' + title + '">' + av.emoji + '</div>';
-  } else {
-    // Initials
-    const fontSize = size <= 28 ? '12px' : size <= 36 ? '14px' : '17px';
-    const fontStyle = av.font === 'serif' ? 'font-family:var(--font-serif);font-weight:500' : 'font-weight:600';
-    return '<div style="' + baseStyle + 'background:' + av.bg + ';color:' + av.color + ';font-size:' + fontSize + ';' + fontStyle + '" title="' + title + '">' + av.initials + '</div>';
-  }
-}
-
-// ── Persona selector ──────────────────────────────────────────────────────
-function openPersonaSheet() {
-  const existing = document.getElementById('persona-sheet');
-  if (existing) { existing.remove(); return; }
-  const sheet = document.createElement('div');
-  sheet.id = 'persona-sheet';
-  sheet.style.cssText = 'position:fixed;bottom:80px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;z-index:200;box-shadow:var(--shadow-lg);min-width:220px;max-height:400px;overflow-y:auto';
-  sheet.innerHTML = '
-    <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px">Persona</div>
-    <div style="display:flex;flex-direction:column;gap:5px">
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:' + !activePersona?\'var(--bg-2)\':\'\' + ';" onclick="setPersona(null)">
-        ' + renderAvatar(AVATARS.models.ai, 28) + '
-        <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">Default (Model Avatar)</div></div>
-      </div>
-      ' + Object.entries(AVATARS.personas).map(([id, p]) => '
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;background:${activePersona===id?'var(--bg-2)':'' + ';" onclick="setPersona('' + id + '')">
-          ' + renderAvatar(p, 28) + '
-          <div><div style="font-size:12.5px;font-weight:500;color:var(--ink)">' + p.label + '</div><div style="font-size:10.5px;color:var(--text-faint)">' + p.title + '</div></div>
-        </div>').join(\'\')}
-    </div>
-    <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 8px">Mode</div>
-    <div style="display:flex;flex-wrap:wrap;gap:5px">
-      ' + Object.entries(AVATARS.modes).map(([id, m]) => '
-        <div style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:var(--radius-pill);cursor:pointer;border:1px solid ${activeMode===id?'var(--accent)':'var(--border)' + ';background:' + activeMode===id?'var(--accent3)':'var(--bg-2)' + ';" onclick="setMode('' + id + '')">
-          <span style="font-size:13px">' + m.emoji + '</span>
-          <span style="font-size:11px;color:' + activeMode===id?'var(--accent)':'var(--text-muted)' + '">' + m.label + '</span>
-        </div>').join(\'\')}
-    </div>';
-  document.body.appendChild(sheet);
-  document.addEventListener('click', function closeSheet(e) {
-    if (!sheet.contains(e.target) && !e.target.closest('[onclick*="openPersonaSheet"]')) {
-      sheet.remove();
-      document.removeEventListener('click', closeSheet);
-    }
-  }, { once: false });
-}
-
-function setPersona(id) {
-  activePersona = id;
-  updateAvatarDisplay();
-  const sheet = document.getElementById('persona-sheet');
-  if (sheet) sheet.remove();
-  if (id) Toast.show('Persona: ' + AVATARS.personas[id].label, 'success');
-  else Toast.show('Default model avatar', 'info');
-
-    // Update topbar label
-    var topbarLabel = document.getElementById("persona-topbar-label");
-    if (topbarLabel) topbarLabel.textContent = (persona.emoji || "\u2728") + " " + (persona.name || "Aurelia");
-  }
-
-function setMode(id) {
-  activeMode = id;
-  updateAvatarDisplay();
-  Toast.show('Mode: ' + AVATARS.modes[id].label, 'success');
-}
-
-function updateAvatarDisplay() {
-  // Update the AI avatar in the topbar/context pane if visible
-  const modelLabel = document.getElementById('chat-thread-meta');
-  if (modelLabel) {
-    const av = activePersona ? AVATARS.personas[activePersona] : AVATARS.modes[activeMode];
-    // Update any visible AI avatars
-  }
-}
-
-// ── Override makeMsg to use avatars ───────────────────────────────────────
-function makeMsgWithAvatar(text, isUser, modelName) {
-  const wrap = document.createElement('div');
-  wrap.className = 'message fade-in' + (isUser ? ' user' : '');
-
-  // Choose avatar
-  let av;
-  if (isUser) {
-    av = getUserAvatar('SJ');
-  } else if (activePersona) {
-    av = AVATARS.personas[activePersona];
-  } else {
-    av = getModelAvatar(modelName);
-  }
-
-  const avEl = document.createElement('div');
-  avEl.innerHTML = renderAvatar(av, 32);
-  const avNode = avEl.firstChild;
-
-  const inner = document.createElement('div');
-  const bubble = document.createElement('div');
-  bubble.className = 'message-bubble';
-
-  if (isUser) {
-    bubble.textContent = text;
-  } else {
-    bubble.innerHTML = renderMd(text);
-  }
-
-  inner.appendChild(bubble);
-
-  if (!isUser && modelName) {
-    const meta = document.createElement('div');
-    meta.className = 'message-meta';
-    const modelAv = getModelAvatar(modelName);
-    meta.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px">' + modelAv.emoji || \'✦\' + ' ' + modelName.split(\'/\').pop() + '</span>';
-    if (activePersona) {
-      const p = AVATARS.personas[activePersona];
-      meta.innerHTML += ' <span style="opacity:0.6">· ' + p.emoji + ' ' + p.label + '</span>';
-    }
-    inner.appendChild(meta);
-  }
-
-  wrap.appendChild(avNode);
-  wrap.appendChild(inner);
+  wrap.appendChild(av);
+  wrap.appendChild(body);
   return wrap;
 }
 
-// Override the global makeMsg used by doSend
-window._makeMsgWithAvatar = makeMsgWithAvatar;
-</script>
+function formatText(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/
+/g, '<br>');
+}
 
-<div class="app-shell">
-<nav class="sidebar" id="sidebar">
-<div class="sidebar-logo" onclick="window.location.href='/index.html'" style="cursor:pointer" title="Home"><div class="logo-mark" style="background:var(--ip-deep-teal,#0f3b3a);overflow:hidden;padding:0"><img alt="IP" onerror="this.style.display='none';this.parentElement.textContent='IP'" src="/brand/logo-square.png?expires=1790541897&amp;signature=7eb1b441615cd32f87e8c83aeda8f83be0324c6c4e69229865de324895fcd53d&amp;kid=prod-250922" style="width:100%;height:100%;object-fit:cover"/></div><span class="logo-text">Aurelia</span></div>
-<div class="sidebar-nav">
-<a class="nav-item" data-page="home" href="/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="nav-label">Home</span></a>
-<a class="nav-item" data-page="chat" href="/chat/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg><span class="nav-label">Chat</span></a>
-<a class="nav-item" data-page="research" href="/research/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg><span class="nav-label">Research</span></a>
-<a class="nav-item" data-page="drafting" href="/drafting/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg><span class="nav-label">Drafting Desk</span></a>
-<div class="nav-section-label">Create</div>
-<a class="nav-item" data-page="creator" href="/creator/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span class="nav-label">Creator Studio</span></a>
-<a class="nav-item nav-sub" data-page="canvas" href="/creator/canvas.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="18" rx="2" width="18" x="3" y="3"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><span class="nav-label">Canvas</span></a>
-<a class="nav-item" data-page="social" href="/social/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path></svg><span class="nav-label">Social Queue</span></a>
-<div class="nav-section-label">Business</div>
-<a class="nav-item" data-page="crm" href="/crm/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg><span class="nav-label">CRM</span></a>
-<a class="nav-item" data-page="monetisation" href="/monetisation/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><line x1="12" x2="12" y1="1" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg><span class="nav-label">Monetisation</span></a>
-<a class="nav-item nav-sub" data-page="platforms" href="/monetisation/platforms.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="14" rx="2" width="20" x="2" y="3"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg><span class="nav-label">Platforms</span></a>
-<a class="nav-item" data-page="comms" href="/comms/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="nav-label">Comms Centre</span></a>
-<div class="nav-section-label">Intelligence</div>
-<a class="nav-item" data-page="workflow" href="/workflow/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg><span class="nav-label">Workflow Wizard</span></a>
-<a class="nav-item" data-page="agenti-city" href="/agenti-city/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg><span class="nav-label">Agenti City</span></a>
-<a class="nav-item" data-page="orchestrator" href="/orchestrator/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"></path></svg><span class="nav-label">Orchestrator</span></a>
-<a class="nav-item" data-page="agents" href="/agents/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"></path></svg><span class="nav-label">Agent Builder</span></a>
-<a class="nav-item" data-page="platform-agent" href="/platform-agent/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path></svg><span class="nav-label">Platform Agent</span></a>
-<div class="nav-section-label">System</div>
-<a class="nav-item" data-page="workspaces" href="/workspaces/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><rect height="7" width="7" x="3" y="3"></rect><rect height="7" width="7" x="14" y="3"></rect><rect height="7" width="7" x="3" y="14"></rect><rect height="7" width="7" x="14" y="14"></rect></svg><span class="nav-label">Workspaces</span></a>
-<a class="nav-item" data-page="input" href="/input/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"></path><path d="M19 10v2a7 7 0 01-14 0v-2"></path></svg><span class="nav-label">Input Engine</span></a>
-<a class="nav-item" data-page="annotate" href="/annotate/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg><span class="nav-label">Annotations</span></a>
-<a class="nav-item" data-page="storage" href="/storage/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M22 12H2"></path><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"></path></svg><span class="nav-label">Storage</span></a>
-<a class="nav-item" data-page="audit" href="/audit/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><span class="nav-label">Audit Log</span></a>
-<a class="nav-item" data-page="settings" href="/settings/index.html"><svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg><span class="nav-label">Settings</span></a>
-</div>
-<div class="sidebar-footer"><button class="sidebar-collapse-btn" onclick="Sidebar.toggle()"><svg fill="none" height="13" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="13"><polyline points="15 18 9 12 15 6"></polyline></svg><span>Collapse</span></button></div>
-</nav>
-<div class="main-content" id="main-content">
-<div class="chat-shell">
-<!-- Thread List -->
-<div class="thread-pane">
-<div class="thread-pane-header">
-<span class="thread-pane-title">Threads</span>
-<div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="newThread()">+</button><button class="btn btn-ghost btn-sm" onclick="toggleThreadPane()" style="font-size:11px" title="Collapse threads">◁</button></div>
-</div>
-<div class="thread-list" id="thread-list"></div>
-</div>
-<!-- Chat Main -->
-<div class="chat-main">
-<div id="api-key-warning" style="background:#fff8e1;border-bottom:1px solid #ffe082;padding:7px 18px;font-size:12px;color:#f57f17;display:none;align-items:center;gap:10px">
-<span>⚠️ API keys not configured — responses will be limited.</span>
-<a href="/settings/index.html" style="color:var(--accent);font-weight:500">Configure in Settings →</a>
-<button onclick="this.parentElement.style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#f57f17;font-size:14px">✕</button>
-</div>
-<div class="chat-topbar">
-<div style="flex:1;min-width:0">
-  <div id="chat-thread-title" style="font-family:var(--font-serif);font-size:14px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">New Conversation</div>
-  <div id="chat-thread-meta" style="font-size:10px;color:var(--text-faint)">Ready</div>
-</div>
-<!-- Persona selector (prominent, at top) -->
-<button class="btn btn-ghost btn-sm" id="persona-topbar-btn" onclick="openPersonaSheet()" style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Change persona">
-  <span id="persona-topbar-label">&#10024; Aurelia</span>
-</button>
-<!-- Model selector -->
-<div id="model-selector-container"></div>
-<!-- Dictation -->
-<button class="btn btn-ghost btn-sm" id="dictate-btn" onclick="Dictation.toggle('chat-textarea')" data-dictation-btn="chat-textarea" title="Dictate (click to start/stop)" style="font-size:11px">&#127908;</button>
-<!-- Round Robin -->
-<button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px" title="Query multiple models simultaneously">&#8853; RR</button>
-<!-- Handwrite toggle -->
-<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px" title="Toggle handwriting canvas">&#9998;</button>
-</div>
-<div id="model-selector-container"></div>
-<button class="btn btn-ghost btn-sm" id="round-robin-btn" onclick="toggleRoundRobin()" style="font-size:11px">⊕ Round Robin</button>
-<button class="btn btn-ghost btn-sm" id="chat-qwerty-btn" onclick="toggleChatQWERTY()" style="font-size:11px">✎ Handwrite</button>
-<button class="btn btn-ghost btn-sm" onclick="clearChat()" title="Clear">⌫</button>
-<button class="btn btn-ghost btn-sm" onclick="saveToWorkspace()" title="Save">⊞</button>
-<button class="btn btn-ghost btn-sm" onclick="toggleContextPane()" style="font-size:11px" title="Toggle context panel">▷</button>
-</div>
-<div class="chat-messages" id="chat-messages">
-<div class="empty-state" id="chat-empty">
-<div class="empty-state-icon" style="font-size:28px;opacity:0.2">◎</div>
-<div class="empty-state-title">Begin a conversation</div>
-<div class="empty-state-desc">Aurelia routes to the best model for your task — chat, reasoning, long-context, or creative.</div>
-<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px">
-<button class="btn btn-ghost btn-sm" onclick="setPrompt('Summarise my week and suggest priorities')">Summarise my week</button>
-<button class="btn btn-ghost btn-sm" onclick="setPrompt('Help me draft a professional email')">Draft an email</button>
-<button class="btn btn-ghost btn-sm" onclick="setPrompt('Research the latest on AI agents')">Research AI agents</button>
-<button class="btn btn-ghost btn-sm" onclick="setPrompt('Create a content plan for LinkedIn')">LinkedIn content plan</button>
-</div>
-</div>
-</div>
-<div class="chat-input-area">
-<!-- Main input row -->
-<div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:6px">
-  <!-- Attach button (left of textarea) -->
-  <label class="btn btn-ghost btn-sm" style="cursor:pointer;flex-shrink:0;height:36px;display:flex;align-items:center" title="Attach file or image">
-    &#128206;
-    <input type="file" accept="image/*,.pdf,.txt,.md,.docx,.csv" style="display:none" onchange="handleFileAttach(this)">
-  </label>
-  <!-- Textarea -->
-  <div class="chat-input-wrap" style="flex:1">
-    <textarea data-autoresize="" id="chat-textarea" placeholder="Message Aurelia&#8230; (Enter to send, Shift+Enter for new line)" rows="1"></textarea>
-    <div class="chat-input-actions">
-      <button class="btn btn-ghost btn-sm" id="agent-research-btn" onclick="toggleAgent('research')">&#9678; Research</button>
-      <button class="btn btn-ghost btn-sm" id="agent-atomise-btn" onclick="toggleAgent('atomise')">&#9889; Atomise</button>
-      <button class="btn btn-ghost btn-sm" id="agent-creator-btn" onclick="toggleAgent('creator')">&#9672; Creator</button>
-      <span style="flex:1"></span>
-      <span style="font-size:10.5px;color:var(--text-faint)" id="char-count">0</span>
-    </div>
-  </div>
-  <!-- Dictation button (right of textarea) -->
-  <button class="btn btn-ghost btn-sm" onclick="Dictation.toggle('chat-textarea')" data-dictation-btn="chat-textarea" title="Dictate" style="flex-shrink:0;height:36px">&#127908;</button>
-  <!-- Send button -->
-  <button class="btn btn-primary" id="send-btn" onclick="doSend()" style="height:44px;padding:0 16px;flex-shrink:0">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-  </button>
-</div>
+function newThread() {
+  var id = 'chat_' + Date.now();
+  currentThread = {id: id, title: 'New Conversation', messages: [], ts: Date.now()};
+  threads.push(currentThread);
+  saveThreads();
+  renderThreadList();
+  var mc = document.getElementById('chat-messages');
+  mc.innerHTML = '';
+  var empty = document.getElementById('empty-state');
+  if (!empty) {
+    empty = document.createElement('div');
+    empty.id = 'empty-state';
+    empty.className = 'empty-state';
+    empty.innerHTML = '<div class="empty-mark">A</div><div class="empty-title">Begin a conversation</div><div class="empty-sub">Aurelia routes to the best model for your task.</div><div class="starters"><div class="starter" onclick="setPrompt('Summarise my week')">Summarise my week</div><div class="starter" onclick="setPrompt('Draft an email')">Draft an email</div><div class="starter" onclick="setPrompt('Research AI agents')">Research AI agents</div></div>';
+  }
+  empty.style.display = 'flex';
+  mc.appendChild(empty);
+  document.getElementById('chat-title').textContent = 'New Conversation';
+  document.getElementById('chat-textarea').focus();
+}
 
-<div id="chat-mini-qwerty" style="background:var(--bg-2,#f0e9e0);border-top:1px solid var(--border);padding:5px 6px;flex-shrink:0;user-select:none;width:100%"><style>.qk{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:30px;padding:0 4px;margin:1.5px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11.5px;font-weight:500;color:var(--ink);cursor:pointer;font-family:var(--font);transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.07);}.qk:active{background:var(--bg-3,#e8ddd4);transform:scale(0.93);}.qk.w2{min-width:44px;}.qk.w3{min-width:60px;}.qk.w4{min-width:80px;}.qk.w5{min-width:130px;}.qk.sp{background:var(--bg-3,#e8ddd4);font-size:10px;color:var(--muted,#78716c);}.qk.mon{background:var(--accent,#0f3b3a);color:#fff;}.qrow{display:flex;justify-content:center;margin-bottom:1.5px;}</style>
-<div class="qrow"><div class="qk sp" onclick="qkP('`','~')">` ~</div><div class="qk" onclick="qkP('1','!')">1 !</div><div class="qk" onclick="qkP('2','@')">2 @</div><div class="qk" onclick="qkP('3','#')">3 #</div><div class="qk" onclick="qkP('4','$')">4 $</div><div class="qk" onclick="qkP('5','%')">5 %</div><div class="qk" onclick="qkP('6','^')">6 ^</div><div class="qk" onclick="qkP('7','&amp;')">7 &amp;</div><div class="qk" onclick="qkP('8','*')">8 *</div><div class="qk" onclick="qkP('9','(')">9 (</div><div class="qk" onclick="qkP('0',')')">0 )</div><div class="qk sp" onclick="qkP('-','_')">- _</div><div class="qk sp" onclick="qkP('=','+')">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
-<div class="qrow"><div class="qk w2 sp" onclick="qkP('    ','    ')">Tab</div><div class="qk" onclick="qkP('q','Q')">Q</div><div class="qk" onclick="qkP('w','W')">W</div><div class="qk" onclick="qkP('e','E')">E</div><div class="qk" onclick="qkP('r','R')">R</div><div class="qk" onclick="qkP('t','T')">T</div><div class="qk" onclick="qkP('y','Y')">Y</div><div class="qk" onclick="qkP('u','U')">U</div><div class="qk" onclick="qkP('i','I')">I</div><div class="qk" onclick="qkP('o','O')">O</div><div class="qk" onclick="qkP('p','P')">P</div><div class="qk sp" onclick="qkP('[','{')">[ {</div><div class="qk sp" onclick="qkP(']','}')">] }</div><div class="qk sp" onclick="qkP('\\','|')">\ |</div></div>
-<div class="qrow"><div class="qk w3 sp" onclick="qkCaps()" id="qk-caps">Caps Lock</div><div class="qk" onclick="qkP('a','A')">A</div><div class="qk" onclick="qkP('s','S')">S</div><div class="qk" onclick="qkP('d','D')">D</div><div class="qk" onclick="qkP('f','F')">F</div><div class="qk" onclick="qkP('g','G')">G</div><div class="qk" onclick="qkP('h','H')">H</div><div class="qk" onclick="qkP('j','J')">J</div><div class="qk" onclick="qkP('k','K')">K</div><div class="qk" onclick="qkP('l','L')">L</div><div class="qk sp" onclick="qkP(';',':')">; :</div><div class="qk sp" onclick="qkP(&quot;'&quot;,&quot;\&quot;&quot;)">' "</div><div class="qk w3 sp" onclick="qkEnter()">&#9166; Enter</div></div>
-<div class="qrow"><div class="qk w3 sp" onclick="qkShift()" id="qk-sh1">&#8679; Shift</div><div class="qk" onclick="qkP('z','Z')">Z</div><div class="qk" onclick="qkP('x','X')">X</div><div class="qk" onclick="qkP('c','C')">C</div><div class="qk" onclick="qkP('v','V')">V</div><div class="qk" onclick="qkP('b','B')">B</div><div class="qk" onclick="qkP('n','N')">N</div><div class="qk" onclick="qkP('m','M')">M</div><div class="qk sp" onclick="qkP(',','&lt;'">, &lt;</div><div class="qk sp" onclick="qkP('.','&gt;'">. &gt;</div><div class="qk sp" onclick="qkP('/','?'">/ ?</div><div class="qk w3 sp" onclick="qkShift()" id="qk-sh2">&#8679; Shift</div></div>
-<div class="qrow"><div class="qk w2 sp" onclick="qkCtrl()" id="qk-ctrl">Ctrl</div><div class="qk w3 sp" onclick="qkCtrlShift()" id="qk-cs" style="font-size:9.5px">Ctrl+Shift</div><div class="qk sp" onclick="qkP(' ',' ')">Alt</div><div class="qk w5 sp" onclick="qkP(' ',' ')">Space</div><div class="qk sp" onclick="qkP(' ',' ')">Alt Gr</div><div class="qk sp" onclick="qkLeft()">&#8592;</div><div class="qk sp" onclick="qkUp()">&#8593;</div><div class="qk sp" onclick="qkDown()">&#8595;</div><div class="qk sp" onclick="qkRight()">&#8594;</div><div class="qk w2 sp" onclick="doSend()" style="background:var(--accent,#0f3b3a);color:#fff;font-size:10.5px">Send &#9166;</div></div>
-</div>
-<script>
-var _sh=false,_caps=false,_ctrl=false,_cs=false;
-function qkP(lo,hi){var ta=document.getElementById("chat-textarea");if(!ta)return;var ch=(_sh||_caps)?hi:lo;var s=ta.selectionStart,e=ta.selectionEnd;ta.value=ta.value.slice(0,s)+ch+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s+ch.length;ta.focus();if(_sh&&!_caps){_sh=false;_qkU();}if(typeof autoResize==="function")autoResize(ta);var cc=document.getElementById("char-count");if(cc)cc.textContent=ta.value.length;}
-function qkBksp(){var ta=document.getElementById("chat-textarea");if(!ta)return;var s=ta.selectionStart,e=ta.selectionEnd;if(s===e&&s>0){ta.value=ta.value.slice(0,s-1)+ta.value.slice(s);ta.selectionStart=ta.selectionEnd=s-1;}else if(s!==e){ta.value=ta.value.slice(0,s)+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s;}ta.focus();if(typeof autoResize==="function")autoResize(ta);}
-function qkEnter(){if(_sh||_ctrl){qkP("
-","
-");}else{doSend();}}
-function qkShift(){_sh=!_sh;_qkU();}
-function qkCaps(){_caps=!_caps;_qkU();}
-function qkCtrl(){_ctrl=!_ctrl;_qkU();}
-function qkCtrlShift(){_cs=!_cs;_sh=_cs;_ctrl=_cs;_qkU();}
-function qkLeft(){var ta=document.getElementById("chat-textarea");if(ta&&ta.selectionStart>0){ta.selectionStart=ta.selectionEnd=ta.selectionStart-1;ta.focus();}}
-function qkRight(){var ta=document.getElementById("chat-textarea");if(ta){ta.selectionStart=ta.selectionEnd=ta.selectionStart+1;ta.focus();}}
-function qkUp(){var ta=document.getElementById("chat-textarea");if(ta){var p=ta.value.lastIndexOf("
-",ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();}}
-function qkDown(){var ta=document.getElementById("chat-textarea");if(ta){var p=ta.value.indexOf("
-",ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();}}
-function _qkU(){var s1=document.getElementById("qk-sh1");if(s1)s1.classList.toggle("mon",_sh);var s2=document.getElementById("qk-sh2");if(s2)s2.classList.toggle("mon",_sh);var cp=document.getElementById("qk-caps");if(cp)cp.classList.toggle("mon",_caps);var ct=document.getElementById("qk-ctrl");if(ct)ct.classList.toggle("mon",_ctrl);var cs=document.getElementById("qk-cs");if(cs)cs.classList.toggle("mon",_cs);}
-</script>
-</div>
+function loadThread(id) {
+  currentThread = threads.find(function(t) { return t.id === id; });
+  if (!currentThread) return;
+  var mc = document.getElementById('chat-messages');
+  mc.innerHTML = '';
+  var empty = document.getElementById('empty-state');
+  if (empty) empty.style.display = 'none';
+  currentThread.messages.forEach(function(m) { mc.appendChild(makeMsg(m)); });
+  mc.scrollTop = mc.scrollHeight;
+  document.getElementById('chat-title').textContent = currentThread.title;
+  document.querySelectorAll('.thread-item').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+}
 
-</div>
+function renderThreadList() {
+  var list = document.getElementById('thread-list');
+  if (!list) return;
+  if (!threads.length) {
+    list.innerHTML = '<div style="padding:16px;font-size:12px;color:var(--faint,#a8a29e)">No threads yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  var sorted = threads.slice().reverse();
+  sorted.forEach(function(t) {
+    var div = document.createElement('div');
+    div.className = 'thread-item' + (currentThread && currentThread.id === t.id ? ' active' : '');
+    div.dataset.id = t.id;
+    div.onclick = function() { loadThread(t.id); };
+    var title = document.createElement('div');
+    title.className = 'thread-title';
+    title.textContent = t.title || 'Conversation';
+    var meta = document.createElement('div');
+    meta.className = 'thread-meta';
+    meta.textContent = (t.messages ? t.messages.length : 0) + ' messages';
+    div.appendChild(title);
+    div.appendChild(meta);
+    list.appendChild(div);
+  });
+}
 
-</div>
-<!-- Context Pane -->
-<div class="context-pane">
-<div class="context-section">
-<div class="context-section-title">Active Agents</div>
-<div>
-<span class="agent-chip" id="chip-research" onclick="toggleAgent('research')">◎ Research</span>
-<span class="agent-chip" id="chip-atomise" onclick="toggleAgent('atomise')">⚡ Atomise</span>
-<span class="agent-chip" id="chip-creator" onclick="toggleAgent('creator')">◈ Creator</span>
-<span class="agent-chip" id="chip-publishing" onclick="toggleAgent('publishing')">↑ Publishing</span>
-<span class="agent-chip" id="chip-platform" onclick="toggleAgent('platform')">⊞ Platform</span>
-<span class="agent-chip" id="chip-crm" onclick="toggleAgent('crm')">◉ CRM</span>
-</div>
-</div>
-<div class="context-section">
-<div class="context-section-title">Workspace</div>
-<select class="input" id="workspace-select" style="font-size:12px"><option value="">No workspace</option></select>
-</div>
-<div class="context-section">
-<div class="context-section-title">Tags</div>
-<div id="thread-tags" style="display:flex;flex-wrap:wrap;gap:4px"><span class="tag">#IP</span></div>
-<input class="input mt-2" onkeydown="addTag(event,this)" placeholder="Add tag…" style="font-size:12px"/>
-</div>
-<div class="context-section">
-<div class="context-section-title">Model</div>
-<div id="model-info-panel" style="font-size:12px;color:var(--text-secondary)">Loading…</div>
-</div>
-<div class="context-section">
-<div class="context-section-title">Actions</div>
-<div style="display:flex;flex-direction:column;gap:5px">
-<button class="btn btn-ghost btn-sm w-full" onclick="exportChat()">Export Chat</button>
-<button class="btn btn-ghost btn-sm w-full" onclick="saveToCRM()">Save to CRM</button>
-<button class="btn btn-ghost btn-sm w-full" onclick="sendToDrafting()">Send to Drafting</button>
-<button class="btn btn-ghost btn-sm w-full" onclick="sendToAgentiCity()">→ Agenti City</button>
-</div>
-</div>
-<!-- §6.1.9 Comms Hub -->
-<div class="context-section">
-<div class="context-section-title">Comms Hub (§6.1.9)</div>
-<div style="display:flex;flex-direction:column;gap:5px">
-<textarea class="input" id="comms-hub-msg" placeholder="Send last AI response via…" rows="2" style="font-size:11.5px"></textarea>
-<div style="display:flex;gap:4px;flex-wrap:wrap">
-<button class="btn btn-ghost btn-sm" onclick="sendViaComms('telegram')" title="Telegram">✈️ TG</button>
-<button class="btn btn-ghost btn-sm" onclick="sendViaComms('email')" title="Email">✉️ Email</button>
-<button class="btn btn-ghost btn-sm" onclick="sendViaComms('whatsapp')" title="WhatsApp">💬 WA</button>
-</div>
-</div>
-</div>
-<!-- §6.1.11 Creator Integration -->
-<div class="context-section">
-<div class="context-section-title">→ Creator</div>
-<div style="display:flex;flex-direction:column;gap:4px">
-<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('carousel')">Carousel</button>
-<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('quote-card')">Quote Card</button>
-<button class="btn btn-ghost btn-sm w-full" onclick="sendToCreatorType('worksheet')">Worksheet</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<script src="/shared/aurelia.js?v=1787951766"></script>
-<script>
-// Wire send button immediately - no dependencies
-(function() {
-  function doSend() {
-    var ta = document.getElementById('chat-textarea');
-    if (!ta) return;
-    var text = ta.value.trim();
-    if (!text) return;
-    // Delegate to main send function when available
-    if (typeof window.sendMessageWithFile === 'function') { window.sendMessageWithFile(); return; }
-    if (typeof window.sendMessage === 'function') { window.sendMessage(); return; }
-    // Direct fallback
-    var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
-    if (!localStorage.getItem('aurelia_device_token')) localStorage.setItem('aurelia_device_token', tok);
-    ta.value = '';
+function saveThreads() { localStorage.setItem('aurelia_chats', JSON.stringify(threads)); }
+
+function setPrompt(text) {
+  var ta = document.getElementById('chat-textarea');
+  if (ta) { ta.value = text; ta.focus(); }
+}
+
+function changeModel(val) {
+  currentModel = val;
+  localStorage.setItem('aurelia_mobile_model', val);
+  document.getElementById('chat-subtitle').textContent = val.split('/').pop();
+}
+
+function toggleAgent(name) {
+  activeAgents[name] = !activeAgents[name];
+  var btn = document.getElementById('agent-' + name);
+  if (btn) btn.classList.toggle('active', activeAgents[name]);
+  var active = Object.keys(activeAgents).filter(function(k) { return activeAgents[k]; });
+  var el = document.getElementById('active-agents');
+  if (el) el.textContent = active.length ? active.join(', ') : 'None active';
+}
+
+function attachFile(input) {
+  attachedFile = input.files[0];
+  if (attachedFile && typeof Toast !== 'undefined') Toast.show('Attached: ' + attachedFile.name, 'success');
+}
+
+function clearChat() {
+  if (!currentThread) return;
+  if (confirm('Clear this conversation?')) {
+    currentThread.messages = [];
+    saveThreads();
     var mc = document.getElementById('chat-messages');
-    var empty = document.getElementById('chat-empty');
-    if (empty) empty.style.display = 'none';
-    if (mc) {
-      var el = document.createElement('div');
-      el.className = 'message user fade-in';
-      el.innerHTML = '<div class="message-avatar">SJ</div><div><div class="message-bubble">' + text.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div></div>';
-      mc.appendChild(el);
-      mc.scrollTop = mc.scrollHeight;
-    }
-    var typingEl = document.createElement('div');
-    typingEl.className = 'message fade-in';
-    typingEl.id = 'typing-fallback';
-    typingEl.innerHTML = '<div class="message-avatar">A</div><div class="message-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
-    if (mc) { mc.appendChild(typingEl); mc.scrollTop = mc.scrollHeight; }
-    fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
-      body: JSON.stringify({messages: [{role: 'user', content: text}], model: 'groq/openai/gpt-oss-20b', system: 'You are Aurelia, AI assistant for Identity Partners. Be warm, professional, and concise.'})
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      var t = document.getElementById('typing-fallback');
-      if (t) t.remove();
-      if (mc) {
-        var el2 = document.createElement('div');
-        el2.className = 'message fade-in';
-        el2.innerHTML = '<div class="message-avatar">A</div><div><div class="message-bubble">' + (data.content || 'Response received.').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
-/g,'<br>') + '</div><div class="message-meta">' + (data.model || 'AI') + '</div></div>';
-        mc.appendChild(el2);
-        mc.scrollTop = mc.scrollHeight;
-      }
-    }).catch(function(err) {
-      var t = document.getElementById('typing-fallback');
-      if (t) t.remove();
-      if (mc) {
-        var el3 = document.createElement('div');
-        el3.className = 'message fade-in';
-        el3.innerHTML = '<div class="message-avatar">A</div><div><div id="chat-mini-qwerty" style="background:var(--bg-2,#f0e9e0);border-top:1px solid var(--border);padding:5px 6px;flex-shrink:0;user-select:none">
-<style>
-.qk{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:30px;padding:0 4px;margin:1.5px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11.5px;font-weight:500;color:var(--ink);cursor:pointer;font-family:var(--font);transition:all .1s;box-shadow:0 1px 2px rgba(0,0,0,0.07);}
-.qk:active{background:var(--bg-3,#e8ddd4);transform:scale(0.93);}
-.qk.w2{min-width:44px;}.qk.w3{min-width:60px;}.qk.w4{min-width:80px;}.qk.w5{min-width:130px;}
-.qk.sp{background:var(--bg-3,#e8ddd4);font-size:10px;color:var(--muted,#78716c);}
-.qk.mon{background:var(--accent,#0f3b3a);color:#fff;}
-.qrow{display:flex;justify-content:center;margin-bottom:1.5px;}
-</style>
-<div class="qrow"><div class="qk sp" onclick="qkP(96,126)">' ~</div><div class="qk" onclick="qkP(49,33)">1 !</div><div class="qk" onclick="qkP(50,64)">2 @</div><div class="qk" onclick="qkP(51,35)">3 #</div><div class="qk" onclick="qkP(52,36)">4 $</div><div class="qk" onclick="qkP(53,37)">5 %</div><div class="qk" onclick="qkP(54,94)">6 ^</div><div class="qk" onclick="qkP(55,38)">7 &amp;</div><div class="qk" onclick="qkP(56,42)">8 *</div><div class="qk" onclick="qkP(57,40)">9 (</div><div class="qk" onclick="qkP(48,41)">0 )</div><div class="qk sp" onclick="qkP(45,95)">- _</div><div class="qk sp" onclick="qkP(61,43)">= +</div><div class="qk w2 sp" onclick="qkBksp()">&#9003; Bksp</div></div>
-<div class="qrow"><div class="qk w2 sp" onclick="qkP(9,9)">Tab</div><div class="qk" onclick="qkP(113,81)">Q</div><div class="qk" onclick="qkP(119,87)">W</div><div class="qk" onclick="qkP(101,69)">E</div><div class="qk" onclick="qkP(114,82)">R</div><div class="qk" onclick="qkP(116,84)">T</div><div class="qk" onclick="qkP(121,89)">Y</div><div class="qk" onclick="qkP(117,85)">U</div><div class="qk" onclick="qkP(105,73)">I</div><div class="qk" onclick="qkP(111,79)">O</div><div class="qk" onclick="qkP(112,80)">P</div><div class="qk sp" onclick="qkP(91,123)">[ {</div><div class="qk sp" onclick="qkP(93,125)">] }</div><div class="qk sp" onclick="qkP(92,124)">\ |</div></div>
-<div class="qrow"><div class="qk w3 sp" onclick="qkCaps()" id="qk-caps">Caps Lock</div><div class="qk" onclick="qkP(97,65)">A</div><div class="qk" onclick="qkP(115,83)">S</div><div class="qk" onclick="qkP(100,68)">D</div><div class="qk" onclick="qkP(102,70)">F</div><div class="qk" onclick="qkP(103,71)">G</div><div class="qk" onclick="qkP(104,72)">H</div><div class="qk" onclick="qkP(106,74)">J</div><div class="qk" onclick="qkP(107,75)">K</div><div class="qk" onclick="qkP(108,76)">L</div><div class="qk sp" onclick="qkP(59,58)">; :</div><div class="qk sp" onclick="qkP(39,34)">' "</div><div class="qk w3 sp" onclick="qkEnter()">&#9166; Enter</div></div>
-<div class="qrow"><div class="qk w3 sp" onclick="qkShift()" id="qk-sh1">&#8679; Shift</div><div class="qk" onclick="qkP(122,90)">Z</div><div class="qk" onclick="qkP(120,88)">X</div><div class="qk" onclick="qkP(99,67)">C</div><div class="qk" onclick="qkP(118,86)">V</div><div class="qk" onclick="qkP(98,66)">B</div><div class="qk" onclick="qkP(110,78)">N</div><div class="qk" onclick="qkP(109,77)">M</div><div class="qk sp" onclick="qkP(44,60)">, &lt;</div><div class="qk sp" onclick="qkP(46,62)">. &gt;</div><div class="qk sp" onclick="qkP(47,63)">/ ?</div><div class="qk w3 sp" onclick="qkShift()" id="qk-sh2">&#8679; Shift</div></div>
-<div class="qrow"><div class="qk w2 sp" onclick="qkCtrl()" id="qk-ctrl">Ctrl</div><div class="qk w3 sp" onclick="qkCtrlShift()" id="qk-cs" style="font-size:9.5px">Ctrl+Shift</div><div class="qk sp" onclick="qkP(32,32)">Alt</div><div class="qk w5 sp" onclick="qkP(32,32)">Space</div><div class="qk sp" onclick="qkP(32,32)">Alt Gr</div><div class="qk sp" onclick="qkLeft()">&#8592;</div><div class="qk sp" onclick="qkUp()">&#8593;</div><div class="qk sp" onclick="qkDown()">&#8595;</div><div class="qk sp" onclick="qkRight()">&#8594;</div><div class="qk w2 sp" onclick="doSend()" style="background:var(--accent,#0f3b3a);color:#fff;font-size:10.5px">Send &#9166;</div></div>
-</div>
-<script>
-var _sh=false,_caps=false,_ctrl=false,_cs=false;
-function qkP(lo,hi){var ta=document.getElementById('chat-textarea');if(!ta)return;var ch=String.fromCharCode((_sh||_caps)?hi:lo);var s=ta.selectionStart,e=ta.selectionEnd;ta.value=ta.value.slice(0,s)+ch+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s+ch.length;ta.focus();if(_sh&&!_caps){_sh=false;_qkU();}if(typeof autoResize==='function')autoResize(ta);var cc=document.getElementById('char-count');if(cc)cc.textContent=ta.value.length;}
-function qkBksp(){var ta=document.getElementById('chat-textarea');if(!ta)return;var s=ta.selectionStart,e=ta.selectionEnd;if(s===e&&s>0){ta.value=ta.value.slice(0,s-1)+ta.value.slice(s);ta.selectionStart=ta.selectionEnd=s-1;}else if(s!==e){ta.value=ta.value.slice(0,s)+ta.value.slice(e);ta.selectionStart=ta.selectionEnd=s;}ta.focus();if(typeof autoResize==='function')autoResize(ta);}
-function qkEnter(){if(_sh||_ctrl){qkP(10,10);}else{doSend();}}
-function qkShift(){_sh=!_sh;_qkU();}
-function qkCaps(){_caps=!_caps;_qkU();}
-function qkCtrl(){_ctrl=!_ctrl;_qkU();}
-function qkCtrlShift(){_cs=!_cs;_sh=_cs;_ctrl=_cs;_qkU();}
-function qkLeft(){var ta=document.getElementById('chat-textarea');if(ta&&ta.selectionStart>0){ta.selectionStart=ta.selectionEnd=ta.selectionStart-1;ta.focus();}}
-function qkRight(){var ta=document.getElementById('chat-textarea');if(ta){ta.selectionStart=ta.selectionEnd=ta.selectionStart+1;ta.focus();}}
-function qkUp(){var ta=document.getElementById('chat-textarea');if(ta){var p=ta.value.lastIndexOf('
-',ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();}}
-function qkDown(){var ta=document.getElementById('chat-textarea');if(ta){var p=ta.value.indexOf('
-',ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();}}
-function _qkU(){var s1=document.getElementById('qk-sh1');if(s1)s1.classList.toggle('mon',_sh);var s2=document.getElementById('qk-sh2');if(s2)s2.classList.toggle('mon',_sh);var cp=document.getElementById('qk-caps');if(cp)cp.classList.toggle('mon',_caps);var ct=document.getElementById('qk-ctrl');if(ct)ct.classList.toggle('mon',_ctrl);var cs=document.getElementById('qk-cs');if(cs)cs.classList.toggle('mon',_cs);}
+    mc.innerHTML = '';
+    newThread();
+  }
+}
+
+function exportChat() {
+  if (!currentThread) return;
+  var text = currentThread.messages.map(function(m) { return '[' + m.role.toUpperCase() + ']
+' + m.content; }).join('
+
+---
+
+');
+  var blob = new Blob([text], {type: 'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'aurelia-chat-' + Date.now() + '.txt';
+  a.click();
+}
+
+function sendToDrafting() {
+  if (!currentThread) return;
+  var last = currentThread.messages.filter(function(m) { return m.role === 'assistant'; }).pop();
+  if (last) { sessionStorage.setItem('aurelia_draft_content', last.content); window.location.href = '/drafting/index.html'; }
+}
+
+function sendToAtomise() {
+  if (!currentThread) return;
+  var last = currentThread.messages.filter(function(m) { return m.role === 'assistant'; }).pop();
+  if (last) { sessionStorage.setItem('aurelia_atomise_content', last.content); window.location.href = '/atomise/index.html'; }
+}
+
+function sendViaTelegram() {
+  if (!currentThread) return;
+  var last = currentThread.messages.filter(function(m) { return m.role === 'assistant'; }).pop();
+  if (!last) return;
+  var tok = localStorage.getItem('aurelia_device_token') || 'dt_chat';
+  fetch('https://aurelia-api.identitypartners.workers.dev/api/social/telegram/post', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+    body: JSON.stringify({text: last.content.slice(0, 4096)})
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (typeof Toast !== 'undefined') Toast.show(d.success ? 'Sent to Telegram' : 'Telegram error: ' + d.error, d.success ? 'success' : 'error');
+  }).catch(function(e) {
+    if (typeof Toast !== 'undefined') Toast.show('Error: ' + e.message, 'error');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
-<script src="/shared/avatars.js"></script>
-<script src="/shared/help.js"></script>
 </body>
 </html>
