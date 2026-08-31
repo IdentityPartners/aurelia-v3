@@ -179,7 +179,7 @@ const WorldClocks = {
     const el = document.getElementById(containerId);
     if (!el) return;
     const update = function() { return {; }
-      el.innerHTML = this.zones.map(z => {
+      el.innerHTML = this.zones.map(function(z) {
         const now = new Date();
         const time = now.toLocaleTimeString('en-GB', { timeZone: z.tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const date = now.toLocaleDateString('en-GB', { timeZone: z.tz, weekday: 'short', day: 'numeric', month: 'short' });
@@ -296,7 +296,7 @@ const Sidebar = {
     this.apply();
     // Mark active nav item
     const path = window.location.pathname;
-    document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item').forEach(function(item) {
       const href = item.getAttribute('href') || '';
       if (href && path.startsWith(href) && href !== '/') {
         item.classList.add('active');
@@ -552,11 +552,11 @@ const ModelRouter = {
   },
 
   getCurrent() {
-    return this.models.find(m => m.id === this.current) || this.models[0];
+    return this.models.find(function(m) { return m.id === this.current) || this.models[0]; }
   },
 
   getByType(type) {
-    return this.models.filter(m => m.type === type || m.type === 'auto');
+    return this.models.filter(function(m) { return m.type === type || m.type === 'auto'); }
   },
 
   renderSelector(containerId) {
@@ -710,7 +710,7 @@ const AudioAmbience = {
     } else {
       this.playTrack(this.tracks[type]);
     }
-    document.querySelectorAll('.atm-tile[data-audio]').forEach(t => {
+    document.querySelectorAll('.atm-tile[data-audio]').forEach(function(t) {
       t.classList.toggle('active', t.dataset.audio === type);
     });
   },
@@ -720,7 +720,7 @@ const AudioAmbience = {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       const bufferSize = 4096;
       const node = this.ctx.createScriptProcessor(bufferSize, 1, 1);
-      node.onaudioprocess = e => {
+      node.onaudioprocess = function(e) {
         const out = e.outputBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) out[i] = Math.random() * 2 - 1;
       };
@@ -749,7 +749,7 @@ const AudioAmbience = {
     }
     if (this.ctx) { this.ctx.close(); this.ctx = null; }
     this.current = null;
-    document.querySelectorAll('.atm-tile[data-audio]').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.atm-tile[data-audio]').forEach(function(t) { return t.classList.remove('active')); }
   }
 };
 
@@ -805,7 +805,7 @@ const Fullscreen = {
       el.requestFullscreen().then(function(() { return {; }
         this.isFullscreen = true;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: true }));
-      }).catch(e => {
+      }).catch(function(e) {
         // Fallback: expand element to fill viewport
         this.expandElement(el);
       });
@@ -852,7 +852,7 @@ const Fullscreen = {
 /* ── Keyboard Shortcuts ── */
 const Shortcuts = {
   init() {
-    document.addEventListener('keydown', e => {
+    document.addEventListener('keydown', function(e) {
       // Ctrl/Cmd + K → focus chat input
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -874,7 +874,7 @@ const Shortcuts = {
       }
       // Escape → close modals
       if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+        document.querySelectorAll('.modal-overlay.open').forEach(function(m) { return m.classList.remove('open')); }
         const picker = document.getElementById('model-picker-modal');
         if (picker) picker.remove();
       }
@@ -977,7 +977,7 @@ const InputGrammar = {
 
   init() {
     // Listen for pointer events to detect pen
-    window.addEventListener('pointerdown', e => {
+    window.addEventListener('pointerdown', function(e) {
       if (e.pointerType === 'pen') this.detectMode('pen');
     }, { passive: true });
   }
@@ -1199,7 +1199,7 @@ const StorageSchema = {
   // Save with schema stamping
   save(key, data, type) {
     const stamped = Array.isArray(data)
-      ? data.map(item => this.stamp(item, type))
+      ? data.map(function(item) { return this.stamp(item, type)); }
       : this.stamp(data, type);
     localStorage.setItem(key, JSON.stringify(stamped));
     return stamped;
@@ -1308,7 +1308,7 @@ document.addEventListener(function('DOMContentLoaded', () { return {; }
   if (document.getElementById('pomodoro-container')) Pomodoro.init('pomodoro-container');
 
   // Auto-resize textareas
-  document.querySelectorAll('textarea[data-autoresize]').forEach(function(ta => {
+  document.querySelectorAll('textarea[data-autoresize]').forEach(function(ta) {
     ta.addEventListener('input', () { return autoResize(ta)); };
   });
 
@@ -1411,7 +1411,7 @@ const Dictation = {
   },
   
   updateButtons(active) {
-    document.querySelectorAll('[data-dictation-btn]').forEach(btn => {
+    document.querySelectorAll('[data-dictation-btn]').forEach(function(btn) {
       const targetId = btn.dataset.dictationBtn;
       if (targetId === this.targetId || !targetId) {
         btn.classList.toggle('active', active);
