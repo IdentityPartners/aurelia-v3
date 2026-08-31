@@ -55,7 +55,7 @@ function renderMd(text) {
   // 1. Escape HTML entities first
   s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  // 2. Code blocks (``` ... ```)
+  // 2. Code blocks (triple-backtick fenced)
   s = s.replace(/```([\w]*)?\n?([\s\S]*?)```/g, function(m, lang, code) {
     var l = lang ? '<div style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:6px 12px 0;font-family:var(--font-sans)">' + lang + '</div>' : '';
     return l + '<pre style="background:var(--bg-3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--font-mono);font-size:12.5px;overflow-x:auto;margin:8px 0;line-height:1.6;color:var(--ink-2)">' + code.trim() + '</pre>';
