@@ -305,19 +305,11 @@
   }
 
   function selectAllSources() {
-    // Select ALL sources — both API sources and direct-link sources
     var apiSrcs = ["tavily","brave","exa","semantic_scholar","ncbi","firecrawl"];
-    apiSrcs.forEach(function(s) {
-      srcs.add(s);
-      var chip = document.querySelector("[data-s='" + s + "']");
-      if (chip) chip.classList.add("on");
-    });
-    // Also open all direct-link source tabs to show they're "selected"
-    // and mark them visually
-    document.querySelectorAll(".schip").forEach(function(chip) {
-      chip.classList.add("on");
-    });
-    if (typeof Toast !== "undefined") Toast.show("All " + document.querySelectorAll(".schip").length + " sources selected — API sources will search live, others open in new tab", "success");
+    apiSrcs.forEach(function(s) { srcs.add(s); var chip = document.querySelector("[data-s='" + s + "']"); if (chip) chip.classList.add("on"); });
+    document.querySelectorAll(".schip").forEach(function(chip) { chip.classList.add("on"); });
+    var total = document.querySelectorAll(".schip").length;
+    if (typeof Toast !== "undefined") Toast.show("All " + total + " sources selected", "success");
   }
 
   function clearAllSources() {
