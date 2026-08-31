@@ -132,7 +132,7 @@
             <div class="input-wrap">
               <textarea id="chat-textarea" placeholder="Message Aurelia... (type, speak, or use Surface Pen directly in this box)" rows="3" style="min-height:60px"></textarea>
             </div>
-            <button class="send-btn" id="send-btn" onclick="doSend()">
+            <button class="send-btn" id="send-btn" onclick="safeSend()">
               <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
@@ -726,6 +726,35 @@ function _qkU() {
   var ct=document.getElementById('qk-ctrl'); if(ct)ct.classList.toggle('mon',_ctrl);
   var cs=document.getElementById('qk-cs'); if(cs)cs.classList.toggle('mon',_cs);
 }
+</script>
+
+
+<div id="send-error-banner" style="display:none;background:#fce4ec;border:1px solid #f8bbd0;padding:8px 14px;font-size:12px;color:#c62828;flex-shrink:0"></div>
+
+<script>
+function safeSend() {
+  var banner = document.getElementById('send-error-banner');
+  try {
+    if (typeof doSend === 'undefined') {
+      if (banner) { banner.style.display = 'block'; banner.textContent = 'Error: doSend is not defined. Shared JS may have a syntax error. Check F12 Console.'; }
+      return;
+    }
+    doSend();
+  } catch(e) {
+    if (banner) { banner.style.display = 'block'; banner.textContent = 'Send error: ' + e.message; }
+  }
+}
+
+// Self-test on load
+window.addEventListener('load', function() {
+  var banner = document.getElementById('send-error-banner');
+  if (typeof doSend === 'undefined') {
+    if (banner) { banner.style.display = 'block'; banner.textContent = 'WARNING: doSend is not defined. JavaScript failed to load. Check F12 Console for errors in aurelia.js.'; }
+  }
+  if (typeof Sidebar === 'undefined') {
+    if (banner) { banner.style.display = 'block'; banner.textContent = (banner.textContent || '') + ' | Sidebar undefined (shared JS error)'; }
+  }
+});
 </script>
 
 </body>
