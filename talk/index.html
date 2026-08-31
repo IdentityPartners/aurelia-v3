@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
+<title>Aurelia Talk</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:#f7f3e9;color:#1c1917;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.top{background:#fff;border-bottom:1px solid #e8ddd4;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo{font-family:Georgia,serif;font-size:20px;color:#0f3b3a;font-weight:500;text-decoration:none}
+.model-sel{padding:5px 10px;border:1px solid #ddd;border-radius:6px;font-size:12px;background:#f7f3e9;color:#1c1917;cursor:pointer}
+.nav-links{display:flex;gap:6px;margin-left:auto}
+.nav-links a{padding:5px 10px;border:1px solid #e8ddd4;border-radius:6px;font-size:12px;color:#78716c;text-decoration:none;background:#fff}
+.nav-links a:hover{background:#f7f3e9}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:8px;max-width:85%}
+.msg.u{align-self:flex-end;flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;background:#0f3b3a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;font-family:Georgia,serif}
+.msg.u .av{background:#e8ddd4;color:#1c1917}
+.bub{background:#fff;border:1px solid #e8ddd4;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.6;color:#1c1917;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.msg.u .bub{background:#0f3b3a;color:#fff;border-color:#0f3b3a}
+.meta{font-size:10px;color:#a8a29e;margin-top:3px}
+.dots{display:flex;gap:4px;padding:8px 0}
+.dot{width:6px;height:6px;border-radius:50%;background:#a8a29e;animation:d 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes d{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.bottom{background:#fff;border-top:1px solid #e8ddd4;padding:10px 14px;flex-shrink:0}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.ta-wrap{flex:1;background:#f7f3e9;border:1.5px solid #e8ddd4;border-radius:20px;padding:10px 14px;transition:border-color .15s}
+.ta-wrap:focus-within{border-color:#0f3b3a}
+textarea{width:100%;background:none;border:none;outline:none;font-family:Inter,-apple-system,sans-serif;font-size:14px;line-height:1.5;color:#1c1917;resize:none;max-height:120px;min-height:44px}
+textarea::placeholder{color:#a8a29e}
+.send{width:42px;height:42px;border-radius:50%;background:#0f3b3a;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .12s}
+.send:active{opacity:.8}
+.send svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5}
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:4px 10px;border:1px solid #e8ddd4;border-radius:20px;font-size:11.5px;color:#78716c;cursor:pointer;white-space:nowrap;background:#fff;font-family:inherit}
+.chip:active{background:#f7f3e9}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
+.empty-a{font-family:Georgia,serif;font-size:56px;color:#0f3b3a;opacity:.12;line-height:1}
+.empty-t{font-family:Georgia,serif;font-size:20px;color:#1c1917;font-weight:500}
+.empty-s{font-size:13px;color:#a8a29e;line-height:1.6;max-width:260px}
+.starters{display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;margin-top:10px}
+.starter{background:#fff;border:1px solid #e8ddd4;border-radius:10px;padding:10px 14px;font-size:13px;color:#44403c;cursor:pointer;text-align:left;font-family:inherit;transition:background .12s}
+.starter:hover{background:#f7f3e9}
+.err{background:#fce4ec;border:1px solid #f8bbd0;padding:8px 14px;font-size:12px;color:#c62828;display:none}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="/index.html" class="logo">Aurelia</a>
+  <select class="model-sel" id="ms" onchange="setModel(this.value)">
+    <option value="cerebras/gemma-4-31b">Gemma 4 31B (Cerebras)</option>
+    <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (Groq)</option>
+    <option value="deepseek/deepseek-v4-flash">DeepSeek V4 Flash</option>
+    <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
+    <option value="mistral/mistral-large-latest">Mistral Large 3</option>
+  </select>
+  <div class="nav-links">
+    <a href="/research/index.html">Research</a>
+    <a href="/atomise/index.html">Atomise</a>
+    <a href="/social/index.html">Social</a>
+    <a href="/settings/index.html">Settings</a>
+  </div>
+</div>
+<div id="err" class="err"></div>
+<div class="msgs" id="msgs">
+  <div class="empty" id="empty">
+    <div class="empty-a">A</div>
+    <div class="empty-t">Good <span id="gr">day</span></div>
+    <div class="empty-s">Aurelia routes to the best model for your task.</div>
+    <div class="starters">
+      <div class="starter" onclick="go('Summarise my week and suggest priorities')">Summarise my week</div>
+      <div class="starter" onclick="go('Help me draft a professional email')">Draft an email</div>
+      <div class="starter" onclick="go('Research the latest on AI agents')">Research AI agents</div>
+      <div class="starter" onclick="go('Create a LinkedIn post about identity development')">LinkedIn post</div>
+    </div>
+  </div>
+</div>
+<div class="bottom">
+  <div class="input-row">
+    <div class="ta-wrap">
+      <textarea id="ta" placeholder="Message Aurelia..." rows="1"></textarea>
+    </div>
+    <button class="send" id="sb" onclick="send()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+  <div class="chips">
+    <div class="chip" onclick="go('Summarise my week')">Summarise</div>
+    <div class="chip" onclick="go('Draft an email')">Email</div>
+    <div class="chip" onclick="go('Research AI agents')">Research</div>
+    <div class="chip" onclick="go('Create a LinkedIn post')">LinkedIn</div>
+    <div class="chip" onclick="go('Help me atomise this content into social posts')">Atomise</div>
+  </div>
+</div>
+<script>
+var model = localStorage.getItem('talk_model') || 'cerebras/gemma-4-31b';
+var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
+localStorage.setItem('aurelia_device_token', tok);
+var busy = false;
+var history = [];
+
+document.getElementById('ms').value = model;
+var h = new Date().getHours();
+document.getElementById('gr').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+
+var ta = document.getElementById('ta');
+ta.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+ta.addEventListener('input', function() {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+});
+
+function setModel(v) { model = v; localStorage.setItem('talk_model', v); }
+
+function go(text) { ta.value = text; send(); }
+
+function send() {
+  var text = ta.value.trim();
+  if (!text || busy) return;
+  ta.value = '';
+  ta.style.height = 'auto';
+
+  var empty = document.getElementById('empty');
+  if (empty) empty.style.display = 'none';
+
+  var msgs = document.getElementById('msgs');
+  history.push({role: 'user', content: text});
+
+  var uDiv = document.createElement('div');
+  uDiv.className = 'msg u';
+  var uAv = document.createElement('div'); uAv.className = 'av'; uAv.textContent = 'SJ';
+  var uBub = document.createElement('div'); uBub.className = 'bub'; uBub.textContent = text;
+  uDiv.appendChild(uAv); uDiv.appendChild(uBub);
+  msgs.appendChild(uDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  var loadDiv = document.createElement('div');
+  loadDiv.className = 'msg';
+  loadDiv.id = 'loading';
+  var lAv = document.createElement('div'); lAv.className = 'av'; lAv.textContent = 'A';
+  var lBub = document.createElement('div'); lBub.className = 'bub';
+  var dots = document.createElement('div'); dots.className = 'dots';
+  for (var i = 0; i < 3; i++) { var d = document.createElement('div'); d.className = 'dot'; dots.appendChild(d); }
+  lBub.appendChild(dots); loadDiv.appendChild(lAv); loadDiv.appendChild(lBub);
+  msgs.appendChild(loadDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  busy = true;
+  var sb = document.getElementById('sb');
+  if (sb) sb.style.opacity = '0.4';
+
+  fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+    body: JSON.stringify({
+      messages: history.slice(),
+      model: model,
+      system: 'You are Aurelia, the AI assistant for Identity Partners. Be warm, professional, and concise. Date: ' + new Date().toLocaleDateString('en-GB')
+    })
+  }).then(function(r) {
+    return r.json();
+  }).then(function(data) {
+    var loading = document.getElementById('loading');
+    if (loading) loading.remove();
+    var content = data.content || data.message || 'Response received.';
+    history.push({role: 'assistant', content: content});
+    var aDiv = document.createElement('div'); aDiv.className = 'msg';
+    var aAv = document.createElement('div'); aAv.className = 'av'; aAv.textContent = 'A';
+    var aBub = document.createElement('div'); aBub.className = 'bub';
+    aBub.innerHTML = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/
+/g,'<br>');
+    var aMeta = document.createElement('div'); aMeta.className = 'meta';
+    aMeta.textContent = (data.model || model).split('/').pop();
+    var aBody = document.createElement('div');
+    aBody.appendChild(aBub); aBody.appendChild(aMeta);
+    aDiv.appendChild(aAv); aDiv.appendChild(aBody);
+    msgs.appendChild(aDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+  }).catch(function(err) {
+    var loading = document.getElementById('loading');
+    if (loading) loading.remove();
+    var errDiv = document.getElementById('err');
+    if (errDiv) { errDiv.style.display = 'block'; errDiv.textContent = 'Error: ' + err.message + '. Check API keys in Settings.'; }
+    history.pop();
+  }).finally(function() {
+    busy = false;
+    if (sb) sb.style.opacity = '1';
+  });
+}
+</script>
+</body>
+</html>
