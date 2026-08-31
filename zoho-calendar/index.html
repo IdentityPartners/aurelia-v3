@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store,no-cache,must-revalidate">
+<title>Aurelia — Zoho Calendar</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:#f7f3e9;color:#1c1917;min-height:100vh}
+.top{background:#fff;border-bottom:1px solid #e8ddd4;padding:12px 20px;display:flex;align-items:center;gap:12px}
+.logo{font-family:Georgia,serif;font-size:20px;color:#0f3b3a;text-decoration:none;font-weight:500}
+.title{font-family:Georgia,serif;font-size:16px;color:#1c1917;font-weight:400}
+.body{max-width:700px;margin:0 auto;padding:24px}
+.card{background:#fff;border:1px solid #e8ddd4;border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-family:Georgia,serif;font-size:18px;color:#1c1917;margin-bottom:4px}
+.card-desc{font-size:12.5px;color:#a8a29e;margin-bottom:16px;line-height:1.6}
+.row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0e9e0}
+.row:last-child{border-bottom:none}
+.row-label{font-size:13px;color:#1c1917}
+.row-val{font-size:12px;color:#a8a29e}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-amber{background:#f57f17}.dot-green{background:#2e7d32}.dot-red{background:#c62828}
+.row-left{display:flex;align-items:center;gap:8px}
+label{font-size:11.5px;font-weight:500;color:#78716c;display:block;margin-bottom:4px}
+select,input{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;color:#1c1917;background:#fff;font-family:inherit;margin-bottom:10px}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:opacity .12s}
+.btn:active{opacity:.8}
+.btn-p{background:#0f3b3a;color:#fff}
+.btn-g{background:#f7f3e9;border:1px solid #e8ddd4;color:#78716c}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.log{background:#f7f3e9;border:1px solid #e8ddd4;border-radius:6px;padding:10px;font-family:monospace;font-size:11px;color:#78716c;min-height:60px;max-height:180px;overflow-y:auto;white-space:pre-wrap;margin-top:10px;display:none}
+.event-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.event{background:#f7f3e9;border:1px solid #e8ddd4;border-radius:8px;padding:10px 12px}
+.event-title{font-size:13px;font-weight:500;color:#1c1917}
+.event-time{font-size:11.5px;color:#a8a29e;margin-top:2px}
+ol{padding-left:20px;font-size:13px;line-height:2.2;color:#1c1917}
+code{background:#f7f3e9;padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace}
+.warn{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#3e2000;margin:10px 0;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="/index.html" class="logo">Aurelia</a>
+  <span style="color:#e8ddd4">|</span>
+  <span class="title">Zoho Calendar</span>
+  <a href="/zoho-social/index.html" style="margin-left:auto;font-size:12px;color:#0f3b3a;text-decoration:none">Zoho Social →</a>
+</div>
+<div class="body">
+
+  <div class="card">
+    <div class="card-title">Connect Zoho Calendar</div>
+    <div class="card-desc">View and create calendar events. Events appear on the Aurelia Home page.</div>
+
+    <div class="row">
+      <div class="row-left"><div class="dot dot-amber" id="status-dot"></div><div class="row-label">Connection Status</div></div>
+      <div class="row-val" id="status-val">Checking...</div>
+    </div>
+
+    <div style="margin-top:14px">
+      <label>Zoho Server</label>
+      <select id="server">
+        <option value="com">Global — accounts.zoho.com (recommended)</option>
+        <option value="eu">EU — accounts.zoho.eu</option>
+        <option value="in">India — accounts.zoho.in</option>
+        <option value="com.au">Australia — accounts.zoho.com.au</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="connect()">Connect Zoho Calendar</button>
+      <button class="btn btn-g" onclick="loadEvents()">Load Events</button>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Upcoming Events</div>
+    <div class="card-desc">Your next 10 calendar events.</div>
+    <div class="event-list" id="events">
+      <div style="font-size:12.5px;color:#a8a29e">Connect Zoho Calendar to see events here.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Create Event</div>
+    <label>Title</label>
+    <input type="text" id="ev-title" placeholder="Event title">
+    <label>Date & Time</label>
+    <input type="datetime-local" id="ev-dt">
+    <label>Duration (minutes)</label>
+    <input type="number" id="ev-dur" value="60" min="15" max="480">
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="createEvent()">Create Event</button>
+    </div>
+    <div class="log" id="create-log"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Setup Instructions</div>
+    <div class="warn"><strong>Important:</strong> Use a <strong>Server-based Application</strong> in the Zoho API Console with redirect URI set to:<br><code>https://aurelia.identitypartners.uk/zoho-calendar/index.html</code></div>
+    <ol>
+      <li>Go to <a href="https://api-console.zoho.com" target="_blank" style="color:#0f3b3a">api-console.zoho.com</a></li>
+      <li>Add Client → Server-based Applications</li>
+      <li>Set redirect URI to: <code>https://aurelia.identitypartners.uk/zoho-calendar/index.html</code></li>
+      <li>Copy Client ID and Secret → Settings → Key Ingester</li>
+      <li>Return here and click Connect</li>
+    </ol>
+  </div>
+
+</div>
+<script>
+var tok = localStorage.getItem('aurelia_device_token') || ('dt_' + Date.now());
+localStorage.setItem('aurelia_device_token', tok);
+
+function log(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent += msg + '
+';
+  el.scrollTop = el.scrollHeight;
+}
+
+function init() {
+  var accessToken = localStorage.getItem('aurelia_zoho_token') || '';
+  var statusDot = document.getElementById('status-dot');
+  var statusVal = document.getElementById('status-val');
+  var server = localStorage.getItem('aurelia_zoho_server') || 'com';
+  var sel = document.getElementById('server');
+  if (sel) sel.value = server;
+
+  if (accessToken) {
+    if (statusDot) statusDot.className = 'dot dot-green';
+    if (statusVal) statusVal.textContent = 'Connected (shared with Zoho Social)';
+    loadEvents();
+  } else {
+    if (statusDot) statusDot.className = 'dot dot-amber';
+    if (statusVal) statusVal.textContent = 'Not connected';
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  if (code) handleCallback(code);
+}
+
+function connect() {
+  var clientId = localStorage.getItem('aurelia_key_Zoho_Client_ID') || '';
+  if (!clientId) { alert('Add Zoho_Client_ID in Settings first'); return; }
+  var server = document.getElementById('server').value;
+  localStorage.setItem('aurelia_zoho_server', server);
+  var scope = 'ZohoCalendar.event.READ,ZohoCalendar.event.CREATE,ZohoCalendar.calendar.READ';
+  var redirect = encodeURIComponent('https://aurelia.identitypartners.uk/zoho-calendar/index.html');
+  window.location.href = 'https://accounts.zoho.' + server + '/oauth/v2/auth?scope=' + encodeURIComponent(scope) + '&client_id=' + clientId + '&response_type=code&access_type=offline&redirect_uri=' + redirect;
+}
+
+async function handleCallback(code) {
+  log('log', 'Exchanging auth code...');
+  var server = localStorage.getItem('aurelia_zoho_server') || 'com';
+  try {
+    var res = await fetch('https://aurelia-api.identitypartners.workers.dev/api/zoho/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'Origin': 'https://aurelia.identitypartners.uk'},
+      body: JSON.stringify({code: code, redirect_uri: 'https://aurelia.identitypartners.uk/zoho-calendar/index.html', server: server})
+    });
+    var data = await res.json();
+    if (data.access_token) {
+      localStorage.setItem('aurelia_zoho_token', data.access_token);
+      if (data.refresh_token) localStorage.setItem('aurelia_zoho_refresh', data.refresh_token);
+      log('log', 'Connected!');
+      window.history.replaceState({}, '', '/zoho-calendar/index.html');
+      init();
+    } else {
+      log('log', 'Error: ' + JSON.stringify(data));
+    }
+  } catch(e) {
+    log('log', 'Error: ' + e.message);
+  }
+}
+
+async function loadEvents() {
+  var token = localStorage.getItem('aurelia_zoho_token');
+  if (!token) return;
+  var server = localStorage.getItem('aurelia_zoho_server') || 'com';
+  var eventsEl = document.getElementById('events');
+  if (eventsEl) eventsEl.innerHTML = '<div style="font-size:12.5px;color:#a8a29e">Loading...</div>';
+  try {
+    var now = new Date();
+    var end = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    var res = await fetch('https://calendar.zoho.' + server + '/api/v1/events?range_start=' + now.toISOString() + '&range_end=' + end.toISOString(), {
+      headers: {'Authorization': 'Zoho-oauthtoken ' + token}
+    });
+    var data = await res.json();
+    var events = data.events || data.data || [];
+    if (eventsEl) {
+      if (!events.length) {
+        eventsEl.innerHTML = '<div style="font-size:12.5px;color:#a8a29e">No upcoming events found.</div>';
+      } else {
+        eventsEl.innerHTML = '';
+        events.slice(0, 10).forEach(function(ev) {
+          var div = document.createElement('div'); div.className = 'event';
+          var title = document.createElement('div'); title.className = 'event-title'; title.textContent = ev.title || ev.name || 'Event';
+          var time = document.createElement('div'); time.className = 'event-time'; time.textContent = ev.dateandtime || ev.start || '';
+          div.appendChild(title); div.appendChild(time);
+          eventsEl.appendChild(div);
+        });
+      }
+    }
+  } catch(e) {
+    if (eventsEl) eventsEl.innerHTML = '<div style="font-size:12.5px;color:#c62828">Error: ' + e.message + '</div>';
+  }
+}
+
+async function createEvent() {
+  var token = localStorage.getItem('aurelia_zoho_token');
+  if (!token) { log('create-log', 'Not connected'); return; }
+  var title = document.getElementById('ev-title').value.trim();
+  var dt = document.getElementById('ev-dt').value;
+  var dur = parseInt(document.getElementById('ev-dur').value) || 60;
+  if (!title || !dt) { alert('Title and date required'); return; }
+  var server = localStorage.getItem('aurelia_zoho_server') || 'com';
+  log('create-log', 'Creating event...');
+  try {
+    var start = new Date(dt);
+    var end = new Date(start.getTime() + dur * 60000);
+    var res = await fetch('https://calendar.zoho.' + server + '/api/v1/events', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Zoho-oauthtoken ' + token},
+      body: JSON.stringify({title: title, dateandtime: {start: start.toISOString(), end: end.toISOString()}})
+    });
+    var data = await res.json();
+    log('create-log', 'Created: ' + JSON.stringify(data).slice(0, 200));
+    loadEvents();
+  } catch(e) {
+    log('create-log', 'Error: ' + e.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
