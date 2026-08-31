@@ -7,29 +7,28 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231c1917'/><text y='23' x='7' font-size='17' font-family='Georgia,serif' fill='%23f7f3e9'>A</text></svg>">
   <link rel="stylesheet" href="/shared/aurelia.css">
   <style>
-    .atom-shell{display:grid;grid-template-columns:380px 1fr;height:calc(100vh - var(--topbar-h,56px));overflow:hidden}
-    .atom-input-pane{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-    .atom-input-header{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
-    .atom-input-body{flex:1;overflow-y:auto;padding:14px 16px}
-    .atom-output-pane{display:flex;flex-direction:column;overflow:hidden;background:var(--bg,#f7f3e9)}
-    .atom-output-header{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:10px;flex-shrink:0}
-    .atom-output-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;align-content:start}
-    .asset-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg,12px);padding:14px;position:relative;transition:all .15s}
-    .asset-card:hover{border-color:var(--ink-6,#d6d3d1);box-shadow:var(--shadow-sm)}
-    .asset-card-type{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:6px;display:flex;align-items:center;gap:5px}
-    .asset-card-platform{font-size:9.5px;color:var(--accent,#0f3b3a);font-weight:600}
-    .asset-card-content{font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:10px;white-space:pre-wrap}
-    .asset-card-actions{display:flex;gap:5px;flex-wrap:wrap}
-    .asset-card-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s}
-    .asset-card-check.selected{background:var(--accent,#0f3b3a);border-color:var(--accent,#0f3b3a);color:#fff}
-    .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
-    .progress-fill{height:100%;background:var(--accent,#0f3b3a);border-radius:2px;transition:width .3s ease;width:0%}
-    .type-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-2,#f0e9e0);color:var(--muted,#78716c);transition:all .12s;margin:2px}
+    .atomise-shell{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - var(--topbar-h,56px));overflow:hidden}
+    .input-panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .input-panel-inner{flex:1;overflow-y:auto;padding:16px}
+    .output-panel{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+    .output-toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+    .assets-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;align-content:start}
+    .asset-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative;transition:all .12s}
+    .asset-card:hover{border-color:var(--ink-6,#d6d3d1);box-shadow:0 2px 8px rgba(28,25,23,0.06)}
+    .asset-card.queued{border-color:var(--accent,#0f3b3a);background:var(--accent3,rgba(15,59,58,0.04))}
+    .asset-type{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint,#a8a29e);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+    .asset-platform{font-size:9px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:20px;padding:1px 7px;color:var(--muted,#78716c)}
+    .asset-text{font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:10px;white-space:pre-wrap}
+    .asset-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .asset-char-count{font-size:10px;color:var(--faint,#a8a29e);margin-left:auto}
+    .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:8px 0}
+    .progress-fill{height:100%;background:var(--accent,#0f3b3a);border-radius:2px;transition:width .3s ease}
+    .type-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);font-size:11.5px;color:var(--muted,#78716c);cursor:pointer;transition:all .12s;user-select:none}
     .type-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
-    .platform-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-2,#f0e9e0);color:var(--muted,#78716c);transition:all .12s;margin:2px}
-    .platform-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
+    .plat-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--bg-2,#f0e9e0);border:1px solid var(--border);font-size:11.5px;color:var(--muted,#78716c);cursor:pointer;transition:all .12s;user-select:none}
+    .plat-chip.on{background:var(--accent3,rgba(15,59,58,0.08));border-color:var(--accent,#0f3b3a);color:var(--accent,#0f3b3a)}
     .stat-pill{background:var(--bg-2,#f0e9e0);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted,#78716c)}
-    @media(max-width:900px){.atom-shell{grid-template-columns:1fr}.atom-input-pane{display:none}}
+    @media(max-width:800px){.atomise-shell{grid-template-columns:1fr}.input-panel{height:auto;max-height:50vh}}
   </style>
 </head>
 <body>
@@ -39,13 +38,15 @@
     <div class="sidebar-nav">
       <a href="/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">Home</span></a>
       <a href="/chat/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="nav-label">Chat</span></a>
+      <a href="/research/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">Research</span></a>
       <a href="/drafting/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span class="nav-label">Drafting Desk</span></a>
       <div class="nav-section-label">Create</div>
-      <a href="/atomise/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg><span class="nav-label">Atomise</span></a>
       <a href="/creator/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-label">Creator Studio</span></a>
+      <a href="/atomise/index.html" class="nav-item active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span class="nav-label">Atomise</span></a>
       <a href="/social/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg><span class="nav-label">Social Queue</span></a>
       <div class="nav-section-label">Business</div>
       <a href="/crm/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span class="nav-label">CRM</span></a>
+      <a href="/monetisation/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span class="nav-label">Monetisation</span></a>
       <a href="/monetisation/platforms.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span class="nav-label">Platforms</span></a>
       <div class="nav-section-label">System</div>
       <a href="/settings/index.html" class="nav-item"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/></svg><span class="nav-label">Settings</span></a>
@@ -55,137 +56,124 @@
 
   <div class="main-content" id="main-content">
     <div class="topbar">
-      <span class="topbar-title">Atomise — Content to Social Assets</span>
+      <span class="topbar-title">Atomise</span>
       <div class="topbar-actions">
-        <span class="stat-pill" id="asset-count-pill">0 assets</span>
-        <span class="stat-pill" id="selected-count-pill">0 selected</span>
-        <button class="btn btn-ghost btn-sm" onclick="selectAll()">Select All</button>
-        <button class="btn btn-ghost btn-sm" onclick="clearSelection()">Clear</button>
-        <button class="btn btn-primary btn-sm" onclick="queueSelected()">Queue Selected</button>
-        <button class="btn btn-gold btn-sm" onclick="queueAll()">Queue All</button>
+        <span class="stat-pill" id="stat-generated">0 generated</span>
+        <span class="stat-pill" id="stat-queued">0 queued</span>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()">Clear All</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportAssets()">Export JSON</button>
+        <button class="btn btn-primary btn-sm" onclick="queueAll()">Queue All to Social</button>
       </div>
     </div>
 
-    <div class="atom-shell">
-      <!-- Input pane -->
-      <div class="atom-input-pane">
-        <div class="atom-input-header">
-          <div style="font-family:var(--font-serif,Georgia);font-size:16px;font-weight:500;color:var(--ink);margin-bottom:3px">Source Content</div>
-          <div style="font-size:11.5px;color:var(--faint,#a8a29e)">Paste any text — about us, testimonials, programmes, articles, notes</div>
-        </div>
-        <div class="atom-input-body">
+    <div class="atomise-shell">
+      <!-- Input Panel -->
+      <div class="input-panel">
+        <div class="input-panel-inner">
+          <div style="font-family:var(--font-serif,Georgia);font-size:18px;font-weight:400;color:var(--ink);margin-bottom:4px">Paste your content</div>
+          <div style="font-size:12px;color:var(--faint,#a8a29e);margin-bottom:12px;line-height:1.5">Paste any text — blog post, essay, transcript, notes, research. Aurelia will atomise it into 250–500 social media assets.</div>
+
           <div class="input-group" style="margin-bottom:12px">
-            <label class="input-label">Content to atomise</label>
-            <textarea class="input" id="source-text" rows="12" placeholder="Paste your content here...&#10;&#10;Examples:&#10;• About Identity Partners&#10;• Client testimonials&#10;• Programme descriptions&#10;• Research findings&#10;• Personal reflections&#10;• Session notes (anonymised)"></textarea>
+            <label class="input-label">Source text</label>
+            <textarea class="input" id="source-text" rows="10" placeholder="Paste your content here — blog post, essay, transcript, research paper, notes, book chapter, interview...&#10;&#10;The longer the better. 500–5000 words works best." style="font-size:13px;line-height:1.6"></textarea>
+            <div style="font-size:10.5px;color:var(--faint,#a8a29e);margin-top:4px" id="word-count">0 words</div>
           </div>
-          
+
           <div class="input-group" style="margin-bottom:12px">
-            <label class="input-label">Number of assets to generate</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <button class="type-chip" onclick="setCount(50,this)">50</button>
-              <button class="type-chip" onclick="setCount(100,this)">100</button>
-              <button class="type-chip on" onclick="setCount(250,this)">250</button>
-              <button class="type-chip" onclick="setCount(500,this)">500</button>
+            <label class="input-label">Brand voice / context (optional)</label>
+            <textarea class="input" id="brand-context" rows="3" placeholder="e.g. Identity Partners — professional listening, coaching, identity development. Non-clinical. Warm, professional tone. UK English." style="font-size:12px"></textarea>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <div class="input-label" style="margin-bottom:6px">Asset types to generate</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px" id="type-chips">
+              <div class="type-chip on" data-type="quote">💬 Quote card</div>
+              <div class="type-chip on" data-type="insight">💡 Insight</div>
+              <div class="type-chip on" data-type="tip">✦ Tip</div>
+              <div class="type-chip on" data-type="question">❓ Question</div>
+              <div class="type-chip on" data-type="stat">📊 Stat/fact</div>
+              <div class="type-chip on" data-type="story">📖 Story hook</div>
+              <div class="type-chip on" data-type="cta">📣 CTA</div>
+              <div class="type-chip on" data-type="thread">🧵 Thread opener</div>
+              <div class="type-chip on" data-type="carousel">📱 Carousel slide</div>
+              <div class="type-chip" data-type="testimonial">⭐ Testimonial</div>
+              <div class="type-chip" data-type="poll">📊 Poll</div>
+              <div class="type-chip" data-type="listicle">📋 Listicle</div>
             </div>
           </div>
 
-          <div class="input-group" style="margin-bottom:12px">
-            <label class="input-label">Asset types</label>
-            <div id="type-chips">
-              <span class="type-chip on" data-type="quote">Quote card</span>
-              <span class="type-chip on" data-type="insight">Key insight</span>
-              <span class="type-chip on" data-type="linkedin">LinkedIn post</span>
-              <span class="type-chip on" data-type="bluesky">Bluesky post</span>
-              <span class="type-chip on" data-type="thread">Thread (5 posts)</span>
-              <span class="type-chip on" data-type="carousel">Carousel (5 slides)</span>
-              <span class="type-chip on" data-type="testimonial">Testimonial</span>
-              <span class="type-chip on" data-type="question">Engagement question</span>
-              <span class="type-chip on" data-type="stat">Statistic/fact</span>
-              <span class="type-chip on" data-type="tip">Practical tip</span>
-              <span class="type-chip on" data-type="story">Mini story</span>
-              <span class="type-chip on" data-type="cta">Call to action</span>
-              <span class="type-chip" data-type="article">Mini article (Substack/LinkedIn)</span>
-              <span class="type-chip" data-type="podcast">Podcast teaser</span>
-              <span class="type-chip" data-type="infographic">Infographic text</span>
+          <div style="margin-bottom:12px">
+            <div class="input-label" style="margin-bottom:6px">Target platforms</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px" id="plat-chips">
+              <div class="plat-chip on" data-plat="bluesky">🦋 Bluesky (300)</div>
+              <div class="plat-chip on" data-plat="linkedin">💼 LinkedIn (3000)</div>
+              <div class="plat-chip on" data-plat="twitter">🐦 X/Twitter (280)</div>
+              <div class="plat-chip on" data-plat="instagram">📸 Instagram (2200)</div>
+              <div class="plat-chip" data-plat="facebook">👥 Facebook (63k)</div>
+              <div class="plat-chip" data-plat="telegram">✈️ Telegram (4096)</div>
+              <div class="plat-chip" data-plat="substack">📰 Substack</div>
+              <div class="plat-chip" data-plat="threads">🧵 Threads (500)</div>
             </div>
           </div>
 
-          <div class="input-group" style="margin-bottom:12px">
-            <label class="input-label">Target platforms</label>
-            <div id="platform-chips">
-              <span class="platform-chip on" data-platform="linkedin">LinkedIn</span>
-              <span class="platform-chip on" data-platform="bluesky">Bluesky</span>
-              <span class="platform-chip on" data-platform="twitter">X / Twitter</span>
-              <span class="platform-chip on" data-platform="instagram">Instagram</span>
-              <span class="platform-chip" data-platform="tiktok">TikTok</span>
-              <span class="platform-chip" data-platform="facebook">Facebook</span>
-              <span class="platform-chip" data-platform="substack">Substack</span>
-              <span class="platform-chip" data-platform="tumblr">Tumblr</span>
-              <span class="platform-chip" data-platform="quora">Quora</span>
-              <span class="platform-chip" data-platform="telegram">Telegram</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            <div class="input-group">
+              <label class="input-label">Target count</label>
+              <select class="input" id="target-count" style="font-size:12px">
+                <option value="50">50 assets</option>
+                <option value="100">100 assets</option>
+                <option value="250" selected>250 assets</option>
+                <option value="500">500 assets</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Model</label>
+              <select class="input" id="atomise-model" style="font-size:12px">
+                <option value="cerebras/gemma-4-31b">Gemma 4 31B (fast)</option>
+                <option value="groq/openai/gpt-oss-20b">GPT-OSS 20B (fast)</option>
+                <option value="deepseek/deepseek-v4-flash">DeepSeek V4 (quality)</option>
+                <option value="gemini/gemini-2.5-flash">Gemini 2.5 Flash</option>
+              </select>
             </div>
           </div>
 
-          <div class="input-group" style="margin-bottom:12px">
-            <label class="input-label">Brand voice</label>
-            <select class="input" id="brand-voice">
-              <option value="ip-default">Identity Partners — warm, professional, non-clinical</option>
-              <option value="thought-leadership">Thought leadership — authoritative, insightful</option>
-              <option value="conversational">Conversational — accessible, relatable</option>
-              <option value="educational">Educational — informative, structured</option>
-              <option value="story-led">Story-led — narrative, personal</option>
-            </select>
-          </div>
-
-          <div class="input-group" style="margin-bottom:14px">
-            <label class="input-label">Include in every asset</label>
-            <input class="input" id="cta-url" placeholder="CTA URL (e.g. https://identitypartners.uk)" style="margin-bottom:6px">
-            <input class="input" id="hashtags" placeholder="Hashtags (e.g. #IdentityPartners #Coaching #ADHD)">
-          </div>
-
-          <div class="progress-bar" id="gen-progress-bar" style="display:none">
-            <div class="progress-fill" id="gen-progress-fill"></div>
-          </div>
-          <div style="font-size:11.5px;color:var(--faint,#a8a29e);margin-top:4px;text-align:center" id="gen-status"></div>
-
-          <button class="btn btn-primary w-full" id="atomise-btn" onclick="startAtomise()" style="margin-top:10px">
-            &#9889; Atomise Content
+          <button class="btn btn-primary w-full" onclick="startAtomise()" id="atomise-btn" style="font-size:14px;padding:12px">
+            ⚡ Atomise
           </button>
-          <button class="btn btn-ghost w-full" onclick="loadExample()" style="margin-top:6px">
-            Load IP example text
-          </button>
+
+          <div id="progress-section" style="display:none;margin-top:12px">
+            <div style="font-size:12px;color:var(--muted,#78716c);margin-bottom:4px" id="progress-label">Generating...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+            <div style="font-size:11px;color:var(--faint,#a8a29e)" id="progress-detail"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Output pane -->
-      <div class="atom-output-pane">
-        <div class="atom-output-header">
-          <div style="font-size:13px;font-weight:600;color:var(--ink)">Generated Assets</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
-            <select class="input" id="filter-type" onchange="filterAssets()" style="font-size:11px;padding:3px 8px;max-width:140px">
-              <option value="">All types</option>
-              <option value="quote">Quote cards</option>
-              <option value="linkedin">LinkedIn posts</option>
-              <option value="bluesky">Bluesky posts</option>
-              <option value="thread">Threads</option>
-              <option value="carousel">Carousels</option>
-              <option value="testimonial">Testimonials</option>
-              <option value="article">Articles</option>
-            </select>
-            <select class="input" id="filter-platform" onchange="filterAssets()" style="font-size:11px;padding:3px 8px;max-width:130px">
-              <option value="">All platforms</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="bluesky">Bluesky</option>
-              <option value="twitter">X / Twitter</option>
-              <option value="instagram">Instagram</option>
-            </select>
+      <!-- Output Panel -->
+      <div class="output-panel">
+        <div class="output-toolbar">
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('all')" id="filter-all" style="font-weight:600">All</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('quote')">Quotes</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('insight')">Insights</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('tip')">Tips</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('question')">Questions</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('story')">Stories</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAssets('cta')">CTAs</button>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="selectAll()">Select All</button>
+            <button class="btn btn-ghost btn-sm" onclick="queueSelected()">Queue Selected</button>
+            <button class="btn btn-primary btn-sm" onclick="queueAll()">Queue All</button>
           </div>
         </div>
-        <div class="atom-output-grid" id="assets-grid">
-          <div style="grid-column:1/-1;text-align:center;padding:48px 24px;color:var(--faint,#a8a29e)">
-            <div style="font-size:36px;opacity:.2;margin-bottom:10px">&#9889;</div>
-            <div style="font-family:var(--font-serif,Georgia);font-size:18px;color:var(--text-secondary,#44403c);margin-bottom:6px">Ready to atomise</div>
-            <div style="font-size:13px">Paste your content on the left and click Atomise Content</div>
+
+        <div class="assets-grid" id="assets-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--faint,#a8a29e)">
+            <div style="font-size:40px;margin-bottom:12px;opacity:0.2">⚡</div>
+            <div style="font-family:var(--font-serif,Georgia);font-size:18px;color:var(--muted,#78716c);margin-bottom:8px">Ready to atomise</div>
+            <div style="font-size:13px;line-height:1.6;max-width:360px;margin:0 auto">
+              Paste your content on the left, choose your asset types and platforms, then click Atomise.<br><br>
+              Aurelia will generate 250–500 social media assets from your text, ready to queue and post.
+            </div>
           </div>
         </div>
       </div>
@@ -194,355 +182,327 @@
 </div>
 
 <script src="/shared/aurelia.js"></script>
-<script src="/shared/help.js"></script>
 <script>
   var allAssets = [];
   var selectedAssets = new Set();
-  var targetCount = 250;
-  var generating = false;
+  var activeFilter = 'all';
+  var activeTypes = new Set(['quote','insight','tip','question','stat','story','cta','thread','carousel']);
+  var activePlatforms = new Set(['bluesky','linkedin','twitter','instagram']);
 
-  // Type and platform chip toggles
-  document.querySelectorAll(".type-chip[data-type]").forEach(function(chip) {
-    chip.onclick = function() { chip.classList.toggle("on"); };
-  });
-  document.querySelectorAll(".platform-chip[data-platform]").forEach(function(chip) {
-    chip.onclick = function() { chip.classList.toggle("on"); };
-  });
+  var CHAR_LIMITS = {bluesky:300,twitter:280,threads:500,linkedin:3000,instagram:2200,facebook:63000,telegram:4096,substack:10000};
 
-  function setCount(n, btn) {
-    targetCount = n;
-    document.querySelectorAll(".type-chip:not([data-type])").forEach(function(b) { b.classList.remove("on"); });
-    btn.classList.add("on");
-  }
+  var TYPE_PROMPTS = {
+    quote: 'Extract a powerful, standalone quote or insight from this text. Make it punchy and shareable. No hashtags.',
+    insight: 'Extract a key insight or lesson from this text. Frame it as a revelation or learning. 1-3 sentences.',
+    tip: 'Extract a practical, actionable tip from this text. Start with an action verb. 1-2 sentences.',
+    question: 'Generate a thought-provoking question inspired by this text. Something that makes people stop and think.',
+    stat: 'Extract or derive a compelling statistic, fact, or data point from this text. Frame it dramatically.',
+    story: 'Write a story hook or narrative opener inspired by this text. Draw the reader in. 2-3 sentences.',
+    cta: 'Write a compelling call-to-action inspired by this text. What should the reader do next?',
+    thread: 'Write the opening tweet/post of a thread inspired by this text. Hook the reader to read more.',
+    carousel: 'Write a single carousel slide (headline + 2-3 bullet points) inspired by this text.',
+    testimonial: 'Write a testimonial-style post inspired by this text. First person, authentic.',
+    poll: 'Write a poll question with 2-4 options inspired by this text.',
+    listicle: 'Write a numbered list post (3-7 items) inspired by this text.',
+  };
 
-  function getSelectedTypes() {
-    var types = [];
-    document.querySelectorAll(".type-chip[data-type].on").forEach(function(c) { types.push(c.dataset.type); });
-    return types.length > 0 ? types : ["quote","insight","linkedin","bluesky"];
-  }
-
-  function getSelectedPlatforms() {
-    var platforms = [];
-    document.querySelectorAll(".platform-chip[data-platform].on").forEach(function(c) { platforms.push(c.dataset.platform); });
-    return platforms.length > 0 ? platforms : ["linkedin","bluesky","twitter"];
-  }
-
-  var EXAMPLE_TEXT = "Identity Partners is a professional listening and coaching practice based in the UK. We offer non-clinical support for adults navigating life transitions, late-diagnosed neurodivergent adults, and those seeking sobriety accountability.\n\nOur founder SJ Johnson brings warmth, professional expertise, and lived experience to every session. We believe that being truly heard is transformative.\n\nOur services include:\n- Professional listening sessions (60 minutes)\n- Identity development coaching\n- Neurodivergent identity exploration\n- Sobriety accountability (non-clinical)\n- Body doubling and executive function support\n- Weekly accountability partnerships\n- Life transition mapping\n- Values and Ikigai clarification\n\nTestimonial: 'Working with Identity Partners changed how I see myself. For the first time, someone really listened without trying to fix me.' — Client, 2026\n\nTestimonial: 'The body doubling sessions have transformed my productivity. I finally finish things.' — Late-diagnosed ADHD client\n\nWe are ACCPH members, fully insured, and operate within a clear ethical framework. We do not provide therapy, counselling, or crisis support.";
-
-  function loadExample() {
-    document.getElementById("source-text").value = EXAMPLE_TEXT;
-    document.getElementById("cta-url").value = "https://identitypartners.uk";
-    document.getElementById("hashtags").value = "#IdentityPartners #ProfessionalListening #IdentityDevelopment #ADHD #LifeTransitions #Coaching";
-  }
-
-  async function startAtomise() {
-    var text = document.getElementById("source-text").value.trim();
-    if (!text) { if (typeof Toast !== "undefined") Toast.show("Paste some content first", "info"); return; }
-    if (generating) return;
-    generating = true;
-
-    var types = getSelectedTypes();
-    var platforms = getSelectedPlatforms();
-    var voice = document.getElementById("brand-voice").value;
-    var ctaUrl = document.getElementById("cta-url").value.trim();
-    var hashtags = document.getElementById("hashtags").value.trim();
-    var count = targetCount;
-
-    var btn = document.getElementById("atomise-btn");
-    btn.disabled = true;
-    btn.textContent = "Generating...";
-
-    var progressBar = document.getElementById("gen-progress-bar");
-    var progressFill = document.getElementById("gen-progress-fill");
-    var statusEl = document.getElementById("gen-status");
-    progressBar.style.display = "block";
-
-    allAssets = [];
-    selectedAssets = new Set();
-    updateCounts();
-
-    var grid = document.getElementById("assets-grid");
-    grid.innerHTML = "";
-
-    var tok = localStorage.getItem("aurelia_device_token") || "dt_atomise";
-    var batchSize = 10; // Generate 10 assets per API call
-    var batches = Math.ceil(count / batchSize);
-    var generated = 0;
-
-    var VOICE_PROMPTS = {
-      "ip-default": "Identity Partners brand voice: warm, professional, non-clinical, focused on identity development, listening, and personal growth. Never claim to be therapy or counselling.",
-      "thought-leadership": "Authoritative thought leadership voice. Insightful, evidence-informed, forward-thinking.",
-      "conversational": "Conversational, accessible, relatable. Like talking to a knowledgeable friend.",
-      "educational": "Educational, structured, informative. Clear explanations with practical takeaways.",
-      "story-led": "Story-led, narrative, personal. Draw out the human story in the content."
-    };
-
-    var voicePrompt = VOICE_PROMPTS[voice] || VOICE_PROMPTS["ip-default"];
-    var ctaText = ctaUrl ? " Link: " + ctaUrl : "";
-    var hashText = hashtags ? " " + hashtags : "";
-
-    for (var batch = 0; batch < batches && generated < count; batch++) {
-      var remaining = count - generated;
-      var thisBatch = Math.min(batchSize, remaining);
-      
-      // Pick types for this batch
-      var batchTypes = [];
-      for (var j = 0; j < thisBatch; j++) {
-        batchTypes.push(types[Math.floor(Math.random() * types.length)]);
-      }
-      var batchPlatforms = [];
-      for (var j = 0; j < thisBatch; j++) {
-        batchPlatforms.push(platforms[Math.floor(Math.random() * platforms.length)]);
-      }
-
-      var prompt = "Generate exactly " + thisBatch + " distinct social media assets from this content.\n\n" +
-        "CONTENT:\n" + text.slice(0, 3000) + "\n\n" +
-        "VOICE: " + voicePrompt + "\n\n" +
-        "Generate these asset types: " + batchTypes.join(", ") + "\n" +
-        "For these platforms: " + batchPlatforms.join(", ") + "\n\n" +
-        "FORMAT: Return a JSON array of objects, each with:\n" +
-        "- type: the asset type\n" +
-        "- platform: target platform\n" +
-        "- content: the full text content (ready to post)\n" +
-        "- title: brief descriptor (for carousels/articles)\n\n" +
-        "Rules:\n" +
-        "- Each asset must be unique and standalone\n" +
-        "- Respect platform character limits (Twitter: 280, LinkedIn: 3000, Bluesky: 300)\n" +
-        "- For carousels: include slide-by-slide breakdown\n" +
-        "- For threads: number each post (1/5, 2/5 etc)\n" +
-        (ctaText ? "- End appropriate posts with: " + ctaText + "\n" : "") +
-        (hashText ? "- Add to appropriate posts: " + hashText + "\n" : "") +
-        "- Never use clinical language or claim to be therapy\n\n" +
-        "Return ONLY valid JSON array, no other text.";
-
-      try {
-        var res = await fetch("https://aurelia-api.identitypartners.workers.dev/api/chat", {
-          method: "POST",
-          headers: {"Content-Type":"application/json","Authorization":"Bearer "+tok,"Origin":"https://aurelia.identitypartners.uk"},
-          body: JSON.stringify({
-            messages: [{role:"user",content:prompt}],
-            model: "cerebras/gemma-4-31b",
-            system: "You are a social media content expert for Identity Partners. Generate high-quality, varied social media assets. Always return valid JSON arrays only."
-          }),
-          signal: AbortSignal.timeout(30000)
-        });
-        var data = await res.json();
-        var content = data.content || "";
-        
-        // Parse JSON from response
-        try {
-          var jsonMatch = content.match(/\[[\s\S]*\]/);
-          if (jsonMatch) {
-            var assets = JSON.parse(jsonMatch[0]);
-            assets.forEach(function(asset) {
-              if (asset.content && asset.type) {
-                asset.id = "asset_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
-                allAssets.push(asset);
-                generated++;
-                renderAssetCard(grid, asset);
-              }
-            });
-          }
-        } catch(parseErr) {
-          // If JSON parse fails, extract content manually
-          var lines = content.split("\n").filter(function(l) { return l.trim().length > 20; });
-          lines.slice(0, thisBatch).forEach(function(line, idx) {
-            var asset = {
-              id: "asset_" + Date.now() + "_" + idx,
-              type: batchTypes[idx] || "insight",
-              platform: batchPlatforms[idx] || "linkedin",
-              content: line.trim(),
-              title: batchTypes[idx] || "Asset"
-            };
-            allAssets.push(asset);
-            generated++;
-            renderAssetCard(grid, asset);
-          });
-        }
-      } catch(e) {
-        statusEl.textContent = "Batch " + (batch+1) + " failed: " + e.message;
-      }
-
-      var pct = Math.round((generated / count) * 100);
-      progressFill.style.width = pct + "%";
-      statusEl.textContent = "Generated " + generated + " of " + count + " assets...";
-      updateCounts();
-      
-      // Small delay between batches to avoid rate limiting
-      if (batch < batches - 1) await new Promise(function(r) { setTimeout(r, 500); });
-    }
-
-    progressFill.style.width = "100%";
-    statusEl.textContent = "Done! " + generated + " assets generated.";
-    btn.disabled = false;
-    btn.textContent = "\u26a1 Atomise Content";
-    generating = false;
-    
-    // Save to localStorage
-    localStorage.setItem("aurelia_atomised_assets", JSON.stringify(allAssets));
-    if (typeof Toast !== "undefined") Toast.show(generated + " assets generated!", "success");
-  }
-
-  function renderAssetCard(grid, asset) {
-    var card = document.createElement("div");
-    card.className = "asset-card";
-    card.id = "card-" + asset.id;
-    
-    var check = document.createElement("div");
-    check.className = "asset-card-check";
-    check.textContent = "\u2713";
-    check.onclick = function() { toggleSelect(asset.id, check); };
-    
-    var typeRow = document.createElement("div");
-    typeRow.className = "asset-card-type";
-    var typeIcon = {quote:"&#10077;",insight:"&#128161;",linkedin:"&#128221;",bluesky:"&#129419;",thread:"&#128172;",carousel:"&#128202;",testimonial:"&#9733;",question:"&#10067;",stat:"&#128200;",tip:"&#128161;",story:"&#128214;",cta:"&#128279;",article:"&#128240;",podcast:"&#127897;",infographic:"&#128202;"};
-    typeRow.innerHTML = (typeIcon[asset.type] || "&#9670;") + " " + (asset.type || "asset").toUpperCase();
-    var platSpan = document.createElement("span");
-    platSpan.className = "asset-card-platform";
-    platSpan.textContent = asset.platform || "";
-    typeRow.appendChild(platSpan);
-    
-    var content = document.createElement("div");
-    content.className = "asset-card-content";
-    content.textContent = asset.content || "";
-    
-    var actions = document.createElement("div");
-    actions.className = "asset-card-actions";
-    
-    var copyBtn = document.createElement("button");
-    copyBtn.className = "btn btn-ghost btn-sm";
-    copyBtn.textContent = "Copy";
-    copyBtn.onclick = function() {
-      navigator.clipboard.writeText(asset.content || "").then(function() {
-        if (typeof Toast !== "undefined") Toast.show("Copied!", "success");
+  // Chip toggles
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.type-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var t = chip.dataset.type;
+        chip.classList.toggle('on');
+        if (chip.classList.contains('on')) activeTypes.add(t);
+        else activeTypes.delete(t);
       });
-    };
-    
-    var queueBtn = document.createElement("button");
-    queueBtn.className = "btn btn-ghost btn-sm";
-    queueBtn.textContent = "Queue";
-    queueBtn.onclick = function() { queueAsset(asset); };
-    
-    var editBtn = document.createElement("button");
-    editBtn.className = "btn btn-ghost btn-sm";
-    editBtn.textContent = "Edit";
-    editBtn.onclick = function() { editAsset(asset, content); };
-    
-    actions.appendChild(copyBtn);
-    actions.appendChild(queueBtn);
-    actions.appendChild(editBtn);
-    
-    card.appendChild(check);
-    card.appendChild(typeRow);
-    card.appendChild(content);
-    card.appendChild(actions);
-    grid.appendChild(card);
-  }
-
-  function toggleSelect(id, checkEl) {
-    if (selectedAssets.has(id)) {
-      selectedAssets.delete(id);
-      checkEl.classList.remove("selected");
-    } else {
-      selectedAssets.add(id);
-      checkEl.classList.add("selected");
-    }
-    updateCounts();
-  }
-
-  function selectAll() {
-    allAssets.forEach(function(a) {
-      selectedAssets.add(a.id);
-      var check = document.querySelector("#card-" + a.id + " .asset-card-check");
-      if (check) check.classList.add("selected");
     });
-    updateCounts();
-  }
-
-  function clearSelection() {
-    selectedAssets.clear();
-    document.querySelectorAll(".asset-card-check").forEach(function(c) { c.classList.remove("selected"); });
-    updateCounts();
-  }
-
-  function updateCounts() {
-    var countPill = document.getElementById("asset-count-pill");
-    var selPill = document.getElementById("selected-count-pill");
-    if (countPill) countPill.textContent = allAssets.length + " assets";
-    if (selPill) selPill.textContent = selectedAssets.size + " selected";
-  }
-
-  function queueAsset(asset) {
-    var queue = JSON.parse(localStorage.getItem("aurelia_social_queue") || "[]");
-    queue.push({
-      id: "sq_" + Date.now(),
-      platform: asset.platform || "linkedin",
-      content: asset.content || "",
-      text: asset.content || "",
-      status: "queued",
-      ts: Date.now(),
-      tags: ["#atomised"]
+    document.querySelectorAll('.plat-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var p = chip.dataset.plat;
+        chip.classList.toggle('on');
+        if (chip.classList.contains('on')) activePlatforms.add(p);
+        else activePlatforms.delete(p);
+      });
     });
-    localStorage.setItem("aurelia_social_queue", JSON.stringify(queue));
-    if (typeof Toast !== "undefined") Toast.show("Queued for " + (asset.platform || "social"), "success");
-  }
-
-  function queueSelected() {
-    var count = 0;
-    allAssets.forEach(function(a) {
-      if (selectedAssets.has(a.id)) { queueAsset(a); count++; }
+    document.getElementById('source-text').addEventListener('input', function() {
+      var words = this.value.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById('word-count').textContent = words + ' words';
     });
-    if (typeof Toast !== "undefined") Toast.show(count + " assets queued!", "success");
-  }
-
-  function queueAll() {
-    allAssets.forEach(function(a) { queueAsset(a); });
-    if (typeof Toast !== "undefined") Toast.show(allAssets.length + " assets queued!", "success");
-  }
-
-  function editAsset(asset, contentEl) {
-    contentEl.contentEditable = "true";
-    contentEl.style.border = "1px solid var(--accent,#0f3b3a)";
-    contentEl.style.borderRadius = "4px";
-    contentEl.style.padding = "4px";
-    contentEl.focus();
-    contentEl.onblur = function() {
-      asset.content = contentEl.textContent;
-      contentEl.contentEditable = "false";
-      contentEl.style.border = "";
-      contentEl.style.padding = "";
-      localStorage.setItem("aurelia_atomised_assets", JSON.stringify(allAssets));
-    };
-  }
-
-  function filterAssets() {
-    var typeFilter = document.getElementById("filter-type").value;
-    var platformFilter = document.getElementById("filter-platform").value;
-    document.querySelectorAll(".asset-card").forEach(function(card) {
-      var id = card.id.replace("card-", "");
-      var asset = allAssets.find(function(a) { return a.id === id; });
-      if (!asset) return;
-      var show = (!typeFilter || asset.type === typeFilter) && (!platformFilter || asset.platform === platformFilter);
-      card.style.display = show ? "" : "none";
-    });
-  }
-
-  // Load saved assets on init
-  document.addEventListener("DOMContentLoaded", function() {
-    var saved = localStorage.getItem("aurelia_atomised_assets");
+    // Load saved brand context
+    var saved = localStorage.getItem('aurelia_brand');
     if (saved) {
       try {
-        var assets = JSON.parse(saved);
-        if (assets.length > 0) {
-          allAssets = assets;
-          var grid = document.getElementById("assets-grid");
-          grid.innerHTML = "";
-          assets.forEach(function(a) { renderAssetCard(grid, a); });
-          updateCounts();
+        var brand = JSON.parse(saved);
+        var ctx = document.getElementById('brand-context');
+        if (ctx && !ctx.value) {
+          ctx.value = (brand.name || 'Identity Partners') + ' — ' + (brand.values || 'professional listening, coaching, identity development') + '. ' + (brand.tone || 'Warm, professional') + ' tone. UK English.';
         }
       } catch(e) {}
     }
   });
+
+  async function startAtomise() {
+    var sourceText = document.getElementById('source-text').value.trim();
+    if (!sourceText) { if (typeof Toast !== 'undefined') Toast.show('Paste some content first', 'info'); return; }
+    if (sourceText.split(/\s+/).length < 50) { if (typeof Toast !== 'undefined') Toast.show('Content too short — paste at least 50 words', 'info'); return; }
+
+    var brandContext = document.getElementById('brand-context').value.trim();
+    var targetCount = parseInt(document.getElementById('target-count').value) || 250;
+    var model = document.getElementById('atomise-model').value;
+    var types = [...activeTypes];
+    var platforms = [...activePlatforms];
+
+    if (!types.length) { if (typeof Toast !== 'undefined') Toast.show('Select at least one asset type', 'info'); return; }
+    if (!platforms.length) { if (typeof Toast !== 'undefined') Toast.show('Select at least one platform', 'info'); return; }
+
+    var btn = document.getElementById('atomise-btn');
+    btn.disabled = true;
+    btn.textContent = 'Atomising...';
+
+    var progress = document.getElementById('progress-section');
+    var progressFill = document.getElementById('progress-fill');
+    var progressLabel = document.getElementById('progress-label');
+    var progressDetail = document.getElementById('progress-detail');
+    progress.style.display = 'block';
+
+    allAssets = [];
+    selectedAssets.clear();
+    renderAssets([]);
+
+    var tok = localStorage.getItem('aurelia_device_token') || 'dt_atomise';
+    var generated = 0;
+    var batchSize = 10; // assets per API call
+    var totalBatches = Math.ceil(targetCount / batchSize);
+
+    // Split source text into chunks for variety
+    var words = sourceText.split(/\s+/);
+    var chunkSize = Math.max(100, Math.floor(words.length / Math.max(1, totalBatches / 3)));
+
+    for (var batch = 0; batch < totalBatches && generated < targetCount; batch++) {
+      var pct = Math.round((batch / totalBatches) * 100);
+      progressFill.style.width = pct + '%';
+      progressLabel.textContent = 'Generating batch ' + (batch+1) + ' of ' + totalBatches + '...';
+      progressDetail.textContent = generated + ' assets generated so far';
+
+      // Pick a chunk of source text for variety
+      var chunkStart = Math.floor(Math.random() * Math.max(1, words.length - chunkSize));
+      var chunk = words.slice(chunkStart, chunkStart + chunkSize).join(' ');
+
+      // Pick random types and platforms for this batch
+      var batchTypes = [];
+      for (var i = 0; i < batchSize; i++) {
+        batchTypes.push(types[i % types.length]);
+      }
+      // Shuffle
+      batchTypes.sort(function() { return Math.random() - 0.5; });
+
+      var batchPlatforms = [];
+      for (var i = 0; i < batchSize; i++) {
+        batchPlatforms.push(platforms[i % platforms.length]);
+      }
+      batchPlatforms.sort(function() { return Math.random() - 0.5; });
+
+      var systemPrompt = 'You are an expert social media content atomiser for ' + (brandContext || 'Identity Partners, a professional listening and coaching practice') + '. Generate exactly ' + batchSize + ' distinct social media assets from the provided text. Each asset must be on its own line, prefixed with the type in brackets like [quote], [insight], [tip], [question], [stat], [story], [cta], [thread], [carousel]. Make each asset unique, punchy, and platform-appropriate. No hashtags unless specifically requested. UK English.';
+
+      var userPrompt = 'Generate ' + batchSize + ' social media assets from this text. Mix these types: ' + batchTypes.join(', ') + '.\n\nText:\n' + chunk.slice(0, 3000);
+
+      try {
+        var res = await fetch('https://aurelia-api.identitypartners.workers.dev/api/chat', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','Authorization':'Bearer '+tok,'Origin':'https://aurelia.identitypartners.uk'},
+          body: JSON.stringify({messages:[{role:'user',content:userPrompt}],model:model,system:systemPrompt})
+        });
+        var data = await res.json();
+        var content = data.content || '';
+
+        // Parse assets from response
+        var lines = content.split('\n').filter(function(l) { return l.trim(); });
+        lines.forEach(function(line, idx) {
+          var typeMatch = line.match(/^\[(\w+)\]\s*/);
+          var type = typeMatch ? typeMatch[1] : batchTypes[idx % batchTypes.length];
+          var text = typeMatch ? line.slice(typeMatch[0].length).trim() : line.trim();
+          if (!text || text.length < 10) return;
+
+          var platform = batchPlatforms[idx % batchPlatforms.length];
+          var limit = CHAR_LIMITS[platform] || 3000;
+          // Trim to platform limit
+          if (text.length > limit) text = text.slice(0, limit - 3) + '...';
+
+          allAssets.push({
+            id: 'asset_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+            type: type,
+            text: text,
+            platform: platform,
+            chars: text.length,
+            limit: limit,
+            ts: Date.now()
+          });
+          generated++;
+        });
+
+        renderAssets(filterByType(allAssets, activeFilter));
+        updateStats();
+
+      } catch(e) {
+        progressDetail.textContent = 'Batch ' + (batch+1) + ' failed: ' + e.message;
+      }
+
+      // Small delay between batches
+      await new Promise(function(r) { setTimeout(r, 200); });
+    }
+
+    progressFill.style.width = '100%';
+    progressLabel.textContent = 'Complete!';
+    progressDetail.textContent = generated + ' assets generated';
+    btn.disabled = false;
+    btn.textContent = 'Atomise';
+
+    if (typeof Toast !== 'undefined') Toast.show(generated + ' assets generated', 'success');
+    updateStats();
+  }
+
+  function filterByType(assets, type) {
+    if (type === 'all') return assets;
+    return assets.filter(function(a) { return a.type === type; });
+  }
+
+  function filterAssets(type) {
+    activeFilter = type;
+    document.querySelectorAll('.output-toolbar .btn').forEach(function(b) { b.style.fontWeight = ''; });
+    var activeBtn = document.getElementById('filter-' + type);
+    if (activeBtn) activeBtn.style.fontWeight = '600';
+    renderAssets(filterByType(allAssets, type));
+  }
+
+  function renderAssets(assets) {
+    var grid = document.getElementById('assets-grid');
+    if (!assets.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--faint,#a8a29e);font-size:13px">No assets yet. Click Atomise to generate.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    assets.forEach(function(asset) {
+      var card = document.createElement('div');
+      card.className = 'asset-card' + (selectedAssets.has(asset.id) ? ' queued' : '');
+      card.id = 'card-' + asset.id;
+
+      var typeRow = document.createElement('div');
+      typeRow.className = 'asset-type';
+      typeRow.innerHTML = getTypeIcon(asset.type) + ' ' + asset.type.toUpperCase() + ' <span class="asset-platform">' + asset.platform + '</span>';
+
+      var text = document.createElement('div');
+      text.className = 'asset-text';
+      text.textContent = asset.text;
+
+      var actions = document.createElement('div');
+      actions.className = 'asset-actions';
+
+      var queueBtn = document.createElement('button');
+      queueBtn.className = 'btn btn-ghost btn-sm';
+      queueBtn.textContent = selectedAssets.has(asset.id) ? 'Queued' : 'Queue';
+      queueBtn.onclick = (function(a) { return function() { toggleQueue(a.id); }; })(asset);
+
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'btn btn-ghost btn-sm';
+      copyBtn.textContent = 'Copy';
+      copyBtn.onclick = (function(a) { return function() { navigator.clipboard.writeText(a.text).then(function() { if (typeof Toast !== 'undefined') Toast.show('Copied', 'success'); }); }; })(asset);
+
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-ghost btn-sm';
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = (function(a, t) { return function() { t.contentEditable = 'true'; t.focus(); t.style.background = 'var(--bg-2,#f0e9e0)'; t.style.borderRadius = '4px'; t.style.padding = '4px'; t.onblur = function() { a.text = t.textContent; t.contentEditable = 'false'; t.style.background = ''; t.style.padding = ''; }; }; })(asset, text);
+
+      var charCount = document.createElement('span');
+      charCount.className = 'asset-char-count';
+      charCount.textContent = asset.chars + '/' + asset.limit;
+      if (asset.chars > asset.limit) charCount.style.color = '#c62828';
+
+      actions.appendChild(queueBtn);
+      actions.appendChild(copyBtn);
+      actions.appendChild(editBtn);
+      actions.appendChild(charCount);
+
+      card.appendChild(typeRow);
+      card.appendChild(text);
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+  }
+
+  function getTypeIcon(type) {
+    var icons = {quote:'💬',insight:'💡',tip:'✦',question:'❓',stat:'📊',story:'📖',cta:'📣',thread:'🧵',carousel:'📱',testimonial:'⭐',poll:'📊',listicle:'📋'};
+    return icons[type] || '◈';
+  }
+
+  function toggleQueue(id) {
+    if (selectedAssets.has(id)) selectedAssets.delete(id);
+    else selectedAssets.add(id);
+    var card = document.getElementById('card-' + id);
+    if (card) card.classList.toggle('queued', selectedAssets.has(id));
+    var asset = allAssets.find(function(a) { return a.id === id; });
+    if (asset) {
+      var btn = card ? card.querySelector('.btn') : null;
+      if (btn) btn.textContent = selectedAssets.has(id) ? 'Queued' : 'Queue';
+    }
+    updateStats();
+  }
+
+  function selectAll() {
+    filterByType(allAssets, activeFilter).forEach(function(a) { selectedAssets.add(a.id); });
+    renderAssets(filterByType(allAssets, activeFilter));
+    updateStats();
+  }
+
+  function queueSelected() {
+    var toQueue = allAssets.filter(function(a) { return selectedAssets.has(a.id); });
+    pushToSocialQueue(toQueue);
+  }
+
+  function queueAll() {
+    pushToSocialQueue(allAssets);
+  }
+
+  function pushToSocialQueue(assets) {
+    var existing = JSON.parse(localStorage.getItem('aurelia_social_queue') || '[]');
+    var added = 0;
+    assets.forEach(function(asset) {
+      existing.push({
+        id: 'sq_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        platform: asset.platform,
+        content: asset.text,
+        text: asset.text,
+        status: 'queued',
+        type: asset.type,
+        ts: Date.now()
+      });
+      added++;
+    });
+    localStorage.setItem('aurelia_social_queue', JSON.stringify(existing));
+    if (typeof Toast !== 'undefined') Toast.show(added + ' assets added to Social Queue', 'success');
+    updateStats();
+  }
+
+  function updateStats() {
+    var genEl = document.getElementById('stat-generated');
+    var qEl = document.getElementById('stat-queued');
+    if (genEl) genEl.textContent = allAssets.length + ' generated';
+    if (qEl) qEl.textContent = selectedAssets.size + ' queued';
+  }
+
+  function clearAll() {
+    allAssets = [];
+    selectedAssets.clear();
+    renderAssets([]);
+    updateStats();
+    var progress = document.getElementById('progress-section');
+    if (progress) progress.style.display = 'none';
+  }
+
+  function exportAssets() {
+    if (!allAssets.length) { if (typeof Toast !== 'undefined') Toast.show('No assets to export', 'info'); return; }
+    var blob = new Blob([JSON.stringify(allAssets, null, 2)], {type:'application/json'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'aurelia-assets-' + Date.now() + '.json'; a.click();
+  }
 </script>
 </body>
 </html>
