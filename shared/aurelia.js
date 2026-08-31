@@ -178,7 +178,7 @@ const WorldClocks = {
   render(containerId) {
     const el = document.getElementById(containerId);
     if (!el) return;
-    const update = function() { return {; }
+    const update = function() {
       el.innerHTML = this.zones.map(function(z) {
         const now = new Date();
         const time = now.toLocaleTimeString('en-GB', { timeZone: z.tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -237,7 +237,7 @@ const Pomodoro = {
   toggle() {
     this.running = !this.running;
     if (this.running) {
-      this.interval = setInterval(function(() { return {; }
+      this.interval = setInterval(function(() {
         this.remaining--;
         if (this.remaining <= 0) {
           this.running = false;
@@ -280,7 +280,7 @@ const Toast = {
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
     this.container.appendChild(toast);
-    setTimeout(function(() { return {; }
+    setTimeout(function(() {
       toast.style.animation = 'toast-in 0.3s ease reverse';
       setTimeout(function(() { return toast.remove(); }, 300);
     }, duration);
@@ -802,7 +802,7 @@ const Fullscreen = {
     const el = elementId ? document.getElementById(elementId) : document.documentElement;
     if (!el) return;
     if (!document.fullscreenElement) {
-      el.requestFullscreen().then(function(() { return {; }
+      el.requestFullscreen().then(function(() {
         this.isFullscreen = true;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: true }));
       }).catch(function(e) {
@@ -810,7 +810,7 @@ const Fullscreen = {
         this.expandElement(el);
       });
     } else {
-      document.exitFullscreen().then(function(() { return {; }
+      document.exitFullscreen().then(function(() {
         this.isFullscreen = false;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: false }));
       });
@@ -1219,7 +1219,7 @@ const ForceFresh = {
   wrapFetch() {
     if (!this.enabled) return;
     const orig = window.fetch.bind(window);
-    window.fetch = function(url, opts = {}) { return {; }
+    window.fetch = function(url, opts = {}) {
       if (typeof url === 'string' && url.startsWith('/api')) {
         const sep = url.includes('?') ? '&' : '?';
         url = `${url}${sep}_ff=${Date.now()}`;
@@ -1252,7 +1252,7 @@ const AureliaVersion = {
 };
 
 /* ── Init on DOM Ready ── */
-document.addEventListener(function('DOMContentLoaded', () { return {; }
+document.addEventListener(function('DOMContentLoaded', () {
   LCT.inject();
   AureliaVersion.check();
   ForceFresh.wrapFetch();
@@ -1339,7 +1339,7 @@ const Dictation = {
       // No profanity filter — use raw transcript
       let finalTranscript = '';
       
-      this.recognition.onresult = function(e) { return {; }
+      this.recognition.onresult = function(e) {
         let interim = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i].isFinal) {
@@ -1361,12 +1361,12 @@ const Dictation = {
         }
       };
       
-      this.recognition.onerror = function(e) { return {; }
+      this.recognition.onerror = function(e) {
         console.warn('Dictation error:', e.error);
         this.stop();
       };
       
-      this.recognition.onend = function() { return {; }
+      this.recognition.onend = function() {
         if (this.active) this.recognition.start(); // Keep going
       };
       
