@@ -543,7 +543,7 @@ const ModelRouter = {
   init() {
     const saved = localStorage.getItem('aurelia_model');
     // Default: Gemma 2 (user preference) — fast, capable, not Llama
-    this.current = saved || 'cerebras/gemma-4-31b';/ Gemma 4 31B — verified working
+    this.current = saved || 'cerebras/gemma-4-31b'; // Gemma 4 31B — verified working
   },
 
   set(modelId) {
