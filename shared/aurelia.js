@@ -178,7 +178,7 @@ const WorldClocks = {
   render(containerId) {
     const el = document.getElementById(containerId);
     if (!el) return;
-    const update = () => {
+    const update = function() { return {; }
       el.innerHTML = this.zones.map(z => {
         const now = new Date();
         const time = now.toLocaleTimeString('en-GB', { timeZone: z.tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -237,7 +237,7 @@ const Pomodoro = {
   toggle() {
     this.running = !this.running;
     if (this.running) {
-      this.interval = setInterval(() => {
+      this.interval = setIntervalfunction(() { return {; }
         this.remaining--;
         if (this.remaining <= 0) {
           this.running = false;
@@ -280,9 +280,9 @@ const Toast = {
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
     this.container.appendChild(toast);
-    setTimeout(() => {
+    setTimeoutfunction(() { return {; }
       toast.style.animation = 'toast-in 0.3s ease reverse';
-      setTimeout(() => toast.remove(), 300);
+      setTimeoutfunction(() { return toast.remove(); }, 300);
     }, duration);
   }
 };
@@ -542,7 +542,7 @@ const ModelRouter = {
   init() {
     const saved = localStorage.getItem('aurelia_model');
     // Default: Gemma 2 (user preference) — fast, capable, not Llama
-    this.current = saved || 'cerebras/gemma-4-31b';  // Gemma 4 31B — verified working
+    this.current = saved || 'cerebras/gemma-4-31b';/ Gemma 4 31B — verified working
   },
 
   set(modelId) {
@@ -737,7 +737,7 @@ const AudioAmbience = {
     const audio = new Audio(url);
     audio.loop = true;
     audio.volume = 0.3;
-    audio.play().catch(() => {});
+    audio.play().catchfunction(() { return {}); };
     this.source = audio;
   },
 
@@ -802,7 +802,7 @@ const Fullscreen = {
     const el = elementId ? document.getElementById(elementId) : document.documentElement;
     if (!el) return;
     if (!document.fullscreenElement) {
-      el.requestFullscreen().then(() => {
+      el.requestFullscreen().thenfunction(() { return {; }
         this.isFullscreen = true;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: true }));
       }).catch(e => {
@@ -810,7 +810,7 @@ const Fullscreen = {
         this.expandElement(el);
       });
     } else {
-      document.exitFullscreen().then(() => {
+      document.exitFullscreen().thenfunction(() { return {; }
         this.isFullscreen = false;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: false }));
       });
@@ -1219,7 +1219,7 @@ const ForceFresh = {
   wrapFetch() {
     if (!this.enabled) return;
     const orig = window.fetch.bind(window);
-    window.fetch = (url, opts = {}) => {
+    window.fetch = function(url, opts = {}) { return {; }
       if (typeof url === 'string' && url.startsWith('/api')) {
         const sep = url.includes('?') ? '&' : '?';
         url = `${url}${sep}_ff=${Date.now()}`;
@@ -1252,7 +1252,7 @@ const AureliaVersion = {
 };
 
 /* ── Init on DOM Ready ── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListenerfunction('DOMContentLoaded', () { return {; }
   LCT.inject();
   AureliaVersion.check();
   ForceFresh.wrapFetch();
@@ -1269,7 +1269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fsBtn.title = 'Toggle fullscreen (F11)';
     fsBtn.innerHTML = '⤢';
     fsBtn.style.cssText = 'font-size:14px;padding:5px 8px;margin-left:4px';
-    fsBtn.onclick = () => {
+    fsBtn.onclick = function() {
       Fullscreen.toggle();
       fsBtn.innerHTML = document.fullscreenElement ? '⤡' : '⤢';
     };
@@ -1308,8 +1308,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('pomodoro-container')) Pomodoro.init('pomodoro-container');
 
   // Auto-resize textareas
-  document.querySelectorAll('textarea[data-autoresize]').forEach(ta => {
-    ta.addEventListener('input', () => autoResize(ta));
+  document.querySelectorAll('textarea[data-autoresize]').forEachfunction(ta => {
+    ta.addEventListener('input', () { return autoResize(ta)); };
   });
 
   // Load saved visual theme
@@ -1339,7 +1339,7 @@ const Dictation = {
       // No profanity filter — use raw transcript
       let finalTranscript = '';
       
-      this.recognition.onresult = (e) => {
+      this.recognition.onresult = function(e) { return {; }
         let interim = '';
         for (let i = e.resultIndex; i < e.results.length; i++) {
           if (e.results[i].isFinal) {
@@ -1361,12 +1361,12 @@ const Dictation = {
         }
       };
       
-      this.recognition.onerror = (e) => {
+      this.recognition.onerror = function(e) { return {; }
         console.warn('Dictation error:', e.error);
         this.stop();
       };
       
-      this.recognition.onend = () => {
+      this.recognition.onend = function() { return {; }
         if (this.active) this.recognition.start(); // Keep going
       };
       
@@ -1401,7 +1401,7 @@ const Dictation = {
   autoPunctuate(text) {
     // Simple auto-punctuation rules
     // Capitalise after sentence endings
-    text = text.replace(/([.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+    text = text.replace(/([.!?]\s+)([a-z])/g, function(m, p1, p2) { return p1 + p2.toUpperCase(); });
     // Add period at end if no punctuation
     text = text.trim();
     if (text.length > 0 && !'.!?,;:'.includes(text[text.length-1])) {
@@ -1427,7 +1427,7 @@ const Dictation = {
     btn.dataset.dictationBtn = targetInputId;
     btn.title = 'Dictate (click to start/stop)';
     btn.innerHTML = '&#127908;';
-    btn.onclick = () => Dictation.toggle(targetInputId);
+    btn.onclick = function() { Dictation.toggle(targetInputId); };
     return btn;
   }
 };
