@@ -60,7 +60,16 @@
           </div>
         </div>
         <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="connectZohoSocial()">Connect Zoho Social</button>
+          <div style="margin-bottom:10px">
+          <label class="input-label">Zoho Server</label>
+          <select class="input" id="zoho-server" style="max-width:200px;font-size:12px">
+            <option value="com">Global (zoho.com) — try this first</option>
+            <option value="eu">EU (zoho.eu)</option>
+            <option value="in">India (zoho.in)</option>
+            <option value="com.au">Australia (zoho.com.au)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="connectZohoSocial()">Connect Zoho Social</button>
           <button class="btn btn-ghost" onclick="window.open('https://api-console.zoho.eu','_blank')">Zoho API Console &#8599;</button>
           <button class="btn btn-ghost" onclick="testZohoSocial()">Test Connection</button>
         </div>
@@ -136,9 +145,11 @@
       if (typeof Toast !== "undefined") Toast.show("Configure Zoho_Client_ID in Settings first", "error");
       return;
     }
-    var scope = "ZohoSocial.profiles.READ,ZohoSocial.publish.CREATE,ZohoSocial.schedule.CREATE";
+    var server = document.getElementById("zoho-server") ? document.getElementById("zoho-server").value : "com";
+    var scope = "ZohoSocial.profiles.READ,ZohoSocial.publish.CREATE,ZohoSocial.schedule.CREATE,ZohoCalendar.event.READ,ZohoCalendar.event.CREATE";
     var redirectUri = encodeURIComponent("https://aurelia.identitypartners.uk/comms/zoho.html");
-    var authUrl = "https://accounts.zoho.eu/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
+    var authUrl = "https://accounts.zoho." + server + "/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
+    localStorage.setItem("aurelia_zoho_server", server);
     window.location.href = authUrl;
   }
   
@@ -150,7 +161,7 @@
     }
     var scope = "ZohoCalendar.event.READ,ZohoCalendar.event.CREATE";
     var redirectUri = encodeURIComponent("https://aurelia.identitypartners.uk/comms/zoho.html");
-    var authUrl = "https://accounts.zoho.eu/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
+    var authUrl = "https://accounts.zoho.com/oauth/v2/auth?scope=" + encodeURIComponent(scope) + "&client_id=" + clientId + "&response_type=code&access_type=offline&redirect_uri=" + redirectUri;
     window.location.href = authUrl;
   }
   
