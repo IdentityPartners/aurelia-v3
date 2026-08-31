@@ -237,7 +237,7 @@ const Pomodoro = {
   toggle() {
     this.running = !this.running;
     if (this.running) {
-      this.interval = setIntervalfunction(() { return {; }
+      this.interval = setInterval(function(() { return {; }
         this.remaining--;
         if (this.remaining <= 0) {
           this.running = false;
@@ -280,9 +280,9 @@ const Toast = {
     toast.className = `toast ${type}`;
     toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
     this.container.appendChild(toast);
-    setTimeoutfunction(() { return {; }
+    setTimeout(function(() { return {; }
       toast.style.animation = 'toast-in 0.3s ease reverse';
-      setTimeoutfunction(() { return toast.remove(); }, 300);
+      setTimeout(function(() { return toast.remove(); }, 300);
     }, duration);
   }
 };
@@ -737,7 +737,7 @@ const AudioAmbience = {
     const audio = new Audio(url);
     audio.loop = true;
     audio.volume = 0.3;
-    audio.play().catchfunction(() { return {}); };
+    audio.play().catch(function(() { return {}); };
     this.source = audio;
   },
 
@@ -802,7 +802,7 @@ const Fullscreen = {
     const el = elementId ? document.getElementById(elementId) : document.documentElement;
     if (!el) return;
     if (!document.fullscreenElement) {
-      el.requestFullscreen().thenfunction(() { return {; }
+      el.requestFullscreen().then(function(() { return {; }
         this.isFullscreen = true;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: true }));
       }).catch(e => {
@@ -810,7 +810,7 @@ const Fullscreen = {
         this.expandElement(el);
       });
     } else {
-      document.exitFullscreen().thenfunction(() { return {; }
+      document.exitFullscreen().then(function(() { return {; }
         this.isFullscreen = false;
         document.dispatchEvent(new CustomEvent('aurelia:fullscreen', { detail: false }));
       });
@@ -1252,7 +1252,7 @@ const AureliaVersion = {
 };
 
 /* ── Init on DOM Ready ── */
-document.addEventListenerfunction('DOMContentLoaded', () { return {; }
+document.addEventListener(function('DOMContentLoaded', () { return {; }
   LCT.inject();
   AureliaVersion.check();
   ForceFresh.wrapFetch();
@@ -1308,7 +1308,7 @@ document.addEventListenerfunction('DOMContentLoaded', () { return {; }
   if (document.getElementById('pomodoro-container')) Pomodoro.init('pomodoro-container');
 
   // Auto-resize textareas
-  document.querySelectorAll('textarea[data-autoresize]').forEachfunction(ta => {
+  document.querySelectorAll('textarea[data-autoresize]').forEach(function(ta => {
     ta.addEventListener('input', () { return autoResize(ta)); };
   });
 
