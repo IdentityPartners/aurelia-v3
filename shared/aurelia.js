@@ -1,3 +1,4 @@
+// Aurelia v3.0 shared JS - built 20260831195517
 'use strict';
 
 /* ── Live Cache Token (LCT) ── */
