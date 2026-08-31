@@ -309,8 +309,7 @@ function formatText(text) {
     .replace(/>/g, '&gt;')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/
-/g, '<br>');
+    .replace(/\n/g, '<br>');
 }
 
 function newThread() {
@@ -647,10 +646,8 @@ function qkCtrl() { _ctrl = !_ctrl; _qkU(); }
 function qkCtrlShift() { _cs = !_cs; _sh = _cs; _ctrl = _cs; _qkU(); }
 function qkLeft() { var ta=document.getElementById('chat-textarea'); if(ta&&ta.selectionStart>0){ta.selectionStart=ta.selectionEnd=ta.selectionStart-1;ta.focus();} }
 function qkRight() { var ta=document.getElementById('chat-textarea'); if(ta){ta.selectionStart=ta.selectionEnd=ta.selectionStart+1;ta.focus();} }
-function qkUp() { var ta=document.getElementById('chat-textarea'); if(ta){var p=ta.value.lastIndexOf('
-',ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();} }
-function qkDown() { var ta=document.getElementById('chat-textarea'); if(ta){var p=ta.value.indexOf('
-',ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();} }
+function qkUp() { var ta=document.getElementById('chat-textarea'); if(ta){var p=ta.value.lastIndexOf('\n',ta.selectionStart-1);ta.selectionStart=ta.selectionEnd=p>0?p:0;ta.focus();} }
+function qkDown() { var ta=document.getElementById('chat-textarea'); if(ta){var p=ta.value.indexOf('\n',ta.selectionStart);ta.selectionStart=ta.selectionEnd=p>0?p+1:ta.value.length;ta.focus();} }
 function _qkU() {
   var s1=document.getElementById('qk-sh1'); if(s1)s1.classList.toggle('mon',_sh);
   var s2=document.getElementById('qk-sh2'); if(s2)s2.classList.toggle('mon',_sh);
