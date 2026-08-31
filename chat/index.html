@@ -325,7 +325,14 @@ function newThread() {
     empty = document.createElement('div');
     empty.id = 'empty-state';
     empty.className = 'empty-state';
-    empty.innerHTML = '<div class="empty-mark">A</div><div class="empty-title">Begin a conversation</div><div class="empty-sub">Aurelia routes to the best model for your task.</div><div class="starters"><div class="starter" onclick="setPrompt('Summarise my week')">Summarise my week</div><div class="starter" onclick="setPrompt('Draft an email')">Draft an email</div><div class="starter" onclick="setPrompt('Research AI agents')">Research AI agents</div></div>';
+    empty.innerHTML = '';
+    var mk = document.createElement('div'); mk.className = 'empty-mark'; mk.textContent = 'A'; empty.appendChild(mk);
+    var et = document.createElement('div'); et.className = 'empty-title'; et.textContent = 'Begin a conversation'; empty.appendChild(et);
+    var es = document.createElement('div'); es.className = 'empty-sub'; es.textContent = 'Aurelia routes to the best model for your task.'; empty.appendChild(es);
+    var sw = document.createElement('div'); sw.className = 'starters';
+    var prompts = ['Summarise my week', 'Draft an email', 'Research AI agents', 'LinkedIn post'];
+    prompts.forEach(function(p) { var d = document.createElement('div'); d.className = 'starter'; d.textContent = p; d.onclick = function() { setPrompt(p); }; sw.appendChild(d); });
+    empty.appendChild(sw);
   }
   empty.style.display = 'flex';
   mc.appendChild(empty);
